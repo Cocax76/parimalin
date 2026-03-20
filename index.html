@@ -103,7 +103,7 @@ section{padding:5rem 2rem;}
 .empty-state{text-align:center;padding:2.5rem;color:var(--muted);font-size:0.86rem;}
 .bonus-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.2rem;display:flex;flex-direction:column;gap:0.7rem;transition:border-color 0.2s,transform 0.2s;}
 .bonus-card:hover{border-color:var(--border);transform:translateY(-2px);}
-.bonus-card.completed{opacity:0.4;}
+/* bonus-card completed handled by JS doneView */
 .bk-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;}
 .bk-amount{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--acc);}
 .bk-type{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
@@ -382,15 +382,13 @@ body.light .hero-grid{opacity:0.15;}
   <div class="nav-logo">Pari<span>Malin</span>.fr</div>
   <div class="nav-links" id="navLinks">
     <a href="#dashboard">Dashboard</a>
-    <a href="#calculateur">Calculateur</a>
     <a href="#scanner">🔥 Scanner</a>
-    <a href="#bonus">Bonus ANJ</a>
+    <a href="#calculateur">Calculateur</a>
+    <a href="#valuemeter">Value Meter</a>
     <a href="#tracker">Tracker</a>
-    <a href="#simulateur">Simulateur</a>
-    <a href="#comparateur">Comparateur</a>
-    <a href="#notes">Notes</a>
-    <a href="#stats">Statistiques</a>
+    <a href="#journal">Journal</a>
     <a href="#checklist">Checklist</a>
+    <a href="#bonus">Bonus ANJ</a>
     <a href="#guide">Guide</a>
     <a href="#premium" class="nav-cta">Premium</a>
   </div>
@@ -476,88 +474,6 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- CALCULATEUR -->
-<section id="calculateur">
-  <div class="section-inner">
-    <span class="section-tag">Outil #1</span>
-    <div class="section-title">Calculateur de mises</div>
-    <p class="section-sub">3 modes : pari qualificatif, convertisseur freebet, double chance.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="calc-grid">
-      <div class="card">
-        <div class="tabs">
-          <button class="tab active" onclick="switchCalcTab('qualifying',this)">Qualificatif</button>
-          <button class="tab" onclick="switchCalcTab('freebet',this)">Freebet</button>
-          <button class="tab" onclick="switchCalcTab('double',this)">Double chance</button>
-        </div>
-        <div class="tab-section active" id="ct-qualifying">
-          <div class="calc-title"><span class="calc-dot"></span>Pari principal</div>
-          <div class="field-row">
-            <div class="field"><label>Bookmaker principal</label><select id="bk1" onchange="calculate()"></select></div>
-            <div class="field"><label>Mise (€)</label><input type="number" id="mise" value="100" min="1" oninput="calculate()"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>Cote choisie</label><input type="number" id="cote1" value="3.10" step="0.05" oninput="calculate()"></div>
-            <div class="field"><label>Marché</label><select id="mkt" onchange="calculate()"><option value="3way">1X2 (3 issues)</option><option value="2way">2 issues</option></select></div>
-          </div>
-          <div class="divider"></div>
-          <div class="calc-title"><span class="calc-dot"></span>Couverture</div>
-          <div class="field-row">
-            <div class="field"><label>Bookmaker couverture</label><select id="bk2" onchange="calculate()"></select></div>
-            <div class="field"><label>Cote adverse 1</label><input type="number" id="cote2" value="2.10" step="0.05" oninput="calculate()"></div>
-          </div>
-          <div class="field" id="cote3-field"><label>Cote nul (couverture 2)</label><input type="number" id="cote3" value="3.25" step="0.05" oninput="calculate()"></div>
-        </div>
-        <div class="tab-section" id="ct-freebet">
-          <div class="calc-title"><span class="calc-dot"></span>Ton freebet</div>
-          <div class="field-row">
-            <div class="field"><label>Bookmaker freebet</label><select id="fb_bk1"></select></div>
-            <div class="field"><label>Montant freebet (€)</label><input type="number" id="fb_val" value="100" oninput="calcFreebet()"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>Cote freebet (≥ 4.00)</label><input type="number" id="fb_c1" value="4.50" step="0.05" oninput="calcFreebet()"></div>
-            <div class="field"><label>Cote couverture</label><input type="number" id="fb_c2" value="4.20" step="0.05" oninput="calcFreebet()"></div>
-          </div>
-          <div class="field"><label>Bookmaker couverture</label><select id="fb_bk2"></select></div>
-          <div class="summary-box" style="margin-top:0.5rem;"><div class="summary-box-text" style="font-size:0.78rem;">💡 Vise des cotes ≥ 4.50 pour maximiser le taux de conversion de ton freebet.</div></div>
-        </div>
-        <div class="tab-section" id="ct-double">
-          <div class="calc-title"><span class="calc-dot"></span>Double chance</div>
-          <div class="field-row">
-            <div class="field"><label>Bookmaker A</label><select id="dc_bk1"></select></div>
-            <div class="field"><label>Mise totale (€)</label><input type="number" id="dc_mise" value="100" oninput="calcDouble()"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>Cote 1X (dom. ou nul)</label><input type="number" id="dc_c1" value="1.45" step="0.05" oninput="calcDouble()"></div>
-            <div class="field"><label>Cote X2 (nul ou ext.)</label><input type="number" id="dc_c2" value="1.55" step="0.05" oninput="calcDouble()"></div>
-          </div>
-          <div class="field"><label>Bookmaker B</label><select id="dc_bk2"></select></div>
-          <p style="font-size:0.77rem;color:var(--muted);margin-top:0.5rem;">Couvre 2 issues sur 3. Seul le résultat non couvert représente un risque.</p>
-        </div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Résultats</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;">
-          <div class="tstat"><div class="tstat-val acc" id="r-profit">—</div><div class="tstat-label">Profit estimé</div></div>
-          <div class="tstat"><div class="tstat-val" style="color:var(--warning);" id="r-roi">—</div><div class="tstat-label">ROI</div></div>
-          <div class="tstat"><div class="tstat-val" id="r-total">—</div><div class="tstat-label">Capital</div></div>
-        </div>
-        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;">
-          <div class="result-item"><span>Mise couverture 1</span><span class="result-val" style="color:var(--acc);" id="r-m2">—</span></div>
-          <div class="result-item" id="row-m3"><span>Mise couverture 2 (nul)</span><span class="result-val" style="color:var(--acc);" id="r-m3">—</span></div>
-        </div>
-        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.9rem 0 0.4rem;">Scénarios</div>
-        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;" id="scenarios"></div>
-        <div class="summary-box">
-          <div class="summary-box-title">Analyse</div>
-          <div class="summary-box-text" id="summary-text">Entre tes cotes pour voir l'analyse.</div>
-        </div>
-        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.9rem;font-size:0.83rem;padding:10px;" onclick="addFromCalc()">+ Enregistrer dans le tracker</button>
-      </div>
-    </div>
-    <style>#calc-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#calc-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
-<!-- SCANNER DE COTES IA -->
 <section id="scanner" style="background:var(--dark2);">
   <div class="section-inner">
     <span class="section-tag">Outil #2 — Temps Réel 🔥</span>
@@ -644,32 +560,135 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- BONUS -->
-<section id="bonus" style="background:var(--dark2);">
+<section id="calculateur">
   <div class="section-inner">
-    <span class="section-tag">Outil #3</span>
-    <div class="section-title">Bonus des 16 bookmakers ANJ</div>
-    <p class="section-sub">Coche ceux déjà exploités. Ton potentiel restant se met à jour automatiquement.</p>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem;text-align:center;" id="bonus-totals">
-      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-total">1 350€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bonus disponibles</div></div>
-      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-profit">736€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Profit estimé restant</div></div>
-      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-restants">16</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bookmakers restants</div></div>
-      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--success);" id="bt-done">0€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Déjà encaissé</div></div>
+    <span class="section-tag">Outil #1</span>
+    <div class="section-title">Calculateur de mises</div>
+    <p class="section-sub">3 modes : pari qualificatif, convertisseur freebet, double chance.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="calc-grid">
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" onclick="switchCalcTab('qualifying',this)">Qualificatif</button>
+          <button class="tab" onclick="switchCalcTab('freebet',this)">Freebet</button>
+          <button class="tab" onclick="switchCalcTab('double',this)">Double chance</button>
+        </div>
+        <div class="tab-section active" id="ct-qualifying">
+          <div class="calc-title"><span class="calc-dot"></span>Pari principal</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker principal</label><select id="bk1" onchange="calculate()"></select></div>
+            <div class="field"><label>Mise (€)</label><input type="number" id="mise" value="100" min="1" oninput="calculate()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote choisie</label><input type="number" id="cote1" value="3.10" step="0.05" oninput="calculate()"></div>
+            <div class="field"><label>Marché</label><select id="mkt" onchange="calculate()"><option value="3way">1X2 (3 issues)</option><option value="2way">2 issues</option></select></div>
+          </div>
+          <div class="divider"></div>
+          <div class="calc-title"><span class="calc-dot"></span>Couverture</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker couverture</label><select id="bk2" onchange="calculate()"></select></div>
+            <div class="field"><label>Cote adverse 1</label><input type="number" id="cote2" value="2.10" step="0.05" oninput="calculate()"></div>
+          </div>
+          <div class="field" id="cote3-field"><label>Cote nul (couverture 2)</label><input type="number" id="cote3" value="3.25" step="0.05" oninput="calculate()"></div>
+        </div>
+        <div class="tab-section" id="ct-freebet">
+          <div class="calc-title"><span class="calc-dot"></span>Ton freebet</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker freebet</label><select id="fb_bk1"></select></div>
+            <div class="field"><label>Montant freebet (€)</label><input type="number" id="fb_val" value="100" oninput="calcFreebet()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote freebet (≥ 4.00)</label><input type="number" id="fb_c1" value="4.50" step="0.05" oninput="calcFreebet()"></div>
+            <div class="field"><label>Cote couverture</label><input type="number" id="fb_c2" value="4.20" step="0.05" oninput="calcFreebet()"></div>
+          </div>
+          <div class="field"><label>Bookmaker couverture</label><select id="fb_bk2"></select></div>
+          <div class="summary-box" style="margin-top:0.5rem;"><div class="summary-box-text" style="font-size:0.78rem;">💡 Vise des cotes ≥ 4.50 pour maximiser le taux de conversion de ton freebet.</div></div>
+        </div>
+        <div class="tab-section" id="ct-double">
+          <div class="calc-title"><span class="calc-dot"></span>Double chance</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker A</label><select id="dc_bk1"></select></div>
+            <div class="field"><label>Mise totale (€)</label><input type="number" id="dc_mise" value="100" oninput="calcDouble()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote 1X (dom. ou nul)</label><input type="number" id="dc_c1" value="1.45" step="0.05" oninput="calcDouble()"></div>
+            <div class="field"><label>Cote X2 (nul ou ext.)</label><input type="number" id="dc_c2" value="1.55" step="0.05" oninput="calcDouble()"></div>
+          </div>
+          <div class="field"><label>Bookmaker B</label><select id="dc_bk2"></select></div>
+          <p style="font-size:0.77rem;color:var(--muted);margin-top:0.5rem;">Couvre 2 issues sur 3. Seul le résultat non couvert représente un risque.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Résultats</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;">
+          <div class="tstat"><div class="tstat-val acc" id="r-profit">—</div><div class="tstat-label">Profit estimé</div></div>
+          <div class="tstat"><div class="tstat-val" style="color:var(--warning);" id="r-roi">—</div><div class="tstat-label">ROI</div></div>
+          <div class="tstat"><div class="tstat-val" id="r-total">—</div><div class="tstat-label">Capital</div></div>
+        </div>
+        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;">
+          <div class="result-item"><span>Mise couverture 1</span><span class="result-val" style="color:var(--acc);" id="r-m2">—</span></div>
+          <div class="result-item" id="row-m3"><span>Mise couverture 2 (nul)</span><span class="result-val" style="color:var(--acc);" id="r-m3">—</span></div>
+        </div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.9rem 0 0.4rem;">Scénarios</div>
+        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;" id="scenarios"></div>
+        <div class="summary-box">
+          <div class="summary-box-title">Analyse</div>
+          <div class="summary-box-text" id="summary-text">Entre tes cotes pour voir l'analyse.</div>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.9rem;font-size:0.83rem;padding:10px;" onclick="addFromCalc()">+ Enregistrer dans le tracker</button>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;margin:1.2rem 0;flex-wrap:wrap;">
-      <button class="bfilter active" onclick="filterBonus('all',this)">Tous</button>
-      <button class="bfilter" onclick="filterBonus('freebet',this)">Freebet</button>
-      <button class="bfilter" onclick="filterBonus('rembourse',this)">Pari remboursé</button>
-      <button class="bfilter" onclick="filterBonus('todo',this)">À faire</button>
-      <button class="bfilter" onclick="filterBonus('done',this)">Exploités</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;" id="bonus-grid"></div>
+    <style>#calc-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#calc-grid{grid-template-columns:1fr;}}</style>
   </div>
 </section>
 
-<!-- TRACKER -->
+<!-- SCANNER DE COTES IA -->
+<section id="valuemeter" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #2</span>
+    <div class="section-title">Value Meter — Détecteur de valeur</div>
+    <p class="section-sub">Entre la probabilité réelle d'un événement et la cote proposée. L'outil calcule si le pari a de la valeur mathématique positive.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="vm-grid">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
+        <div class="field"><label>Cote proposée par le bookmaker</label><input type="number" id="vm-cote" value="2.50" step="0.05" oninput="calcValue()"></div>
+        <div class="field">
+          <label>Ta probabilité estimée (%)</label>
+          <input type="range" min="1" max="99" value="45" id="vm-prob" oninput="calcValue();document.getElementById('vm-prob-val').textContent=this.value+'%'" style="width:100%;accent-color:var(--acc);">
+          <div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="font-size:0.72rem;color:var(--muted);">1% (improbable)</span><span style="font-size:0.9rem;font-weight:700;color:var(--acc);" id="vm-prob-val">45%</span><span style="font-size:0.72rem;color:var(--muted);">99% (certain)</span></div>
+        </div>
+        <div class="field"><label>Mise envisagée (€)</label><input type="number" id="vm-mise" value="50" oninput="calcValue()"></div>
+        <div class="divider"></div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;">
+          <strong style="color:var(--text);">Comment estimer la probabilité ?</strong><br>
+          Regarde les stats des équipes, la forme récente, les confrontations directes. Pour un match PSG-Lens, si le PSG gagne 70% du temps historiquement sur les 2 ans → entre 70%.
+        </div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Analyse de valeur</div>
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;" id="vm-edge">+0.0%</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Edge / Avantage mathématique</div>
+        </div>
+        <div class="vm-gauge"><div class="vm-fill" id="vm-fill" style="width:50%;background:var(--acc)"></div></div>
+        <div class="vm-labels"><span>Pas de valeur</span><span>Neutre</span><span>Forte valeur</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0;">
+          <div class="tstat"><div class="tstat-val" id="vm-fair">—</div><div class="tstat-label">Cote juste</div></div>
+          <div class="tstat"><div class="tstat-val" id="vm-ev">—</div><div class="tstat-label">Espérance / mise</div></div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-box-title" id="vm-verdict-title">En attente</div>
+          <div class="summary-box-text" id="vm-verdict">Entre la cote et ta probabilité estimée pour voir l'analyse.</div>
+        </div>
+      </div>
+    </div>
+    <style>#vm-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#vm-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- STATISTIQUES -->
 <section id="tracker">
   <div class="section-inner">
-    <span class="section-tag">Outil #4</span>
+    <span class="section-tag">Outil #3</span>
     <div class="section-title">Tracker de profits</div>
     <p class="section-sub">Chaque opération est sauvegardée automatiquement sur ton appareil. Suppression individuelle possible.</p>
 
@@ -724,89 +743,258 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- SIMULATEUR -->
-<section id="simulateur" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #5</span>
-    <div class="section-title">Simulateur de revenus</div>
-    <p class="section-sub">Projette tes revenus sur 12 mois selon ton capital et ta cadence.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="sim-grid">
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
-        <div class="sim-slider-row"><label>Capital de départ</label><input type="range" min="100" max="2000" step="50" value="400" id="s-capital" oninput="simulate()"><span class="sv" id="sv-capital">400€</span></div>
-        <div class="sim-slider-row"><label>Opérations / semaine</label><input type="range" min="1" max="20" step="1" value="5" id="s-ops" oninput="simulate()"><span class="sv" id="sv-ops">5</span></div>
-        <div class="sim-slider-row"><label>Profit moyen / opération</label><input type="range" min="5" max="80" step="5" value="35" id="s-profit" oninput="simulate()"><span class="sv" id="sv-profit">35€</span></div>
-        <div class="sim-slider-row"><label>Taux de réinvestissement</label><input type="range" min="0" max="100" step="10" value="80" id="s-reinvest" oninput="simulate()"><span class="sv" id="sv-reinvest">80%</span></div>
-        <div class="divider"></div>
-        <div class="calc-title"><span class="calc-dot"></span>Résumé</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="sim-summary"></div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Projection 12 mois</div>
-        <div id="sim-months"></div>
-      </div>
-    </div>
-    <style>#sim-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#sim-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
-<!-- COMPARATEUR -->
-<section id="comparateur">
+<section id="stats" style="background:var(--dark2);">
   <div class="section-inner">
     <span class="section-tag">Outil #6</span>
-    <div class="section-title">Comparateur de cotes</div>
-    <p class="section-sub">Compare les cotes proposées par plusieurs bookmakers ANJ pour un même résultat.</p>
-    <div class="card" style="margin-top:2rem;">
-      <div class="calc-title"><span class="calc-dot"></span>Ajouter une cote</div>
-      <div style="display:grid;grid-template-columns:1fr 1.5fr 1fr auto;gap:10px;align-items:end;" id="comp-add-row">
-        <div class="field"><label>Bookmaker</label><select id="comp-bk"></select></div>
-        <div class="field"><label>Résultat</label><input type="text" id="comp-result" placeholder="ex: PSG gagne"></div>
-        <div class="field"><label>Cote</label><input type="number" id="comp-cote" placeholder="ex: 2.35" step="0.01"></div>
-        <div class="field"><label>&nbsp;</label><button class="btn-primary" style="padding:9px 14px;font-size:0.83rem;" onclick="addCote()">Ajouter</button></div>
-      </div>
-      <style>#comp-add-row{grid-template-columns:1fr 1.5fr 1fr auto;}@media(max-width:600px){#comp-add-row{grid-template-columns:1fr 1fr;}}</style>
-      <div style="display:flex;gap:10px;align-items:center;margin-top:0.6rem;flex-wrap:wrap;">
-        <div class="field" style="flex:1;margin:0;max-width:200px;"><label>Mise de référence (€)</label><input type="number" id="comp-mise" value="100" oninput="renderComp()"></div>
-        <button class="reset-btn" style="align-self:flex-end;" onclick="resetComp()">Effacer</button>
-      </div>
-    </div>
-    <div id="comp-table-wrap" style="display:none;margin-top:1rem;">
-      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;">
-        <div class="comp-header"><span>Bookmaker</span><span>Résultat</span><span>Cote</span><span>Gain potentiel</span><span></span></div>
-        <div id="comp-rows"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- NOTES -->
-<section id="notes" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #7</span>
-    <div class="section-title">Notes par bookmaker</div>
-    <p class="section-sub">Prends des notes sur chaque bookmaker — cotes intéressantes, alertes de limitation, astuces personnelles.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="notes-grid">
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Ajouter une note</div>
-        <div class="field"><label>Bookmaker</label><select id="note-bk"></select></div>
-        <div class="field"><label>Ta note</label><textarea id="note-text" placeholder="ex: Bwin - limite de 30€ sur les paris simples depuis le 15 mars..." style="width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;outline:none;resize:vertical;min-height:80px;transition:border-color 0.2s;"></textarea></div>
-        <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.85rem;" onclick="addNote()">Enregistrer la note</button>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
       <div>
-        <div class="calc-title"><span class="calc-dot"></span>Mes notes</div>
-        <div id="notes-list"><div class="empty-state">Aucune note enregistrée.</div></div>
+        <div class="section-title">Tableau de bord analytique</div>
+        <p class="section-sub">Toutes tes performances en un coup d'œil — graphiques, tableaux, edge réel, santé des comptes.</p>
+      </div>
+      <button onclick="exportStatsCSV()" class="export-btn" style="align-self:flex-start;margin-top:0.5rem;">⬇ Export CSV complet</button>
+    </div>
+
+    <!-- Onglets du tableau de bord -->
+    <div class="tabs" style="margin-bottom:1.5rem;">
+      <button class="tab active" onclick="switchStatsTab('vue',this)">📊 Vue générale</button>
+      <button class="tab" onclick="switchStatsTab('mensuel',this)">📅 Par mois</button>
+      <button class="tab" onclick="switchStatsTab('bookmaker',this)">🏦 Par bookmaker</button>
+      <button class="tab" onclick="switchStatsTab('edge',this)">📈 Analyse edge</button>
+    </div>
+
+    <!-- VUE GÉNÉRALE -->
+    <div class="tab-section active" id="st-vue">
+      <!-- KPIs row -->
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.8rem;margin-bottom:1.5rem;" id="stats-kpis">
+        <div class="scan-stat"><div class="scan-stat-val acc" id="sk-profit">0€</div><div class="scan-stat-label">Profit total</div></div>
+        <div class="scan-stat"><div class="scan-stat-val ok" id="sk-ops">0</div><div class="scan-stat-label">Paris totaux</div></div>
+        <div class="scan-stat"><div class="scan-stat-val" id="sk-winrate">—</div><div class="scan-stat-label">Win rate</div></div>
+        <div class="scan-stat"><div class="scan-stat-val" id="sk-roi">—</div><div class="scan-stat-label">ROI</div></div>
+        <div class="scan-stat"><div class="scan-stat-val" id="sk-avg">—</div><div class="scan-stat-label">Profit moyen/op</div></div>
+        <div class="scan-stat"><div class="scan-stat-val" id="sk-streak">—</div><div class="scan-stat-label">Série en cours</div></div>
+      </div>
+      <style>#stats-kpis{grid-template-columns:repeat(6,1fr);}@media(max-width:900px){#stats-kpis{grid-template-columns:repeat(3,1fr);}}@media(max-width:500px){#stats-kpis{grid-template-columns:1fr 1fr;}}</style>
+
+      <!-- Graphiques -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem;" id="stats-charts-row">
+        <div class="card">
+          <div class="calc-title"><span class="calc-dot"></span>Courbe de progression cumulée</div>
+          <div style="height:130px;position:relative;">
+            <svg id="cumul-svg" viewBox="0 0 400 120" preserveAspectRatio="none" style="width:100%;height:100%;">
+              <text x="200" y="65" text-anchor="middle" fill="var(--muted)" font-size="12">Aucune donnée</text>
+            </svg>
+          </div>
+        </div>
+        <div class="card">
+          <div class="calc-title"><span class="calc-dot"></span>Répartition par type</div>
+          <div class="donut-wrap">
+            <canvas id="d-donut" width="100" height="100"></canvas>
+            <div class="donut-legend" id="d-legend"><div style="color:var(--muted);font-size:0.77rem;text-align:center;">Aucune donnée</div></div>
+          </div>
+        </div>
+      </div>
+      <style>#stats-charts-row{grid-template-columns:2fr 1fr;}@media(max-width:700px){#stats-charts-row{grid-template-columns:1fr;}}</style>
+
+      <!-- Tableau récapitulatif par type -->
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Récapitulatif par type de pari</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.83rem;" id="type-summary-table">
+            <thead>
+              <tr style="background:var(--dark3);">
+                <th style="padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Type</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Nb paris</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Profit total</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Profit moyen</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Win rate</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Tendance</th>
+              </tr>
+            </thead>
+            <tbody id="type-summary-body">
+              <tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--muted);">Aucune donnée</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <style>#notes-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#notes-grid{grid-template-columns:1fr;}}</style>
+
+    <!-- PAR MOIS -->
+    <div class="tab-section" id="st-mensuel">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Performances mensuelles</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+            <thead>
+              <tr style="background:var(--dark3);">
+                <th style="padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Mois</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Paris</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Profit</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Moy/op</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Win rate</th>
+                <th style="padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Barre</th>
+              </tr>
+            </thead>
+            <tbody id="monthly-table-body">
+              <tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--muted);">Aucune opération enregistrée</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAR BOOKMAKER -->
+    <div class="tab-section" id="st-bookmaker">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Performances par bookmaker</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+            <thead>
+              <tr style="background:var(--dark3);">
+                <th style="padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Bookmaker</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Paris</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Profit</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Moy/op</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Win rate</th>
+                <th style="padding:9px 12px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Santé</th>
+                <th style="padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Barre</th>
+              </tr>
+            </thead>
+            <tbody id="bk-table-body">
+              <tr><td colspan="7" style="padding:1.5rem;text-align:center;color:var(--muted);">Aucune opération enregistrée</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSE EDGE -->
+    <div class="tab-section" id="st-edge">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" id="edge-grid">
+        <div class="card">
+          <div class="calc-title"><span class="calc-dot"></span>Calculateur d'edge réel</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">Compare ton edge théorique estimé à l'edge que tu réalises vraiment.</p>
+          <div class="field"><label>Mise moyenne par pari (€)</label><input type="number" id="edge-mise" value="10" oninput="calcEdgeReal()"></div>
+          <div class="field"><label>Edge théorique estimé (%)</label><input type="number" id="edge-theo" value="5" step="0.5" oninput="calcEdgeReal()"></div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="edge-results"></div>
+        </div>
+        <div class="card">
+          <div class="calc-title"><span class="calc-dot"></span>Santé des comptes bookmaker</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;">Risque de limitation basé sur ton volume de paris par bookmaker.</p>
+          <div id="health-grid" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+      <style>#edge-grid{grid-template-columns:1fr 1fr;}@media(max-width:700px){#edge-grid{grid-template-columns:1fr;}}</style>
+    </div>
+
   </div>
 </section>
 
-<!-- GUIDE -->
+<!-- CHECKLIST PRÉ-PARI -->
 
-<!-- MINUTEUR ANTI-ERREUR -->
+<!-- JOURNAL DE STRATÉGIE -->
+<section id="journal" style="background:var(--dark);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #5</span>
+    <div class="section-title">Journal de stratégie</div>
+    <p class="section-sub">Suis ton edge réel, ta discipline et ta progression semaine par semaine. Le seul moyen de savoir si ta stratégie fonctionne vraiment.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="journal-grid">
+
+      <!-- Stats clés -->
+      <div>
+        <div class="calc-title"><span class="calc-dot"></span>Tes métriques réelles</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;" id="journal-stats"></div>
+
+        <div class="calc-title"><span class="calc-dot"></span>Edge réel vs théorique</div>
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.2rem;" id="edge-chart">
+          <div style="color:var(--muted);font-size:0.83rem;text-align:center;padding:1rem;">Enregistre des opérations pour voir ton edge réel</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Discipline</div>
+        <div id="discipline-checks" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+
+      <!-- Entrées journal -->
+      <div>
+        <div class="calc-title"><span class="calc-dot"></span>Ajouter une note de session</div>
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="j-date" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Paris placés</label><input type="number" id="j-bets" placeholder="ex: 5" min="0"></div>
+            <div class="field"><label>Profit net (€)</label><input type="number" id="j-profit" placeholder="ex: +32" step="0.01"></div>
+          </div>
+          <div class="field">
+            <label>Type de session</label>
+            <select id="j-type" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
+              <option>Value betting</option>
+              <option>Surebet</option>
+              <option>Mixte</option>
+              <option>Bonus</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Note / Observation</label>
+            <textarea id="j-note" placeholder="ex: Bonne session sur le foot, edge confirmé sur Ligue 1..." style="width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;outline:none;resize:vertical;min-height:70px;"></textarea>
+          </div>
+          <div class="field">
+            <label>Discipline respectée ?</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button id="disc-yes" onclick="setDisc(true)" style="flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;transition:all 0.2s;">✅ Oui</button>
+              <button id="disc-no" onclick="setDisc(false)" style="flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;transition:all 0.2s;">❌ Non</button>
+            </div>
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.85rem;" onclick="addJournalEntry()">+ Enregistrer la session</button>
+        </div>
+
+        <div class="calc-title"><span class="calc-dot"></span>Historique des sessions</div>
+        <div id="journal-list"><div style="color:var(--muted);font-size:0.83rem;">Aucune session enregistrée.</div></div>
+      </div>
+    </div>
+    <style>#journal-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#journal-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<section id="checklist" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #6</span>
+    <div class="section-title">Checklist pré-pari</div>
+    <p class="section-sub">Coche chaque point avant de placer tes mises. Zéro erreur coûteuse = profits garantis.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="cl-grid">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+          <div class="calc-title" style="margin-bottom:0;"><span class="calc-dot"></span>Checklist du jour</div>
+          <button class="export-btn" onclick="resetChecklist()">↺ Réinitialiser</button>
+        </div>
+        <div class="checklist-progress"><div class="checklist-fill" id="cl-fill" style="width:0%"></div></div>
+        <div id="cl-status" style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">0 / 0 points validés</div>
+        <div id="checklist-items"></div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Ajouter un item personnalisé</div>
+        <div class="field"><label>Item de checklist</label><input type="text" id="cl-new-item" placeholder="ex: Vérifier les blessures avant de miser"></div>
+        <button class="btn-primary" style="font-size:0.83rem;padding:9px 16px;" onclick="addCheckItem()">+ Ajouter</button>
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Règles d'or rappel</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Ne jamais miser plus que ce que le calculateur indique</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Toujours ouvrir les 2 bookmakers avant de commencer</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Vérifier le solde de chaque compte avant chaque opération</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Capturer une screenshot des mises placées (preuve)</div>
+        </div>
+      </div>
+    </div>
+    <style>#cl-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#cl-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
 
 <section id="minuteur" style="background:var(--dark);">
   <div class="section-inner">
-    <span class="section-tag">Outil #8</span>
+    <span class="section-tag">Outil #7</span>
     <div class="section-title">Minuteur anti-panique</div>
     <p class="section-sub">Lance le timer dès que tu places le premier pari. Tu as X secondes pour placer la couverture et éviter toute erreur de précipitation.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="timer-grid">
@@ -859,116 +1047,37 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- VALUE METER -->
-<section id="valuemeter" style="background:var(--dark2);">
+<section id="bonus" style="background:var(--dark2);">
   <div class="section-inner">
-    <span class="section-tag">Outil #9</span>
-    <div class="section-title">Value Meter — Détecteur de valeur</div>
-    <p class="section-sub">Entre la probabilité réelle d'un événement et la cote proposée. L'outil calcule si le pari a de la valeur mathématique positive.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="vm-grid">
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
-        <div class="field"><label>Cote proposée par le bookmaker</label><input type="number" id="vm-cote" value="2.50" step="0.05" oninput="calcValue()"></div>
-        <div class="field">
-          <label>Ta probabilité estimée (%)</label>
-          <input type="range" min="1" max="99" value="45" id="vm-prob" oninput="calcValue();document.getElementById('vm-prob-val').textContent=this.value+'%'" style="width:100%;accent-color:var(--acc);">
-          <div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="font-size:0.72rem;color:var(--muted);">1% (improbable)</span><span style="font-size:0.9rem;font-weight:700;color:var(--acc);" id="vm-prob-val">45%</span><span style="font-size:0.72rem;color:var(--muted);">99% (certain)</span></div>
-        </div>
-        <div class="field"><label>Mise envisagée (€)</label><input type="number" id="vm-mise" value="50" oninput="calcValue()"></div>
-        <div class="divider"></div>
-        <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;">
-          <strong style="color:var(--text);">Comment estimer la probabilité ?</strong><br>
-          Regarde les stats des équipes, la forme récente, les confrontations directes. Pour un match PSG-Lens, si le PSG gagne 70% du temps historiquement sur les 2 ans → entre 70%.
-        </div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Analyse de valeur</div>
-        <div style="text-align:center;margin-bottom:1rem;">
-          <div style="font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;" id="vm-edge">+0.0%</div>
-          <div style="font-size:0.75rem;color:var(--muted);">Edge / Avantage mathématique</div>
-        </div>
-        <div class="vm-gauge"><div class="vm-fill" id="vm-fill" style="width:50%;background:var(--acc)"></div></div>
-        <div class="vm-labels"><span>Pas de valeur</span><span>Neutre</span><span>Forte valeur</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0;">
-          <div class="tstat"><div class="tstat-val" id="vm-fair">—</div><div class="tstat-label">Cote juste</div></div>
-          <div class="tstat"><div class="tstat-val" id="vm-ev">—</div><div class="tstat-label">Espérance / mise</div></div>
-        </div>
-        <div class="summary-box">
-          <div class="summary-box-title" id="vm-verdict-title">En attente</div>
-          <div class="summary-box-text" id="vm-verdict">Entre la cote et ta probabilité estimée pour voir l'analyse.</div>
+    <span class="section-tag">Outil #8</span>
+    <div class="section-title">Bonus des 16 bookmakers ANJ</div>
+    <p class="section-sub">Coche ceux déjà exploités. Ton potentiel restant se met à jour automatiquement.</p>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem;text-align:center;" id="bonus-totals">
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-total">1 350€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bonus disponibles</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-profit">736€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Profit estimé restant</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-restants">16</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bookmakers restants</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--success);" id="bt-done">0€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Déjà encaissé</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin:1.2rem 0;flex-wrap:wrap;align-items:center;">
+      <button class="bfilter active" onclick="filterBonus('all',this)">Tous</button>
+      <button class="bfilter" onclick="filterBonus('freebet',this)">Freebet</button>
+      <button class="bfilter" onclick="filterBonus('rembourse',this)">Pari remboursé</button>
+      <button class="bfilter" onclick="filterBonus('todo',this)">À faire</button>
+      <button class="bfilter" onclick="filterBonus('done',this)">Exploités</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:0.75rem;color:var(--muted);">Bonus exploités :</span>
+        <div style="display:flex;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
+          <button id="view-all-btn" onclick="setDoneView('all')" style="padding:5px 12px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:rgba(255,107,26,0.12);color:var(--acc);font-weight:700;transition:all 0.2s;">Transparents</button>
+          <button id="view-hide-btn" onclick="setDoneView('hide')" style="padding:5px 12px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;">Masqués</button>
+          <button id="view-show-btn" onclick="setDoneView('show')" style="padding:5px 12px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;">Visibles</button>
         </div>
       </div>
     </div>
-    <style>#vm-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#vm-grid{grid-template-columns:1fr;}}</style>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;" id="bonus-grid"></div>
   </div>
 </section>
 
-<!-- STATISTIQUES -->
-<section id="stats">
-  <div class="section-inner">
-    <span class="section-tag">Outil #10</span>
-    <div class="section-title">Statistiques avancées</div>
-    <p class="section-sub">Analyse détaillée de tes performances — par mois, par bookmaker, par type d'opération.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="stats-grid">
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Progression cumulée</div>
-        <div class="cumul-chart" id="cumul-chart-wrap">
-          <svg class="cumul-svg" id="cumul-svg" viewBox="0 0 400 120" preserveAspectRatio="none">
-            <text x="200" y="65" text-anchor="middle" fill="var(--muted)" font-size="12">Aucune donnée</text>
-          </svg>
-        </div>
-        <div class="calc-title" style="margin-top:1rem;"><span class="calc-dot"></span>Profits par mois</div>
-        <div id="monthly-stats"><div style="color:var(--muted);font-size:0.83rem;padding:0.5rem 0;">Aucune opération enregistrée.</div></div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Par bookmaker</div>
-        <div id="bk-stats"><div style="color:var(--muted);font-size:0.83rem;">Aucune donnée.</div></div>
-        <div class="divider"></div>
-        <div class="calc-title"><span class="calc-dot"></span>Par type d'opération</div>
-        <div id="type-stats"><div style="color:var(--muted);font-size:0.83rem;">Aucune donnée.</div></div>
-        <div class="divider"></div>
-        <div class="calc-title"><span class="calc-dot"></span>Santé des comptes</div>
-        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;">Basé sur le nombre d'opérations par bookmaker — varie tes mises si tu dépasses 10 ops.</p>
-        <div class="health-grid" id="health-grid"></div>
-      </div>
-    </div>
-    <style>#stats-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#stats-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
-<!-- CHECKLIST PRÉ-PARI -->
-<section id="checklist" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #11</span>
-    <div class="section-title">Checklist pré-pari</div>
-    <p class="section-sub">Coche chaque point avant de placer tes mises. Zéro erreur coûteuse = profits garantis.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="cl-grid">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-          <div class="calc-title" style="margin-bottom:0;"><span class="calc-dot"></span>Checklist du jour</div>
-          <button class="export-btn" onclick="resetChecklist()">↺ Réinitialiser</button>
-        </div>
-        <div class="checklist-progress"><div class="checklist-fill" id="cl-fill" style="width:0%"></div></div>
-        <div id="cl-status" style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">0 / 0 points validés</div>
-        <div id="checklist-items"></div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Ajouter un item personnalisé</div>
-        <div class="field"><label>Item de checklist</label><input type="text" id="cl-new-item" placeholder="ex: Vérifier les blessures avant de miser"></div>
-        <button class="btn-primary" style="font-size:0.83rem;padding:9px 16px;" onclick="addCheckItem()">+ Ajouter</button>
-        <div class="divider"></div>
-        <div class="calc-title"><span class="calc-dot"></span>Règles d'or rappel</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Ne jamais miser plus que ce que le calculateur indique</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Toujours ouvrir les 2 bookmakers avant de commencer</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Vérifier le solde de chaque compte avant chaque opération</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Capturer une screenshot des mises placées (preuve)</div>
-        </div>
-      </div>
-    </div>
-    <style>#cl-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#cl-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
+<!-- TRACKER -->
 <section id="guide">
   <div class="section-inner">
     <span class="section-tag">Pour débutants</span>
@@ -1017,22 +1126,6 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- BLOG -->
-<section id="blog" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Ressources</span>
-    <div class="section-title">Blog & guides</div>
-    <p class="section-sub">Stratégies, analyses et tutoriels pour maximiser tes profits.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.3rem;margin-top:2rem;">
-      <div class="blog-card"><div class="blog-img bg1">💡</div><div class="blog-body"><div class="blog-tag">Guide</div><div class="blog-title">Comment exploiter le bonus Bwin en 2026</div><div class="blog-excerpt">Tout ce qu'il faut savoir sur le bonus de bienvenue Bwin, étape par étape avec calculs inclus.</div><div class="blog-meta"><span>5 min</span><span>Débutant</span></div></div></div>
-      <div class="blog-card"><div class="blog-img bg2">📊</div><div class="blog-body"><div class="blog-tag">Stratégie</div><div class="blog-title">De 200€ à 500€/mois sans exchange</div><div class="blog-excerpt">Comment scaler ses gains une fois les bonus épuisés, uniquement avec des bookmakers ANJ français.</div><div class="blog-meta"><span>8 min</span><span>Intermédiaire</span></div></div></div>
-      <div class="blog-card"><div class="blog-img bg3">🏆</div><div class="blog-body"><div class="blog-tag">Comparatif</div><div class="blog-title">Top 5 bookmakers ANJ pour le matched betting</div><div class="blog-excerpt">Classement selon la qualité des bonus, la liquidité des cotes et le risque de limitation de compte.</div><div class="blog-meta"><span>6 min</span><span>Tous niveaux</span></div></div></div>
-      <div class="blog-card"><div class="blog-img bg4">🤖</div><div class="blog-body"><div class="blog-tag">IA</div><div class="blog-title">Utiliser ChatGPT pour trouver les meilleures cotes</div><div class="blog-excerpt">Comment l'IA peut t'aider à analyser les cotes et identifier les value bets rapidement.</div><div class="blog-meta"><span>7 min</span><span>Avancé</span></div></div></div>
-      <div class="blog-card"><div class="blog-img bg5">🛡️</div><div class="blog-body"><div class="blog-tag">Sécurité</div><div class="blog-title">Éviter la limitation de compte : les règles d'or</div><div class="blog-excerpt">Les bonnes pratiques pour durer le plus longtemps possible sur chaque bookmaker ANJ.</div><div class="blog-meta"><span>5 min</span><span>Intermédiaire</span></div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- PREMIUM -->
 <section id="premium">
   <div class="section-inner">
     <span class="section-tag">Futur</span>
@@ -1078,9 +1171,9 @@ body.light .hero-grid{opacity:0.15;}
   <div class="footer-inner">
     <div class="footer-grid">
       <div><div class="footer-logo">PariMalin.fr</div><div class="footer-desc">Le premier outil de matched betting 100% adapté au marché français. 16 bookmakers ANJ, 6 outils intégrés, sauvegarde locale automatique.</div></div>
-      <div><div class="footer-col-title">Outils</div><ul class="footer-links"><li><a href="#calculateur">Calculateur</a></li><li><a href="#bonus">Bonus ANJ</a></li><li><a href="#tracker">Tracker</a></li><li><a href="#simulateur">Simulateur</a></li><li><a href="#comparateur">Comparateur</a>
-    <a href="#scanner">🔥 Scanner</a></li><li><a href="#notes">Notes</a></li></ul></div>
-      <div><div class="footer-col-title">Ressources</div><ul class="footer-links"><li><a href="#guide">Guide débutant</a></li><li><a href="#guide">FAQ</a></li><li><a href="#guide">Glossaire</a></li><li><a href="#blog">Blog</a></li></ul></div>
+      <div><div class="footer-col-title">Outils</div><ul class="footer-links"><li><a href="#calculateur">Calculateur</a></li><li><a href="#bonus">Bonus ANJ</a></li><li><a href="#tracker">Tracker</a></li><li><a href="#comparateur">Comparateur</a>
+    <a href="#scanner">🔥 Scanner</a></li></ul></div>
+      <div><div class="footer-col-title">Ressources</div><ul class="footer-links"><li><a href="#guide">Guide débutant</a></li><li><a href="#guide">FAQ</a></li><li><a href="#guide">Glossaire</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <div class="footer-legal">⚠️ Le jeu comporte des risques : endettement, isolement, dépendance. Pour être aidé : <strong>09-74-75-13-13</strong>. PariMalin.fr est un outil de calcul personnel. Réservé aux majeurs. Jouez de manière responsable.</div>
@@ -1146,7 +1239,7 @@ function showToast(msg,type='info'){
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open');}
 
 window.addEventListener('scroll',()=>{
-  const ids=['dashboard','calculateur','bonus','tracker','simulateur','comparateur','notes','guide','premium'];
+  const ids=['dashboard','scanner','calculateur','valuemeter','tracker','stats','journal','checklist','minuteur','bonus','guide','premium'];
   let cur='';
   ids.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-80)cur=id;});
   document.querySelectorAll('.nav-links a').forEach(a=>{a.classList.remove('active');if(a.getAttribute('href')==='#'+cur)a.classList.add('active');});
@@ -1239,6 +1332,29 @@ function addFromCalc(){
 
 // BONUS
 let bFilter='all';
+let doneView = localStorage.getItem('pm_done_view') || 'all'; // 'all'=transparent, 'hide'=masqué, 'show'=visible
+
+function setDoneView(mode) {
+  doneView = mode;
+  localStorage.setItem('pm_done_view', mode);
+  // Update button styles
+  const btns = {all:'view-all-btn', hide:'view-hide-btn', show:'view-show-btn'};
+  Object.entries(btns).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (k === mode) {
+      el.style.background = 'rgba(255,107,26,0.12)';
+      el.style.color = 'var(--acc)';
+      el.style.fontWeight = '700';
+    } else {
+      el.style.background = 'transparent';
+      el.style.color = 'var(--muted)';
+      el.style.fontWeight = '400';
+    }
+  });
+  renderBonusGrid();
+}
+
 function filterBonus(f,btn){bFilter=f;document.querySelectorAll('#bonus .bfilter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderBonusGrid();}
 function renderBonusGrid(){
   const grid=document.getElementById('bonus-grid');
@@ -1250,9 +1366,13 @@ function renderBonusGrid(){
     if(bFilter==='rembourse'&&bk.type!=='rembourse')return;
     if(bFilter==='todo'&&done)return;
     if(bFilter==='done'&&!done)return;
+    // Handle doneView modes
+    if(done && doneView==='hide') return; // masqué = skip completement
     const tc=bk.type==='freebet'?'type-freebet':'type-rembourse';
     const tl=bk.type==='freebet'?'Freebet':'Pari remboursé';
-    html+=`<div class="bonus-card${done?' completed':''}">
+    // transparent = opacity 0.35 + no hover, show = full opacity
+    const cardStyle = done && doneView==='all' ? 'opacity:0.35;pointer-events:none;filter:grayscale(0.3);' : '';
+    html+=`<div class="bonus-card" style="${cardStyle}">
       <div style="display:flex;justify-content:space-between;align-items:center;"><span class="bk-name">${bk.name}</span><span class="bk-amount">+${bk.bonus}€</span></div>
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
         <span class="bk-type ${tc}">${tl}</span>
@@ -1568,125 +1688,251 @@ function calcValue() {
   }
 }
 
-// ===== STATS AVANCÉES =====
+// ===== STATS AVANCÉES V2 =====
+function switchStatsTab(id, btn) {
+  document.querySelectorAll('#stats .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#stats .tab-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('st-' + id).classList.add('active');
+}
+
+function calcEdgeReal() {
+  const mise = parseFloat(document.getElementById('edge-mise')?.value) || 10;
+  const theo = parseFloat(document.getElementById('edge-theo')?.value) || 5;
+  const total = trades.reduce((s, t) => s + t.profit, 0);
+  const totalMise = trades.length * mise;
+  const roiReel = totalMise > 0 ? (total / totalMise * 100) : 0;
+  const ratio = theo > 0 ? (roiReel / theo * 100) : 0;
+  const profitTheo = totalMise * (theo / 100);
+  const ecart = total - profitTheo;
+
+  const col = roiReel > 0 ? 'var(--success)' : 'var(--danger)';
+  const verdict = roiReel >= theo * 0.8 ? '✅ Edge confirmé — stratégie validée'
+    : roiReel > 0 ? '⚠️ Edge marginal — continue 200+ paris'
+    : '❌ ROI négatif — analyse avant de continuer';
+  const verdictCol = roiReel >= theo * 0.8 ? 'var(--success)' : roiReel > 0 ? 'var(--warning)' : 'var(--danger)';
+
+  const el = document.getElementById('edge-results');
+  if (!el) return;
+  el.innerHTML = [
+    { l: 'Bankroll engagée estimée', v: totalMise.toFixed(0) + '€', c: 'var(--text)' },
+    { l: 'Profit réel', v: (total >= 0 ? '+' : '') + total.toFixed(2) + '€', c: col },
+    { l: 'ROI réel', v: roiReel.toFixed(2) + '%', c: col },
+    { l: 'Profit théorique attendu', v: (profitTheo >= 0 ? '+' : '') + profitTheo.toFixed(2) + '€', c: 'var(--muted)' },
+    { l: 'Écart réel vs théorique', v: (ecart >= 0 ? '+' : '') + ecart.toFixed(2) + '€', c: ecart >= 0 ? 'var(--success)' : 'var(--danger)' },
+  ].map(r => `<div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--dark3);border-radius:var(--radius-sm);font-size:0.83rem;">
+    <span style="color:var(--muted)">${r.l}</span>
+    <span style="font-weight:700;color:${r.c}">${r.v}</span>
+  </div>`).join('') +
+  `<div style="padding:8px 12px;background:rgba(255,107,26,0.06);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.83rem;font-weight:700;color:${verdictCol};margin-top:4px;">${verdict}</div>`;
+}
+
+function exportStatsCSV() {
+  if (!trades.length) { showToast('Aucune donnée à exporter', 'err'); return; }
+  const rows = [['Date','Match','Bookmaker','Type','Profit (€)'],...trades.map(t=>[t.date,t.match,t.bk,t.type,t.profit])];
+  const csv = rows.map(r => r.join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'parimalin_stats_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ Export CSV téléchargé !', 'ok');
+}
+
 function renderStats() {
   if (!trades.length) {
-    ['monthly-stats','bk-stats','type-stats','health-grid'].forEach(id => {
+    ['monthly-table-body','bk-table-body','type-summary-body'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = '<div style="color:var(--muted);font-size:0.83rem;padding:0.5rem 0;">Aucune opération enregistrée.</div>';
+      const cols = id === 'bk-table-body' ? 7 : 6;
+      if (el) el.innerHTML = `<tr><td colspan="${cols}" style="padding:1.5rem;text-align:center;color:var(--muted);">Aucune opération enregistrée</td></tr>`;
+    });
+    ['sk-profit','sk-ops','sk-winrate','sk-roi','sk-avg','sk-streak'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = id === 'sk-profit' ? '0€' : id === 'sk-ops' ? '0' : '—';
     });
     const svg = document.getElementById('cumul-svg');
     if (svg) svg.innerHTML = '<text x="200" y="65" text-anchor="middle" fill="var(--muted)" font-size="12">Aucune donnée</text>';
+    renderHealthGrid();
+    calcEdgeReal();
     return;
   }
 
-  // Monthly stats
-  const byMonth = {};
-  trades.forEach(t => {
-    const parts = t.date ? t.date.split('/') : [];
-    const key = parts.length >= 2 ? parts[1] + '/' + (parts[2] || '26') : 'N/A';
-    if (!byMonth[key]) byMonth[key] = { profit: 0, ops: 0 };
-    byMonth[key].profit += t.profit;
-    byMonth[key].ops++;
-  });
-  const months = Object.entries(byMonth).sort((a, b) => a[0].localeCompare(b[0]));
-  const maxP = Math.max(...months.map(([, v]) => Math.abs(v.profit)), 1);
-  let mHtml = '<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">';
-  months.forEach(([month, data]) => {
-    const barW = Math.min(100, Math.abs(data.profit) / maxP * 100);
-    const cls = data.profit >= 0 ? 'var(--success)' : 'var(--danger)';
-    mHtml += `<div class="monthly-row">
-      <span style="min-width:60px;color:var(--muted);font-size:0.78rem">${month}</span>
-      <div class="monthly-bar"><div class="monthly-fill" style="width:${barW}%;background:${cls};"></div></div>
-      <span style="font-weight:700;color:${cls};min-width:60px;text-align:right">${data.profit >= 0 ? '+' : ''}${data.profit.toFixed(0)}€</span>
-      <span style="color:var(--muted);font-size:0.78rem;min-width:40px;text-align:right">${data.ops} op.</span>
-    </div>`;
-  });
-  mHtml += '</div>';
-  document.getElementById('monthly-stats').innerHTML = mHtml;
+  // ── KPIs ──
+  const total = trades.reduce((s,t) => s+t.profit, 0);
+  const wins = trades.filter(t => t.profit >= 0).length;
+  const winrate = Math.round(wins/trades.length*100);
+  const avg = total/trades.length;
+  const roi = trades.length > 0 ? (total/(trades.length*10)*100) : 0;
 
-  // By bookmaker
-  const byBk = {};
-  trades.forEach(t => {
-    if (!byBk[t.bk]) byBk[t.bk] = { profit: 0, ops: 0 };
-    byBk[t.bk].profit += t.profit; byBk[t.bk].ops++;
-  });
-  const bkEntries = Object.entries(byBk).sort((a, b) => b[1].profit - a[1].profit);
-  const maxBk = Math.max(...bkEntries.map(([, v]) => Math.abs(v.profit)), 1);
-  let bkHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
-  bkEntries.forEach(([bk, data]) => {
-    const bw = Math.min(100, Math.abs(data.profit) / maxBk * 100);
-    const cls = data.profit >= 0 ? 'var(--success)' : 'var(--danger)';
-    bkHtml += `<div style="font-size:0.82rem;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-        <span>${bk}</span>
-        <span style="font-weight:700;color:${cls}">${data.profit >= 0 ? '+' : ''}${data.profit.toFixed(0)}€ · ${data.ops} op.</span>
-      </div>
-      <div style="height:5px;background:var(--dark3);border-radius:3px;overflow:hidden;">
-        <div style="height:100%;width:${bw}%;background:${cls};border-radius:3px;"></div>
-      </div>
-    </div>`;
-  });
-  bkHtml += '</div>';
-  document.getElementById('bk-stats').innerHTML = bkHtml;
+  // Streak
+  let streak = 0, streakType = '';
+  for (let t of trades) {
+    if (streak === 0) { streak = 1; streakType = t.profit >= 0 ? '+' : '-'; }
+    else if ((t.profit >= 0 && streakType === '+') || (t.profit < 0 && streakType === '-')) streak++;
+    else break;
+  }
 
-  // By type
-  const types = ['Bonus bienvenue', 'Freebet', 'Surebet', 'Value bet'];
-  let typeHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
-  types.forEach(tp => {
-    const tTrades = trades.filter(t => t.type === tp);
-    if (!tTrades.length) return;
-    const tProfit = tTrades.reduce((s, t) => s + t.profit, 0);
-    typeHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--dark3);border-radius:var(--radius-sm);font-size:0.82rem;">
-      <span>${tp}</span>
-      <span style="color:var(--muted);font-size:0.75rem;">${tTrades.length} op.</span>
-      <span style="font-weight:700;color:${tProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${tProfit >= 0 ? '+' : ''}${tProfit.toFixed(0)}€</span>
-    </div>`;
-  });
-  typeHtml += '</div>';
-  document.getElementById('type-stats').innerHTML = typeHtml;
+  const profitEl = document.getElementById('sk-profit');
+  if (profitEl) { profitEl.textContent = (total>=0?'+':'')+total.toFixed(0)+'€'; profitEl.style.color = total>=0?'var(--success)':'var(--danger)'; }
+  const opsEl = document.getElementById('sk-ops'); if (opsEl) opsEl.textContent = trades.length;
+  const wrEl = document.getElementById('sk-winrate'); if (wrEl) { wrEl.textContent = winrate+'%'; wrEl.style.color = winrate>=52?'var(--success)':'var(--warning)'; }
+  const roiEl = document.getElementById('sk-roi'); if (roiEl) { roiEl.textContent = roi.toFixed(1)+'%'; roiEl.style.color = roi>0?'var(--success)':'var(--danger)'; }
+  const avgEl = document.getElementById('sk-avg'); if (avgEl) { avgEl.textContent = (avg>=0?'+':'')+avg.toFixed(1)+'€'; avgEl.style.color = avg>=0?'var(--success)':'var(--danger)'; }
+  const strEl = document.getElementById('sk-streak'); if (strEl) { strEl.textContent = streakType+streak; strEl.style.color = streakType==='+'?'var(--success)':'var(--danger)'; }
 
-  // Health grid
-  const healthBks = BKS.slice(0, 8);
-  let hHtml = '';
-  healthBks.forEach(bk => {
-    const bkOps = trades.filter(t => t.bk === bk.name).length;
-    const score = Math.max(0, 100 - bkOps * 8);
-    const cls = score > 60 ? 'good' : score > 30 ? 'warn' : 'bad';
-    const label = score > 60 ? '✅ Sain' : score > 30 ? '⚠️ Surveiller' : '🔴 Risque élevé';
-    hHtml += `<div class="health-card">
-      <div class="health-name">${bk.name}</div>
-      <div class="health-bar"><div class="health-fill ${cls}" style="width:${score}%"></div></div>
-      <div class="health-label">${label} · ${bkOps} op.</div>
-    </div>`;
-  });
-  document.getElementById('health-grid').innerHTML = hHtml || '<div style="color:var(--muted);font-size:0.83rem;">Aucune opération enregistrée.</div>';
-
-  // Cumulative chart SVG
+  // ── Cumulative SVG ──
   const sorted = [...trades].reverse();
   if (sorted.length > 1) {
     let cumul = 0;
     const points = sorted.map(t => { cumul += t.profit; return cumul; });
-    const minP = Math.min(0, ...points);
-    const maxPt = Math.max(1, ...points);
-    const range = maxPt - minP;
-    const svgPoints = points.map((p, i) => {
-      const x = 10 + (i / (points.length - 1)) * 380;
-      const y = 110 - ((p - minP) / range) * 100;
-      return `${x},${y}`;
-    }).join(' ');
-    const lastP = points[points.length - 1];
+    const minP = Math.min(0, ...points), maxPt = Math.max(1, ...points);
+    const range = maxPt - minP || 1;
+    const svgPoints = points.map((p,i) => `${10+(i/(points.length-1))*380},${110-((p-minP)/range)*100}`).join(' ');
+    const lastP = points[points.length-1];
     const color = lastP >= 0 ? 'var(--success)' : 'var(--danger)';
-    const svg = `<polyline points="${svgPoints}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-    ${points.map((p, i) => {
-      const x = 10 + (i / (points.length - 1)) * 380;
-      const y = 110 - ((p - minP) / range) * 100;
-      return `<circle cx="${x}" cy="${y}" r="3" fill="${color}" opacity="0.7"/>`;
-    }).join('')}
-    <text x="390" y="${110 - ((lastP - minP) / range) * 100 - 5}" text-anchor="end" fill="${color}" font-size="11" font-weight="700">${lastP >= 0 ? '+' : ''}${lastP.toFixed(0)}€</text>`;
-    document.getElementById('cumul-svg').innerHTML = svg;
+    // Zero line
+    const zeroY = 110-((0-minP)/range)*100;
+    const svg = document.getElementById('cumul-svg');
+    if (svg) svg.innerHTML = `
+      <line x1="10" y1="${zeroY}" x2="390" y2="${zeroY}" stroke="var(--border2)" stroke-width="1" stroke-dasharray="4"/>
+      <polyline points="${svgPoints}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${points.map((p,i)=>{const x=10+(i/(points.length-1))*380;const y=110-((p-minP)/range)*100;return `<circle cx="${x}" cy="${y}" r="3" fill="${color}" opacity="0.7"/>`;}).join('')}
+      <text x="390" y="${Math.max(12, 110-((lastP-minP)/range)*100-5)}" text-anchor="end" fill="${color}" font-size="11" font-weight="700">${lastP>=0?'+':''}${lastP.toFixed(0)}€</text>`;
   }
+
+  // ── Donut ──
+  const types = ['Bonus bienvenue','Freebet','Surebet','Value bet'];
+  const colors = ['#FF6B1A','#00c96b','#ffb800','#4a9eff'];
+  const counts = types.map(tp => trades.filter(t=>t.type===tp).length);
+  const totalOps = trades.length||1;
+  const canvas = document.getElementById('d-donut');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,100,100);
+    let start = -Math.PI/2;
+    counts.forEach((c,i) => {
+      if (!c) return;
+      const slice = (c/totalOps)*Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(50,50); ctx.arc(50,50,46,start,start+slice); ctx.closePath();
+      ctx.fillStyle = colors[i]; ctx.fill(); start += slice;
+    });
+    ctx.beginPath(); ctx.arc(50,50,28,0,Math.PI*2); ctx.fillStyle='#2d2018'; ctx.fill();
+    let legend = '';
+    types.forEach((tp,i) => { if(!counts[i]) return; legend += `<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span><span>${tp}</span><span style="margin-left:auto;font-weight:600">${counts[i]}</span></div>`; });
+    const legEl = document.getElementById('d-legend');
+    if (legEl) legEl.innerHTML = legend || '<div style="color:var(--muted);font-size:0.77rem;text-align:center;">Aucune donnée</div>';
+  }
+
+  // ── Type summary table ──
+  const tbody = document.getElementById('type-summary-body');
+  if (tbody) {
+    let rows = '';
+    types.forEach((tp, ti) => {
+      const tTrades = trades.filter(t => t.type === tp);
+      if (!tTrades.length) return;
+      const tProfit = tTrades.reduce((s,t) => s+t.profit, 0);
+      const tWins = tTrades.filter(t => t.profit >= 0).length;
+      const tWR = Math.round(tWins/tTrades.length*100);
+      const tAvg = tProfit/tTrades.length;
+      const recent3 = tTrades.slice(0,3).map(t=>t.profit);
+      const trend = recent3.length >= 2 ? (recent3[0] > recent3[recent3.length-1] ? '📈' : '📉') : '—';
+      const bg = ti % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)';
+      rows += `<tr style="background:${bg};">
+        <td style="padding:9px 12px;font-weight:600;"><span class="chip">${tp}</span></td>
+        <td style="padding:9px 12px;text-align:center;color:var(--muted);">${tTrades.length}</td>
+        <td style="padding:9px 12px;text-align:center;font-weight:700;color:${tProfit>=0?'var(--success)':'var(--danger)'};">${tProfit>=0?'+':''}${tProfit.toFixed(0)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${tAvg>=0?'var(--success)':'var(--danger)'};">${tAvg>=0?'+':''}${tAvg.toFixed(1)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${tWR>=52?'var(--success)':'var(--warning)'};">${tWR}%</td>
+        <td style="padding:9px 12px;text-align:center;font-size:1.1rem;">${trend}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = rows || '<tr><td colspan="6" style="padding:1rem;text-align:center;color:var(--muted);">Aucune donnée</td></tr>';
+  }
+
+  // ── Monthly table ──
+  const byMonth = {};
+  trades.forEach(t => {
+    const parts = t.date ? t.date.split('/') : [];
+    const key = parts.length >= 2 ? `${parts[1]}/${parts[2]||'26'}` : 'N/A';
+    if (!byMonth[key]) byMonth[key] = { profit:0, ops:0, wins:0 };
+    byMonth[key].profit += t.profit;
+    byMonth[key].ops++;
+    if (t.profit >= 0) byMonth[key].wins++;
+  });
+  const months = Object.entries(byMonth).sort((a,b) => b[0].localeCompare(a[0]));
+  const maxMonthP = Math.max(...months.map(([,v]) => Math.abs(v.profit)), 1);
+  const mBody = document.getElementById('monthly-table-body');
+  if (mBody) {
+    mBody.innerHTML = months.map(([month, data], i) => {
+      const barW = Math.min(100, Math.abs(data.profit)/maxMonthP*100);
+      const c = data.profit>=0?'var(--success)':'var(--danger)';
+      const bg = i%2===0?'transparent':'rgba(255,255,255,0.01)';
+      const wr = Math.round(data.wins/data.ops*100);
+      return `<tr style="background:${bg};">
+        <td style="padding:9px 12px;font-weight:600;">${month}</td>
+        <td style="padding:9px 12px;text-align:center;color:var(--muted);">${data.ops}</td>
+        <td style="padding:9px 12px;text-align:center;font-weight:700;color:${c};">${data.profit>=0?'+':''}${data.profit.toFixed(0)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${c};">${(data.profit/data.ops).toFixed(1)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${wr>=52?'var(--success)':'var(--warning)'};">${wr}%</td>
+        <td style="padding:9px 12px;min-width:120px;"><div style="height:6px;background:var(--dark3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${barW}%;background:${c};border-radius:3px;"></div></div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" style="padding:1rem;text-align:center;color:var(--muted);">Aucune donnée</td></tr>';
+  }
+
+  // ── Bookmaker table ──
+  const byBk = {};
+  trades.forEach(t => {
+    if (!byBk[t.bk]) byBk[t.bk] = { profit:0, ops:0, wins:0 };
+    byBk[t.bk].profit += t.profit; byBk[t.bk].ops++; if(t.profit>=0) byBk[t.bk].wins++;
+  });
+  const bkEntries = Object.entries(byBk).sort((a,b) => b[1].profit-a[1].profit);
+  const maxBkP = Math.max(...bkEntries.map(([,v]) => Math.abs(v.profit)), 1);
+  const bkBody = document.getElementById('bk-table-body');
+  if (bkBody) {
+    bkBody.innerHTML = bkEntries.map(([bk, data], i) => {
+      const barW = Math.min(100, Math.abs(data.profit)/maxBkP*100);
+      const c = data.profit>=0?'var(--success)':'var(--danger)';
+      const bg = i%2===0?'transparent':'rgba(255,255,255,0.01)';
+      const wr = Math.round(data.wins/data.ops*100);
+      const health = data.ops<5?'🟢 Sain':data.ops<10?'🟡 Surveiller':'🔴 Risque';
+      return `<tr style="background:${bg};">
+        <td style="padding:9px 12px;font-weight:600;">${bk}</td>
+        <td style="padding:9px 12px;text-align:center;color:var(--muted);">${data.ops}</td>
+        <td style="padding:9px 12px;text-align:center;font-weight:700;color:${c};">${data.profit>=0?'+':''}${data.profit.toFixed(0)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${c};">${(data.profit/data.ops).toFixed(1)}€</td>
+        <td style="padding:9px 12px;text-align:center;color:${wr>=52?'var(--success)':'var(--warning)'};">${wr}%</td>
+        <td style="padding:9px 12px;text-align:center;font-size:0.8rem;">${health}</td>
+        <td style="padding:9px 12px;min-width:100px;"><div style="height:6px;background:var(--dark3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${barW}%;background:${c};border-radius:3px;"></div></div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="padding:1rem;text-align:center;color:var(--muted);">Aucune donnée</td></tr>';
+  }
+
+  renderHealthGrid();
+  calcEdgeReal();
 }
+
+function renderHealthGrid() {
+  const el = document.getElementById('health-grid');
+  if (!el) return;
+  if (!trades.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.83rem;">Aucune opération enregistrée.</div>'; return; }
+  const byBk = {};
+  trades.forEach(t => { byBk[t.bk] = (byBk[t.bk]||0)+1; });
+  el.innerHTML = Object.entries(byBk).sort((a,b)=>b[1]-a[1]).map(([bk, ops]) => {
+    const score = Math.max(0, 100-ops*8);
+    const cls = score>60?'var(--success)':score>30?'var(--warning)':'var(--danger)';
+    const label = score>60?'✅ Sain':score>30?'⚠️ Surveiller':'🔴 Risque élevé';
+    return `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.8rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-weight:600;font-size:0.83rem;">${bk}</span>
+        <span style="font-size:0.7rem;color:${cls};">${label}</span>
+      </div>
+      <div style="height:5px;background:var(--dark3);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${score}%;background:${cls};border-radius:3px;"></div>
+      </div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:3px;">${ops} opération${ops>1?'s':''}</div>
+    </div>`;
+  }).join('');
+}
+
 
 // ===== CHECKLIST =====
 const DEFAULT_CHECKS = [
@@ -2219,6 +2465,125 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+
+// ===== JOURNAL DE STRATÉGIE =====
+let journalEntries = JSON.parse(localStorage.getItem('pm_journal') || '[]');
+let journalDisc = true;
+
+function setDisc(val) {
+  journalDisc = val;
+  document.getElementById('disc-yes').style.background = val ? 'rgba(0,201,107,0.15)' : 'transparent';
+  document.getElementById('disc-yes').style.color = val ? 'var(--success)' : 'var(--muted)';
+  document.getElementById('disc-yes').style.borderColor = val ? 'rgba(0,201,107,0.4)' : 'var(--border2)';
+  document.getElementById('disc-no').style.background = !val ? 'rgba(255,77,77,0.1)' : 'transparent';
+  document.getElementById('disc-no').style.color = !val ? 'var(--danger)' : 'var(--muted)';
+  document.getElementById('disc-no').style.borderColor = !val ? 'rgba(255,77,77,0.3)' : 'var(--border2)';
+}
+
+function addJournalEntry() {
+  const date = document.getElementById('j-date').value || new Date().toLocaleDateString('fr-FR');
+  const bets = parseInt(document.getElementById('j-bets').value) || 0;
+  const profit = parseFloat(document.getElementById('j-profit').value);
+  const type = document.getElementById('j-type').value;
+  const note = document.getElementById('j-note').value.trim();
+  if (isNaN(profit)) { showToast('Entre le profit de la session', 'err'); return; }
+  journalEntries.unshift({ date, bets, profit, type, note, disc: journalDisc });
+  localStorage.setItem('pm_journal', JSON.stringify(journalEntries));
+  document.getElementById('j-bets').value = '';
+  document.getElementById('j-profit').value = '';
+  document.getElementById('j-note').value = '';
+  renderJournal();
+  showToast('✅ Session enregistrée !', 'ok');
+}
+
+function deleteJournalEntry(i) {
+  journalEntries.splice(i, 1);
+  localStorage.setItem('pm_journal', JSON.stringify(journalEntries));
+  renderJournal();
+}
+
+function renderJournal() {
+  if (!journalEntries.length) {
+    document.getElementById('journal-list').innerHTML = '<div style="color:var(--muted);font-size:0.83rem;">Aucune session enregistrée.</div>';
+    document.getElementById('journal-stats').innerHTML = '';
+    document.getElementById('edge-chart').innerHTML = '<div style="color:var(--muted);font-size:0.83rem;text-align:center;padding:1rem;">Enregistre des sessions pour voir ton edge réel</div>';
+    document.getElementById('discipline-checks').innerHTML = '';
+    return;
+  }
+
+  // Stats
+  const totalProfit = journalEntries.reduce((s,e)=>s+e.profit, 0);
+  const totalBets = journalEntries.reduce((s,e)=>s+e.bets, 0);
+  const winSessions = journalEntries.filter(e=>e.profit>0).length;
+  const discSessions = journalEntries.filter(e=>e.disc).length;
+  const avgProfit = totalProfit / journalEntries.length;
+  const discRate = Math.round(discSessions / journalEntries.length * 100);
+  const roi = totalBets > 0 ? (totalProfit / (totalBets * 10) * 100) : 0; // assuming avg 10€/bet
+
+  const statsItems = [
+    { val: (totalProfit>=0?'+':'')+totalProfit.toFixed(0)+'€', label: 'Profit total', color: totalProfit>=0?'var(--success)':'var(--danger)' },
+    { val: journalEntries.length, label: 'Sessions', color: 'var(--acc)' },
+    { val: totalBets, label: 'Paris totaux', color: 'var(--text)' },
+    { val: Math.round(winSessions/journalEntries.length*100)+'%', label: 'Sessions +', color: 'var(--success)' },
+    { val: discRate+'%', label: 'Discipline', color: discRate>=80?'var(--success)':discRate>=60?'var(--warning)':'var(--danger)' },
+    { val: roi.toFixed(1)+'%', label: 'ROI estimé', color: roi>0?'var(--success)':'var(--danger)' },
+  ];
+  document.getElementById('journal-stats').innerHTML = statsItems.map(s=>
+    `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.8rem;text-align:center;">
+      <div style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:${s.color}">${s.val}</div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${s.label}</div>
+    </div>`
+  ).join('');
+
+  // Edge chart (cumulative profit per session)
+  const maxAbs = Math.max(...journalEntries.map(e=>Math.abs(e.profit)), 1);
+  let chartHtml = '<div style="display:flex;flex-direction:column;gap:4px;">';
+  journalEntries.slice(0,8).forEach((e,i) => {
+    const barW = Math.min(100, Math.abs(e.profit)/maxAbs*100);
+    const color = e.profit>=0 ? 'var(--success)' : 'var(--danger)';
+    chartHtml += `<div style="display:flex;align-items:center;gap:8px;font-size:0.75rem;">
+      <span style="color:var(--muted);min-width:70px;">${e.date}</span>
+      <div style="flex:1;height:8px;background:var(--dark3);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${barW}%;background:${color};border-radius:4px;"></div>
+      </div>
+      <span style="font-weight:700;color:${color};min-width:50px;text-align:right;">${e.profit>=0?'+':''}${e.profit.toFixed(0)}€</span>
+    </div>`;
+  });
+  chartHtml += '</div>';
+  document.getElementById('edge-chart').innerHTML = chartHtml;
+
+  // Discipline alerts
+  const recentDisc = journalEntries.slice(0,5).filter(e=>!e.disc).length;
+  let discHtml = '';
+  if (discRate >= 90) discHtml = '<div style="padding:8px 12px;background:rgba(0,201,107,0.08);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--success);">🏆 Excellente discipline ('+discRate+'%) — continue comme ça</div>';
+  else if (discRate >= 70) discHtml = '<div style="padding:8px 12px;background:rgba(255,184,0,0.08);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--warning);">⚠️ Discipline correcte ('+discRate+'%) — quelques écarts à corriger</div>';
+  else discHtml = '<div style="padding:8px 12px;background:rgba(255,77,77,0.08);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--danger);">❌ Discipline insuffisante ('+discRate+'%) — revois ta stratégie de mise</div>';
+  if (recentDisc >= 2) discHtml += '<div style="padding:8px 12px;background:rgba(255,77,77,0.08);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--danger);margin-top:6px;">🚨 '+recentDisc+' session(s) sans discipline sur les 5 dernières — stop et réanalise</div>';
+  document.getElementById('discipline-checks').innerHTML = discHtml;
+
+  // History list
+  let listHtml = '';
+  journalEntries.forEach((e,i) => {
+    listHtml += `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:0.72rem;color:var(--muted);">${e.date}</span>
+          <span class="chip">${e.type}</span>
+          <span style="font-size:0.72rem;padding:2px 7px;border-radius:999px;background:${e.disc?'rgba(0,201,107,0.1)':'rgba(255,77,77,0.1)'};color:${e.disc?'var(--success)':'var(--danger)'};">${e.disc?'✅ Discipliné':'❌ Écart'}</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;color:${e.profit>=0?'var(--success)':'var(--danger)'};">${e.profit>=0?'+':''}${e.profit.toFixed(0)}€</span>
+          <button class="del-btn" onclick="deleteJournalEntry(${i})">✕</button>
+        </div>
+      </div>
+      ${e.bets?`<span style="font-size:0.75rem;color:var(--muted);">${e.bets} paris</span>`:''}
+      ${e.note?`<div style="font-size:0.78rem;color:var(--muted);margin-top:4px;font-style:italic;">"${e.note}"</div>`:''}
+    </div>`;
+  });
+  document.getElementById('journal-list').innerHTML = listHtml;
+}
+
+
 // INIT
 calculate();
 calcFreebet();
@@ -2230,10 +2595,13 @@ renderComp();
 renderNotes();
 document.getElementById('goal-select').value=goalAmount<=200?'200':goalAmount<=500?'500':'1000';
 renderStats();
-renderChecklist();
-calcValue();
-updateTimerDisplay();
-renderCompPills();
+renderChecklist();calcValue();updateTimerDisplay();renderCompPills();
+// Init doneView button state
+setTimeout(()=>setDoneView(doneView), 50);
+renderJournal();
+// Set today date in journal
+const jDate = document.getElementById('j-date');
+if(jDate) jDate.valueAsDate = new Date();
 // Restore API key
 const savedKey = localStorage.getItem('pm_oddskey');
 if (savedKey) { const el = document.getElementById('api-key-input'); if(el) el.value = savedKey; }
