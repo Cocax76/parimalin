@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PariMalin.fr — Matched Betting 100% Français</title>
+<meta name="theme-color" content="#FF6B1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PariMalin">
+<meta name="description" content="Matched Betting 100% légal en France — 16 bookmakers ANJ, calculateur, tracker, simulateur.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--acc:#FF6B1A;--acc-dim:#dd5510;--dark:#1a1210;--dark2:#221810;--dark3:#2e1f14;--card:#2d2018;--border:rgba(255,107,26,0.35);--border2:rgba(255,255,255,0.13);--text:#f0e8e0;--muted:#9a8272;--danger:#ff4d4d;--warning:#ffb800;--success:#00c96b;--radius:14px;--radius-sm:8px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark2);}::-webkit-scrollbar-thumb{background:var(--acc-dim);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;background:rgba(26,18,16,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--acc);}
+.nav-logo span{color:var(--text);}
+.nav-links{display:flex;gap:0.2rem;align-items:center;flex-wrap:wrap;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.82rem;font-weight:500;padding:6px 10px;border-radius:var(--radius-sm);transition:all 0.2s;}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+.nav-links a.active{color:var(--acc);}
+.nav-cta{background:var(--acc)!important;color:var(--dark)!important;font-weight:700!important;}
+.nav-mobile-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text);font-size:1.4rem;}
+@media(max-width:900px){.nav-links{display:none;position:fixed;top:64px;left:0;right:0;background:var(--dark2);flex-direction:column;padding:1rem;border-bottom:1px solid var(--border2);gap:4px;z-index:99;}.nav-links.open{display:flex;}.nav-mobile-btn{display:block;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(255,107,26,0.09) 0%,transparent 70%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;opacity:0.4;}
+.hero-content{position:relative;max-width:820px;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,26,0.1);border:1px solid var(--border);color:var(--acc);font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:999px;margin-bottom:1.5rem;letter-spacing:0.5px;text-transform:uppercase;animation:fadeUp 0.6s ease both;}
+.hero-badge-dot{width:6px;height:6px;background:var(--acc);border-radius:50%;animation:pulse 1.5s infinite;}
+.hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;line-height:1.1;margin-bottom:1.2rem;animation:fadeUp 0.6s 0.1s ease both;}
+.hero h1 .accent{color:var(--acc);}
+.hero p{font-size:1.05rem;color:var(--muted);line-height:1.7;margin-bottom:2.5rem;animation:fadeUp 0.6s 0.2s ease both;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both;}
+.hero-stats{display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;margin-top:3.5rem;animation:fadeUp 0.6s 0.4s ease both;}
+.hero-stat{text-align:center;}
+.hero-stat-val{font-family:'Outfit',sans-serif;font-size:1.8rem;font-weight:800;color:var(--acc);}
+.hero-stat-label{font-size:0.78rem;color:var(--muted);margin-top:2px;}
+.btn-primary{background:var(--acc);color:var(--dark);font-family:'Outfit',sans-serif;font-weight:700;font-size:0.92rem;padding:12px 24px;border-radius:var(--radius-sm);border:none;cursor:pointer;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--acc-dim);transform:translateY(-1px);}
+.btn-secondary{background:transparent;color:var(--text);font-family:'Outfit',sans-serif;font-weight:600;font-size:0.92rem;padding:12px 24px;border-radius:var(--radius-sm);border:1px solid var(--border2);cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.btn-secondary:hover{border-color:var(--acc);color:var(--acc);}
+section{padding:5rem 2rem;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-tag{display:inline-block;font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:0.75rem;}
+.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:0.75rem;line-height:1.2;}
+.section-sub{font-size:0.95rem;color:var(--muted);max-width:560px;line-height:1.7;}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem;}
+.field{margin-bottom:0.9rem;}
+.field label{display:block;font-size:0.77rem;color:var(--muted);margin-bottom:5px;font-weight:500;}
+.field input,.field select{width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus{border-color:var(--acc);}
+.field select option{background:var(--dark3);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.divider{height:1px;background:var(--border2);margin:1.1rem 0;}
+.badge{font-size:11px;padding:3px 9px;border-radius:999px;font-weight:600;}
+.b-ok{background:rgba(0,201,107,0.12);color:var(--success);}
+.b-warn{background:rgba(255,184,0,0.12);color:var(--warning);}
+.b-bad{background:rgba(255,77,77,0.12);color:var(--danger);}
+.b-acc{background:rgba(255,107,26,0.12);color:var(--acc);}
+.chip{display:inline-flex;align-items:center;font-size:0.7rem;font-weight:600;padding:3px 8px;border-radius:999px;background:rgba(255,107,26,0.1);color:var(--acc);border:1px solid rgba(255,107,26,0.2);}
+.tabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.tab{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.8rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.tab.active{background:rgba(255,107,26,0.1);border-color:var(--acc);color:var(--acc);font-weight:700;}
+.tab-section{display:none;}.tab-section.active{display:block;}
+.result-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2);font-size:0.86rem;}
+.result-item:last-child{border-bottom:none;}
+.result-val{font-weight:700;}
+.calc-title{font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.calc-dot{width:8px;height:8px;background:var(--acc);border-radius:50%;flex-shrink:0;}
+.goal-bar{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.25rem;}
+.goal-header{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.goal-track{height:8px;background:var(--dark3);border-radius:4px;overflow:hidden;}
+.goal-fill{height:100%;background:linear-gradient(90deg,#c44400,var(--acc));border-radius:4px;transition:width 0.5s;}
+.summary-box{background:rgba(255,107,26,0.06);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.9rem;font-size:0.84rem;margin-top:0.9rem;}
+.summary-box-title{font-weight:700;margin-bottom:4px;color:var(--acc);}
+.summary-box-text{color:var(--muted);line-height:1.6;}
+.tstat{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;text-align:center;}
+.tstat-val{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:800;}
+.tstat-val.acc{color:var(--acc);}
+.tstat-val.ok{color:var(--success);}
+.tstat-label{font-size:0.7rem;color:var(--muted);margin-top:3px;}
+.bfilter{padding:6px 13px;border-radius:999px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:0.77rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.bfilter.active{background:rgba(255,107,26,0.1);border-color:var(--acc);color:var(--acc);}
+.tt-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 36px;gap:8px;padding:9px 14px;background:var(--dark3);font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+.tt-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 36px;gap:8px;padding:10px 14px;border-top:1px solid var(--border2);font-size:0.82rem;align-items:center;transition:background 0.15s;}
+.tt-row:hover{background:rgba(255,255,255,0.02);}
+@media(max-width:650px){.tt-header,.tt-row{grid-template-columns:2fr 1fr 1fr;}.tt-hide{display:none;}}
+.pval{font-weight:700;}
+.pval.pos{color:var(--success);}
+.pval.neg{color:var(--danger);}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85rem;padding:3px;border-radius:4px;transition:all 0.2s;}
+.del-btn:hover{color:var(--danger);background:rgba(255,77,77,0.1);}
+.export-btn{font-size:0.77rem;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.export-btn:hover{border-color:var(--acc);color:var(--acc);}
+.reset-btn{font-size:0.75rem;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(255,77,77,0.3);background:rgba(255,77,77,0.08);color:var(--danger);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted);font-size:0.86rem;}
+.bonus-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.2rem;display:flex;flex-direction:column;gap:0.7rem;transition:border-color 0.2s,transform 0.2s;}
+.bonus-card:hover{border-color:var(--border);transform:translateY(-2px);}
+.bonus-card.completed{opacity:0.4;}
+.bk-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;}
+.bk-amount{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--acc);}
+.bk-type{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
+.type-freebet{background:rgba(255,107,26,0.12);color:var(--acc);}
+.type-rembourse{background:rgba(255,184,0,0.12);color:var(--warning);}
+.bk-toggle{font-size:0.7rem;font-weight:700;padding:4px 11px;border-radius:999px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.bk-todo{background:rgba(255,255,255,0.08);color:var(--text);}
+.bk-todo:hover{background:rgba(255,107,26,0.15);color:var(--acc);}
+.bk-done{background:rgba(0,201,107,0.15);color:var(--success);}
+.bonus-prog{height:4px;background:var(--dark3);border-radius:2px;overflow:hidden;}
+.bonus-prog-fill{height:100%;background:var(--acc);border-radius:2px;transition:width 0.5s;}
+.guide-step{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.4rem;transition:border-color 0.2s;}
+.guide-step:hover{border-color:var(--border);}
+.step-num{font-family:'Outfit',sans-serif;font-size:2.2rem;font-weight:800;color:rgba(255,107,26,0.2);line-height:1;margin-bottom:0.6rem;}
+.step-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:0.5rem;}
+.step-desc{font-size:0.83rem;color:var(--muted);line-height:1.6;}
+.faq-item{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;}
+.faq-q{padding:0.9rem 1.1rem;font-weight:600;font-size:0.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.faq-q:hover{color:var(--acc);}
+.faq-icon{font-size:1.1rem;color:var(--acc);transition:transform 0.2s;}
+.faq-a{display:none;padding:0 1.1rem 0.9rem;font-size:0.83rem;color:var(--muted);line-height:1.7;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.glossary-item{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;}
+.glossary-term{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;color:var(--acc);margin-bottom:4px;}
+.glossary-def{font-size:0.8rem;color:var(--muted);line-height:1.6;}
+.blog-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;transition:border-color 0.2s,transform 0.2s;cursor:pointer;}
+.blog-card:hover{border-color:var(--border);transform:translateY(-3px);}
+.blog-img{height:120px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+.bg1{background:linear-gradient(135deg,rgba(255,107,26,0.15),rgba(180,60,0,0.1));}
+.bg2{background:linear-gradient(135deg,rgba(255,184,0,0.15),rgba(200,100,0,0.1));}
+.bg3{background:linear-gradient(135deg,rgba(100,100,255,0.15),rgba(50,50,200,0.1));}
+.bg4{background:linear-gradient(135deg,rgba(0,201,107,0.15),rgba(0,120,60,0.1));}
+.bg5{background:linear-gradient(135deg,rgba(200,100,255,0.15),rgba(100,0,200,0.1));}
+.blog-body{padding:1.1rem;}
+.blog-tag{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--acc);margin-bottom:5px;}
+.blog-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:7px;line-height:1.3;}
+.blog-excerpt{font-size:0.8rem;color:var(--muted);line-height:1.6;}
+.blog-meta{display:flex;gap:10px;margin-top:0.8rem;font-size:0.72rem;color:var(--muted);}
+.pricing-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem;position:relative;}
+.pricing-card.featured{border-color:var(--acc);}
+.pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--acc);color:var(--dark);font-family:'Outfit',sans-serif;font-size:0.7rem;font-weight:800;padding:4px 14px;border-radius:999px;white-space:nowrap;}
+.pricing-name{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:0.4rem;}
+.pricing-price{font-family:'Outfit',sans-serif;font-size:1.9rem;font-weight:800;color:var(--acc);margin-bottom:0.2rem;}
+.pricing-price span{font-size:0.82rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;}
+.pricing-desc{font-size:0.8rem;color:var(--muted);margin-bottom:1.1rem;}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:1.3rem;}
+.pricing-features li{font-size:0.82rem;display:flex;gap:8px;align-items:flex-start;}
+.pricing-features li::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0;}
+.pricing-features li.no::before{content:'✕';color:var(--muted);}
+.pricing-features li.no{color:var(--muted);}
+.pricing-btn{width:100%;padding:10px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.2s;border:none;}
+.pricing-btn.outline{background:transparent;border:1px solid var(--border2);color:var(--text);}
+.pricing-btn.outline:hover{border-color:var(--acc);color:var(--acc);}
+.pricing-btn.solid{background:var(--acc);color:var(--dark);}
+.pricing-btn.solid:hover{background:var(--acc-dim);}
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;max-width:460px;width:100%;position:relative;animation:fadeUp 0.3s ease;}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.modal-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:0.4rem;}
+.modal-sub{font-size:0.83rem;color:var(--muted);margin-bottom:1.3rem;line-height:1.6;}
+footer{background:var(--dark2);border-top:1px solid var(--border2);padding:3rem 2rem 2rem;}
+.footer-inner{max-width:1100px;margin:0 auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem;margin-bottom:2rem;}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr;}}
+.footer-logo{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:var(--acc);margin-bottom:0.7rem;}
+.footer-desc{font-size:0.8rem;color:var(--muted);line-height:1.7;}
+.footer-col-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:0.83rem;margin-bottom:0.7rem;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.footer-links a{font-size:0.8rem;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:var(--acc);}
+.footer-bottom{border-top:1px solid var(--border2);padding-top:1.3rem;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;}
+.footer-legal{font-size:0.73rem;color:var(--muted);line-height:1.6;max-width:600px;}
+.footer-copy{font-size:0.76rem;color:var(--muted);}
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;font-size:0.83rem;font-weight:500;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:260px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(0,201,107,0.4);color:var(--success);}
+.toast.err{border-color:rgba(255,77,77,0.4);color:var(--danger);}
+.toast.info{color:var(--text);}
+/* Dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0;}
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr 1fr;}}
+.dash-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;text-align:center;}
+.dash-val{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;}
+.dash-val.acc{color:var(--acc);}
+.dash-val.ok{color:var(--success);}
+.dash-val.warn{color:var(--warning);}
+.dash-label{font-size:0.7rem;color:var(--muted);margin-top:3px;}
+.dash-charts{display:grid;grid-template-columns:2fr 1fr;gap:1rem;}
+@media(max-width:700px){.dash-charts{grid-template-columns:1fr;}}
+.dash-chart-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.2rem;}
+.chart-title{font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:700;margin-bottom:0.9rem;}
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:90px;}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.bar{width:100%;border-radius:2px 2px 0 0;transition:height 0.4s;min-height:2px;}
+.bar.pos{background:var(--acc);}
+.bar.neg{background:var(--danger);}
+.bar-lbl{font-size:8px;color:var(--muted);}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:0.6rem;}
+.donut-legend{display:flex;flex-direction:column;gap:5px;width:100%;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:0.75rem;}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.goal-milestones{display:flex;justify-content:space-between;margin-top:6px;}
+.milestone{font-size:0.68rem;color:var(--muted);}
+.milestone.reached{color:var(--acc);}
+/* Simulateur */
+.sim-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:0.9rem;}
+.sim-slider-row label{font-size:0.77rem;color:var(--muted);min-width:140px;}
+.sim-slider-row input[type=range]{flex:1;accent-color:var(--acc);}
+.sim-slider-row .sv{font-size:0.83rem;font-weight:700;min-width:46px;text-align:right;color:var(--acc);}
+.sim-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.sim-bar-label{font-size:0.73rem;color:var(--muted);min-width:52px;}
+.sim-bar-track{flex:1;height:7px;background:var(--dark3);border-radius:4px;overflow:hidden;}
+.sim-bar-fill{height:100%;background:var(--acc);border-radius:4px;transition:width 0.5s;}
+.sim-bar-val{font-size:0.73rem;font-weight:700;color:var(--acc);min-width:44px;text-align:right;}
+/* Comparateur */
+.comp-header{display:grid;grid-template-columns:1.5fr 1.5fr 1fr 1fr 36px;gap:8px;padding:9px 14px;background:var(--dark3);font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+.comp-row{display:grid;grid-template-columns:1.5fr 1.5fr 1fr 1fr 36px;gap:8px;padding:10px 14px;border-top:1px solid var(--border2);font-size:0.83rem;align-items:center;}
+.comp-row.best{background:rgba(255,107,26,0.05);}
+/* Notes */
+.note-item{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.6rem;}
+.note-bk{font-size:0.7rem;font-weight:700;color:var(--acc);margin-bottom:4px;}
+.note-text{font-size:0.83rem;color:var(--text);line-height:1.5;}
+.note-date{font-size:0.68rem;color:var(--muted);margin-top:5px;}
+/* Alertes */
+.alert-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;display:flex;align-items:center;gap:12px;margin-bottom:0.6rem;}
+.alert-icon{font-size:1.3rem;flex-shrink:0;}
+.alert-body{flex:1;}
+.alert-title{font-size:0.85rem;font-weight:600;margin-bottom:3px;}
+.alert-sub{font-size:0.77rem;color:var(--muted);}
+.alert-badge{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
+
+
+/* ===== SCANNER ===== */
+.scanner-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;}
+.scanner-status{display:flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:600;}
+.scanner-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+.scanner-dot.live{background:var(--success);animation:pulse 1.5s infinite;}
+.scanner-dot.loading{background:var(--warning);animation:pulse 0.7s infinite;}
+.scanner-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.2rem;}
+.scanner-grid{display:flex;flex-direction:column;gap:1rem;}
+.match-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;transition:border-color 0.3s;}
+.match-card.has-surebet{border-color:rgba(0,201,107,0.5);box-shadow:0 0 20px rgba(0,201,107,0.08);}
+.match-card.has-value{border-color:rgba(255,107,26,0.4);}
+.match-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem;cursor:pointer;transition:background 0.15s;}
+.match-header:hover{background:rgba(255,255,255,0.02);}
+.match-teams{font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;}
+.match-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.match-comp{font-size:0.72rem;color:var(--muted);}
+.match-time{font-size:0.72rem;font-weight:600;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.06);}
+.match-alert{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
+.alert-surebet{background:rgba(0,201,107,0.15);color:var(--success);}
+.alert-value{background:rgba(255,107,26,0.15);color:var(--acc);}
+.match-toggle{color:var(--muted);font-size:0.85rem;transition:transform 0.2s;}
+.match-body{display:none;padding:0 1.2rem 1.2rem;}
+.match-body.open{display:block;}
+.match-toggle.open{transform:rotate(180deg);}
+.odds-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.odds-table th{padding:8px 10px;text-align:left;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border2);}
+.odds-table td{padding:9px 10px;border-bottom:1px solid var(--border2);}
+.odds-table tr:last-child td{border-bottom:none;}
+.odds-table tr:hover td{background:rgba(255,255,255,0.02);}
+.odd-val{font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;font-size:0.88rem;}
+.odd-best{background:rgba(255,107,26,0.15);color:var(--acc);border:1px solid rgba(255,107,26,0.3);}
+.odd-ok{color:var(--text);}
+.odd-low{color:var(--muted);}
+.surebet-banner{background:rgba(0,201,107,0.07);border:1px solid rgba(0,201,107,0.25);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.surebet-detail{font-size:0.82rem;color:var(--success);font-weight:600;}
+.surebet-calc-btn{font-size:0.78rem;padding:6px 14px;border-radius:var(--radius-sm);background:rgba(0,201,107,0.15);border:1px solid rgba(0,201,107,0.3);color:var(--success);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all 0.2s;}
+.surebet-calc-btn:hover{background:rgba(0,201,107,0.25);}
+.scanner-empty{text-align:center;padding:4rem 2rem;color:var(--muted);}
+.scanner-empty-icon{font-size:3rem;margin-bottom:1rem;}
+.scanner-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:1rem;}
+.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scanner-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+@media(max-width:600px){.scanner-summary{grid-template-columns:1fr 1fr;}}
+.scan-stat{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;text-align:center;}
+.scan-stat-val{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;}
+.scan-stat-label{font-size:0.68rem;color:var(--muted);margin-top:2px;}
+
+/* ===== TIMER ===== */
+.timer-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.timer-text{position:absolute;font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;}
+.timer-text.warn{color:var(--warning);}
+.timer-text.danger{color:var(--danger);}
+.timer-controls{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;}
+.timer-btn{padding:8px 16px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;border:none;transition:all 0.2s;}
+.timer-btn.start{background:var(--success);color:#000;}
+.timer-btn.pause{background:var(--warning);color:#000;}
+.timer-btn.reset{background:rgba(255,255,255,0.08);color:var(--text);}
+/* ===== VALUE METER ===== */
+.vm-gauge{height:12px;border-radius:6px;background:var(--dark3);overflow:hidden;margin:8px 0;}
+.vm-fill{height:100%;border-radius:6px;transition:width 0.5s,background 0.3s;}
+.vm-labels{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--muted);margin-top:3px;}
+/* ===== CHECKLIST ===== */
+.check-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:border-color 0.2s;}
+.check-item.done{border-color:rgba(0,201,107,0.3);background:rgba(0,201,107,0.04);}
+.check-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--success);cursor:pointer;flex-shrink:0;}
+.check-label{font-size:0.86rem;flex:1;}
+.check-item.done .check-label{color:var(--muted);text-decoration:line-through;}
+.check-sub{font-size:0.73rem;color:var(--muted);margin-top:2px;}
+.checklist-progress{height:6px;border-radius:3px;background:var(--dark3);overflow:hidden;margin-bottom:1rem;}
+.checklist-fill{height:100%;background:var(--success);border-radius:3px;transition:width 0.4s;}
+/* ===== STATS SECTION ===== */
+.monthly-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border2);font-size:0.84rem;}
+.monthly-row:last-child{border-bottom:none;}
+.monthly-bar{flex:1;margin:0 12px;height:6px;background:var(--dark3);border-radius:3px;overflow:hidden;}
+.monthly-fill{height:100%;border-radius:3px;background:var(--acc);}
+/* ===== HEALTH SCORE ===== */
+.health-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.8rem;}
+.health-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;}
+.health-name{font-weight:600;font-size:0.85rem;margin-bottom:8px;}
+.health-bar{height:6px;border-radius:3px;background:var(--dark3);overflow:hidden;margin-bottom:5px;}
+.health-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+.health-fill.good{background:var(--success);}
+.health-fill.warn{background:var(--warning);}
+.health-fill.bad{background:var(--danger);}
+.health-label{font-size:0.7rem;color:var(--muted);}
+/* ===== CUMUL GRAPH ===== */
+.cumul-chart{position:relative;height:120px;margin:1rem 0;}
+.cumul-svg{width:100%;height:100%;}
+/* ===== RETRAIT ===== */
+.retrait-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.6rem;}
+.retrait-row{display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px;}
+.retrait-val{font-weight:700;color:var(--acc);}
+/* ===== KEYBOARD SHORTCUTS ===== */
+.shortcut-tag{display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--muted);background:var(--dark3);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;font-family:monospace;}
+/* ===== MODE TOGGLE ===== */
+.mode-toggle{background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:5px 10px;cursor:pointer;font-size:0.85rem;color:var(--muted);transition:all 0.2s;}
+.mode-toggle:hover{border-color:var(--acc);color:var(--acc);}
+/* LIGHT MODE */
+body.light{--dark:#f5f0eb;--dark2:#ede8e2;--dark3:#e0d8d0;--card:#fff;--text:#1a1008;--muted:#7a6858;--border2:rgba(0,0,0,0.15);--border:rgba(255,107,26,0.4);}
+body.light nav{background:rgba(245,240,235,0.95);}
+body.light .hero-grid{opacity:0.15;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<nav>
+  <div class="nav-logo">Pari<span>Malin</span>.fr</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#dashboard">Dashboard</a>
+    <a href="#calculateur">Calculateur</a>
+    <a href="#scanner">🔥 Scanner</a>
+    <a href="#bonus">Bonus ANJ</a>
+    <a href="#tracker">Tracker</a>
+    <a href="#simulateur">Simulateur</a>
+    <a href="#comparateur">Comparateur</a>
+    <a href="#notes">Notes</a>
+    <a href="#stats">Statistiques</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#guide">Guide</a>
+    <a href="#premium" class="nav-cta">Premium</a>
+  </div>
+  <button class="mode-toggle" id="mode-btn" onclick="toggleMode()" title="Mode clair/sombre">🌙</button>
+  <button class="nav-mobile-btn" onclick="toggleNav()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="hero-badge-dot"></span> 100% Légal · 16 Bookmakers ANJ · Usage personnel</div>
+    <h1>Le <span class="accent">Matched Betting</span><br>enfin adapté à la France</h1>
+    <p>Calcule tes mises, suis tes profits, simule ta croissance et exploite les bonus des 16 bookmakers agréés ANJ. Sans exchange bloqué, sans risque.</p>
+    <div class="hero-btns">
+      <a href="#dashboard" class="btn-primary">▶ Mon dashboard</a>
+      <a href="#guide" class="btn-secondary">Guide débutant</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">736€</div><div class="hero-stat-label">Bonus exploitables</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">16</div><div class="hero-stat-label">Bookmakers ANJ</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">~97%</div><div class="hero-stat-label">Opérations gagnantes</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">200€</div><div class="hero-stat-label">Objectif mois 1</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" style="background:var(--dark2);padding-top:6rem;">
+  <div class="section-inner">
+    <span class="section-tag">Vue d'ensemble</span>
+    <div class="section-title">Dashboard</div>
+    <p class="section-sub">Toutes tes métriques clés en un coup d'œil.</p>
+
+    <div class="goal-bar" style="margin-top:1.5rem;">
+      <div class="goal-header">
+        <span style="font-weight:600;">Objectif mensuel</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="goal-select" onchange="updateGoal()" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:0.78rem;padding:3px 7px;outline:none;">
+            <option value="200">200€</option><option value="500">500€</option><option value="1000">1 000€</option>
+          </select>
+          <span style="color:var(--acc);font-weight:700;font-size:0.88rem;" id="d-goal-pct">0 / 200€</span>
+        </div>
+      </div>
+      <div class="goal-track"><div class="goal-fill" id="d-goal-fill" style="width:0%"></div></div>
+      <div class="goal-milestones">
+        <div class="milestone" id="ms-0">0€</div>
+        <div class="milestone" id="ms-1">25%</div>
+        <div class="milestone" id="ms-2">50%</div>
+        <div class="milestone" id="ms-3">75%</div>
+        <div class="milestone" id="ms-4">🏆 Atteint</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-val acc" id="d-profit">0€</div><div class="dash-label">Profit total</div></div>
+      <div class="dash-card"><div class="dash-val ok" id="d-ops">0</div><div class="dash-label">Opérations</div></div>
+      <div class="dash-card"><div class="dash-val warn" id="d-bonus-left">736€</div><div class="dash-label">Bonus restants</div></div>
+      <div class="dash-card"><div class="dash-val" id="d-winrate">—</div><div class="dash-label">Win rate</div></div>
+    </div>
+
+    <div class="dash-charts">
+      <div class="dash-chart-card">
+        <div class="chart-title">Profits par opération (12 dernières)</div>
+        <div class="bar-chart" id="d-bar-chart"><div style="color:var(--muted);font-size:0.8rem;margin:auto;">Aucune opération encore</div></div>
+      </div>
+      <div class="dash-chart-card">
+        <div class="chart-title">Par type d'opération</div>
+        <div class="donut-wrap">
+          <canvas id="d-donut" width="100" height="100"></canvas>
+          <div class="donut-legend" id="d-legend"><div style="color:var(--muted);font-size:0.77rem;text-align:center;">Aucune donnée</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTES -->
+    <div style="margin-top:1.5rem;">
+      <div class="chart-title" style="margin-bottom:0.9rem;">Rappels & alertes</div>
+      <div id="alerts-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATEUR -->
+<section id="calculateur">
+  <div class="section-inner">
+    <span class="section-tag">Outil #1</span>
+    <div class="section-title">Calculateur de mises</div>
+    <p class="section-sub">3 modes : pari qualificatif, convertisseur freebet, double chance.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="calc-grid">
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" onclick="switchCalcTab('qualifying',this)">Qualificatif</button>
+          <button class="tab" onclick="switchCalcTab('freebet',this)">Freebet</button>
+          <button class="tab" onclick="switchCalcTab('double',this)">Double chance</button>
+        </div>
+        <div class="tab-section active" id="ct-qualifying">
+          <div class="calc-title"><span class="calc-dot"></span>Pari principal</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker principal</label><select id="bk1" onchange="calculate()"></select></div>
+            <div class="field"><label>Mise (€)</label><input type="number" id="mise" value="100" min="1" oninput="calculate()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote choisie</label><input type="number" id="cote1" value="3.10" step="0.05" oninput="calculate()"></div>
+            <div class="field"><label>Marché</label><select id="mkt" onchange="calculate()"><option value="3way">1X2 (3 issues)</option><option value="2way">2 issues</option></select></div>
+          </div>
+          <div class="divider"></div>
+          <div class="calc-title"><span class="calc-dot"></span>Couverture</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker couverture</label><select id="bk2" onchange="calculate()"></select></div>
+            <div class="field"><label>Cote adverse 1</label><input type="number" id="cote2" value="2.10" step="0.05" oninput="calculate()"></div>
+          </div>
+          <div class="field" id="cote3-field"><label>Cote nul (couverture 2)</label><input type="number" id="cote3" value="3.25" step="0.05" oninput="calculate()"></div>
+        </div>
+        <div class="tab-section" id="ct-freebet">
+          <div class="calc-title"><span class="calc-dot"></span>Ton freebet</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker freebet</label><select id="fb_bk1"></select></div>
+            <div class="field"><label>Montant freebet (€)</label><input type="number" id="fb_val" value="100" oninput="calcFreebet()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote freebet (≥ 4.00)</label><input type="number" id="fb_c1" value="4.50" step="0.05" oninput="calcFreebet()"></div>
+            <div class="field"><label>Cote couverture</label><input type="number" id="fb_c2" value="4.20" step="0.05" oninput="calcFreebet()"></div>
+          </div>
+          <div class="field"><label>Bookmaker couverture</label><select id="fb_bk2"></select></div>
+          <div class="summary-box" style="margin-top:0.5rem;"><div class="summary-box-text" style="font-size:0.78rem;">💡 Vise des cotes ≥ 4.50 pour maximiser le taux de conversion de ton freebet.</div></div>
+        </div>
+        <div class="tab-section" id="ct-double">
+          <div class="calc-title"><span class="calc-dot"></span>Double chance</div>
+          <div class="field-row">
+            <div class="field"><label>Bookmaker A</label><select id="dc_bk1"></select></div>
+            <div class="field"><label>Mise totale (€)</label><input type="number" id="dc_mise" value="100" oninput="calcDouble()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cote 1X (dom. ou nul)</label><input type="number" id="dc_c1" value="1.45" step="0.05" oninput="calcDouble()"></div>
+            <div class="field"><label>Cote X2 (nul ou ext.)</label><input type="number" id="dc_c2" value="1.55" step="0.05" oninput="calcDouble()"></div>
+          </div>
+          <div class="field"><label>Bookmaker B</label><select id="dc_bk2"></select></div>
+          <p style="font-size:0.77rem;color:var(--muted);margin-top:0.5rem;">Couvre 2 issues sur 3. Seul le résultat non couvert représente un risque.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Résultats</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;">
+          <div class="tstat"><div class="tstat-val acc" id="r-profit">—</div><div class="tstat-label">Profit estimé</div></div>
+          <div class="tstat"><div class="tstat-val" style="color:var(--warning);" id="r-roi">—</div><div class="tstat-label">ROI</div></div>
+          <div class="tstat"><div class="tstat-val" id="r-total">—</div><div class="tstat-label">Capital</div></div>
+        </div>
+        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;">
+          <div class="result-item"><span>Mise couverture 1</span><span class="result-val" style="color:var(--acc);" id="r-m2">—</span></div>
+          <div class="result-item" id="row-m3"><span>Mise couverture 2 (nul)</span><span class="result-val" style="color:var(--acc);" id="r-m3">—</span></div>
+        </div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.9rem 0 0.4rem;">Scénarios</div>
+        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;" id="scenarios"></div>
+        <div class="summary-box">
+          <div class="summary-box-title">Analyse</div>
+          <div class="summary-box-text" id="summary-text">Entre tes cotes pour voir l'analyse.</div>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.9rem;font-size:0.83rem;padding:10px;" onclick="addFromCalc()">+ Enregistrer dans le tracker</button>
+      </div>
+    </div>
+    <style>#calc-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#calc-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- SCANNER DE COTES IA -->
+<section id="scanner" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #2 — IA Powered 🔥</span>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div class="section-title">Scanner de cotes</div>
+        <p class="section-sub">Compare les cotes de tous les bookmakers ANJ sur les matchs du moment. L'IA détecte les surebets et les value bets automatiquement.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <div class="scanner-status">
+          <div class="scanner-dot" id="scan-dot"></div>
+          <span id="scan-status-text">Prêt à scanner</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);" id="scan-last-update"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;align-items:center;">
+      <div class="field" style="margin:0;flex:1;max-width:280px;">
+        <select id="scan-sport" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
+          <option value="football">⚽ Football</option>
+          <option value="tennis">🎾 Tennis</option>
+          <option value="basket">🏀 Basketball</option>
+          <option value="rugby">🏉 Rugby</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0;flex:1;max-width:280px;">
+        <select id="scan-comp" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
+          <option value="all">Toutes compétitions</option>
+          <option value="ligue1">Ligue 1</option>
+          <option value="cl">Champions League</option>
+          <option value="el">Europa League</option>
+          <option value="prem">Premier League</option>
+          <option value="liga">La Liga</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0;flex:1;max-width:300px;">
+        <div style="position:relative;">
+          <input type="text" id="api-key-input" placeholder="Clé The Odds API..." 
+            style="width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.83rem;padding:9px 70px 9px 11px;outline:none;transition:border-color 0.2s;"
+            oninput="localStorage.setItem('pm_oddskey',this.value)"
+            onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor=''"
+          >
+          <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:0.68rem;color:var(--muted);pointer-events:none;">Odds API</span>
+        </div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:3px;">
+          <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc);text-decoration:none;">the-odds-api.com</a>
+          · 500 requêtes/mois gratuites · Stockée localement
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-start;">
+        <button class="btn-primary" style="padding:10px 22px;font-size:0.88rem;" onclick="launchScan()">
+          🔍 Scanner (API)
+        </button>
+        <button onclick="loadDemoScan()" style="font-size:0.75rem;padding:5px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(255,107,26,0.08);color:var(--acc);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">
+          ▶ Démo gratuite (sans clé)
+        </button>
+      </div>
+    </div>
+
+    <div class="scanner-filters" style="margin-top:1rem;">
+      <button class="bfilter active" onclick="filterScan('all',this)">Tous les matchs</button>
+      <button class="bfilter" onclick="filterScan('surebet',this)">🟢 Surebets uniquement</button>
+      <button class="bfilter" onclick="filterScan('value',this)">🔥 Value bets</button>
+      <button class="bfilter" onclick="filterScan('high',this)">📈 Cotes élevées (≥ 3.00)</button>
+    </div>
+
+    <div class="scanner-summary" id="scan-summary" style="display:none;">
+      <div class="scan-stat"><div class="scan-stat-val ok" id="ss-matchs">0</div><div class="scan-stat-label">Matchs analysés</div></div>
+      <div class="scan-stat"><div class="scan-stat-val" style="color:var(--success);" id="ss-surebets">0</div><div class="scan-stat-label">Surebets détectés</div></div>
+      <div class="scan-stat"><div class="scan-stat-val acc" id="ss-values">0</div><div class="scan-stat-label">Value bets</div></div>
+      <div class="scan-stat"><div class="scan-stat-val warn" id="ss-best-edge">—</div><div class="scan-stat-label">Meilleur edge</div></div>
+    </div>
+
+    <div id="scanner-output">
+      <div class="scanner-empty">
+        <div class="scanner-empty-icon">🔍</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Lance un scan pour voir les meilleures cotes</div>
+        <div style="font-size:0.83rem;">L'IA va analyser les matchs du moment et comparer les cotes<br>de tous les bookmakers ANJ pour toi.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BONUS -->
+<section id="bonus" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #3</span>
+    <div class="section-title">Bonus des 16 bookmakers ANJ</div>
+    <p class="section-sub">Coche ceux déjà exploités. Ton potentiel restant se met à jour automatiquement.</p>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem;text-align:center;" id="bonus-totals">
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-total">1 350€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bonus disponibles</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-profit">736€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Profit estimé restant</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--acc);" id="bt-restants">16</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Bookmakers restants</div></div>
+      <div><div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--success);" id="bt-done">0€</div><div style="font-size:0.73rem;color:var(--muted);margin-top:3px;">Déjà encaissé</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin:1.2rem 0;flex-wrap:wrap;">
+      <button class="bfilter active" onclick="filterBonus('all',this)">Tous</button>
+      <button class="bfilter" onclick="filterBonus('freebet',this)">Freebet</button>
+      <button class="bfilter" onclick="filterBonus('rembourse',this)">Pari remboursé</button>
+      <button class="bfilter" onclick="filterBonus('todo',this)">À faire</button>
+      <button class="bfilter" onclick="filterBonus('done',this)">Exploités</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;" id="bonus-grid"></div>
+  </div>
+</section>
+
+<!-- TRACKER -->
+<section id="tracker">
+  <div class="section-inner">
+    <span class="section-tag">Outil #4</span>
+    <div class="section-title">Tracker de profits</div>
+    <p class="section-sub">Chaque opération est sauvegardée automatiquement sur ton appareil. Suppression individuelle possible.</p>
+
+    <div class="goal-bar" style="margin-top:1.5rem;">
+      <div class="goal-header">
+        <span style="font-weight:600;">Progression vers l'objectif</span>
+        <span style="color:var(--acc);font-weight:700;font-size:0.88rem;" id="goal-pct">0 / 200€</span>
+      </div>
+      <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.2rem 0;" id="tracker-stats-grid">
+      <div class="tstat"><div class="tstat-val acc" id="t-profit">0€</div><div class="tstat-label">Profit total</div></div>
+      <div class="tstat"><div class="tstat-val ok" id="t-ops">0</div><div class="tstat-label">Opérations</div></div>
+      <div class="tstat"><div class="tstat-val" id="t-best">—</div><div class="tstat-label">Meilleur trade</div></div>
+      <div class="tstat"><div class="tstat-val" id="t-winrate">—</div><div class="tstat-label">Win rate</div></div>
+    </div>
+    <style>#tracker-stats-grid{grid-template-columns:repeat(4,1fr);}@media(max-width:600px){#tracker-stats-grid{grid-template-columns:1fr 1fr;}}</style>
+
+    <div class="card" style="margin-bottom:1.2rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.9rem;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.92rem;">+ Ajouter une opération</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
+          <button class="export-btn" onclick="exportJSON()">⬇ JSON</button>
+          <button class="reset-btn" onclick="resetTrades()">🗑 Effacer tout</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;" id="add-row">
+        <div class="field"><label>Match</label><input type="text" id="t-match" placeholder="ex: Lyon vs Celta Vigo"></div>
+        <div class="field"><label>Bookmaker</label><select id="t-bk"></select></div>
+        <div class="field"><label>Type</label><select id="t-type"><option>Bonus bienvenue</option><option>Freebet</option><option>Surebet</option><option>Value bet</option></select></div>
+        <div class="field"><label>Profit net (€)</label><input type="number" id="t-profit-input" placeholder="ex: 58" step="0.01"></div>
+        <div class="field"><label>&nbsp;</label><button class="btn-primary" style="padding:9px 14px;font-size:0.83rem;" onclick="addTrade()">OK</button></div>
+      </div>
+      <style>#add-row{grid-template-columns:2fr 1fr 1fr 1fr auto;}@media(max-width:800px){#add-row{grid-template-columns:1fr 1fr;}}</style>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+      <button class="bfilter active" onclick="filterTrades('all',this)">Toutes</button>
+      <button class="bfilter" onclick="filterTrades('Bonus bienvenue',this)">Bonus</button>
+      <button class="bfilter" onclick="filterTrades('Freebet',this)">Freebet</button>
+      <button class="bfilter" onclick="filterTrades('Surebet',this)">Surebet</button>
+      <button class="bfilter" onclick="filterTrades('Value bet',this)">Value bet</button>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;">
+      <div class="tt-header"><span>Match</span><span>Bookmaker</span><span class="tt-hide">Type</span><span class="tt-hide">Date</span><span>Profit</span><span></span></div>
+      <div id="trades-list"><div class="empty-state">Aucune opération — commence par exploiter les bonus !</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULATEUR -->
+<section id="simulateur" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #5</span>
+    <div class="section-title">Simulateur de revenus</div>
+    <p class="section-sub">Projette tes revenus sur 12 mois selon ton capital et ta cadence.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="sim-grid">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
+        <div class="sim-slider-row"><label>Capital de départ</label><input type="range" min="100" max="2000" step="50" value="400" id="s-capital" oninput="simulate()"><span class="sv" id="sv-capital">400€</span></div>
+        <div class="sim-slider-row"><label>Opérations / semaine</label><input type="range" min="1" max="20" step="1" value="5" id="s-ops" oninput="simulate()"><span class="sv" id="sv-ops">5</span></div>
+        <div class="sim-slider-row"><label>Profit moyen / opération</label><input type="range" min="5" max="80" step="5" value="35" id="s-profit" oninput="simulate()"><span class="sv" id="sv-profit">35€</span></div>
+        <div class="sim-slider-row"><label>Taux de réinvestissement</label><input type="range" min="0" max="100" step="10" value="80" id="s-reinvest" oninput="simulate()"><span class="sv" id="sv-reinvest">80%</span></div>
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Résumé</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="sim-summary"></div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Projection 12 mois</div>
+        <div id="sim-months"></div>
+      </div>
+    </div>
+    <style>#sim-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#sim-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- COMPARATEUR -->
+<section id="comparateur">
+  <div class="section-inner">
+    <span class="section-tag">Outil #6</span>
+    <div class="section-title">Comparateur de cotes</div>
+    <p class="section-sub">Compare les cotes proposées par plusieurs bookmakers ANJ pour un même résultat.</p>
+    <div class="card" style="margin-top:2rem;">
+      <div class="calc-title"><span class="calc-dot"></span>Ajouter une cote</div>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr 1fr auto;gap:10px;align-items:end;" id="comp-add-row">
+        <div class="field"><label>Bookmaker</label><select id="comp-bk"></select></div>
+        <div class="field"><label>Résultat</label><input type="text" id="comp-result" placeholder="ex: PSG gagne"></div>
+        <div class="field"><label>Cote</label><input type="number" id="comp-cote" placeholder="ex: 2.35" step="0.01"></div>
+        <div class="field"><label>&nbsp;</label><button class="btn-primary" style="padding:9px 14px;font-size:0.83rem;" onclick="addCote()">Ajouter</button></div>
+      </div>
+      <style>#comp-add-row{grid-template-columns:1fr 1.5fr 1fr auto;}@media(max-width:600px){#comp-add-row{grid-template-columns:1fr 1fr;}}</style>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:0.6rem;flex-wrap:wrap;">
+        <div class="field" style="flex:1;margin:0;max-width:200px;"><label>Mise de référence (€)</label><input type="number" id="comp-mise" value="100" oninput="renderComp()"></div>
+        <button class="reset-btn" style="align-self:flex-end;" onclick="resetComp()">Effacer</button>
+      </div>
+    </div>
+    <div id="comp-table-wrap" style="display:none;margin-top:1rem;">
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;">
+        <div class="comp-header"><span>Bookmaker</span><span>Résultat</span><span>Cote</span><span>Gain potentiel</span><span></span></div>
+        <div id="comp-rows"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTES -->
+<section id="notes" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #7</span>
+    <div class="section-title">Notes par bookmaker</div>
+    <p class="section-sub">Prends des notes sur chaque bookmaker — cotes intéressantes, alertes de limitation, astuces personnelles.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="notes-grid">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Ajouter une note</div>
+        <div class="field"><label>Bookmaker</label><select id="note-bk"></select></div>
+        <div class="field"><label>Ta note</label><textarea id="note-text" placeholder="ex: Bwin - limite de 30€ sur les paris simples depuis le 15 mars..." style="width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;outline:none;resize:vertical;min-height:80px;transition:border-color 0.2s;"></textarea></div>
+        <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.85rem;" onclick="addNote()">Enregistrer la note</button>
+      </div>
+      <div>
+        <div class="calc-title"><span class="calc-dot"></span>Mes notes</div>
+        <div id="notes-list"><div class="empty-state">Aucune note enregistrée.</div></div>
+      </div>
+    </div>
+    <style>#notes-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#notes-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- GUIDE -->
+
+<!-- MINUTEUR ANTI-ERREUR -->
+
+<section id="minuteur" style="background:var(--dark);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #8</span>
+    <div class="section-title">Minuteur anti-panique</div>
+    <p class="section-sub">Lance le timer dès que tu places le premier pari. Tu as X secondes pour placer la couverture et éviter toute erreur de précipitation.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="timer-grid">
+      <div class="card" style="text-align:center;">
+        <div class="calc-title" style="justify-content:center;"><span class="calc-dot"></span>Timer de couverture</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+          <div class="timer-ring">
+            <svg width="160" height="160" id="timer-svg">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--dark3)" stroke-width="10"/>
+              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="439.8" stroke-dashoffset="0" id="timer-arc"
+                style="transform:rotate(-90deg);transform-origin:80px 80px;transition:stroke-dashoffset 1s linear,stroke 0.3s;"/>
+            </svg>
+            <div class="timer-text" id="timer-display">05:00</div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);" id="timer-status">Prêt — entre ta mise, puis démarre</div>
+          <div class="timer-controls">
+            <button class="timer-btn start" id="timer-start-btn" onclick="timerStart()">▶ Démarrer</button>
+            <button class="timer-btn pause" id="timer-pause-btn" onclick="timerPause()" style="display:none;">⏸ Pause</button>
+            <button class="timer-btn reset" onclick="timerReset()">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Paramètres du timer</div>
+        <div class="field"><label>Durée (minutes)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <button class="tab active" id="td-2" onclick="setTimerDuration(2,this)">2 min</button>
+            <button class="tab" id="td-3" onclick="setTimerDuration(3,this)">3 min</button>
+            <button class="tab" id="td-5" onclick="setTimerDuration(5,this)">5 min</button>
+            <button class="tab" id="td-10" onclick="setTimerDuration(10,this)">10 min</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="calc-title" style="margin-bottom:0.7rem;"><span class="calc-dot"></span>À vérifier avant de placer</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:0.83rem;">
+          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ J'ai vérifié les cotes dans le calculateur</div>
+          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ J'ai le bon bookmaker de couverture ouvert</div>
+          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ Mon solde est suffisant sur les 2 comptes</div>
+          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ Je connais les mises exactes (pas approximatives)</div>
+        </div>
+        <div class="summary-box" style="margin-top:0.9rem;">
+          <div class="summary-box-title">Conseil</div>
+          <div class="summary-box-text">Place toujours le pari principal EN DERNIER si les cotes sont stables. Pour les cotes volatiles, commence par la couverture.</div>
+        </div>
+      </div>
+    </div>
+    <style>#timer-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#timer-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- VALUE METER -->
+<section id="valuemeter" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #9</span>
+    <div class="section-title">Value Meter — Détecteur de valeur</div>
+    <p class="section-sub">Entre la probabilité réelle d'un événement et la cote proposée. L'outil calcule si le pari a de la valeur mathématique positive.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="vm-grid">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
+        <div class="field"><label>Cote proposée par le bookmaker</label><input type="number" id="vm-cote" value="2.50" step="0.05" oninput="calcValue()"></div>
+        <div class="field">
+          <label>Ta probabilité estimée (%)</label>
+          <input type="range" min="1" max="99" value="45" id="vm-prob" oninput="calcValue();document.getElementById('vm-prob-val').textContent=this.value+'%'" style="width:100%;accent-color:var(--acc);">
+          <div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="font-size:0.72rem;color:var(--muted);">1% (improbable)</span><span style="font-size:0.9rem;font-weight:700;color:var(--acc);" id="vm-prob-val">45%</span><span style="font-size:0.72rem;color:var(--muted);">99% (certain)</span></div>
+        </div>
+        <div class="field"><label>Mise envisagée (€)</label><input type="number" id="vm-mise" value="50" oninput="calcValue()"></div>
+        <div class="divider"></div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;">
+          <strong style="color:var(--text);">Comment estimer la probabilité ?</strong><br>
+          Regarde les stats des équipes, la forme récente, les confrontations directes. Pour un match PSG-Lens, si le PSG gagne 70% du temps historiquement sur les 2 ans → entre 70%.
+        </div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Analyse de valeur</div>
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;" id="vm-edge">+0.0%</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Edge / Avantage mathématique</div>
+        </div>
+        <div class="vm-gauge"><div class="vm-fill" id="vm-fill" style="width:50%;background:var(--acc)"></div></div>
+        <div class="vm-labels"><span>Pas de valeur</span><span>Neutre</span><span>Forte valeur</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0;">
+          <div class="tstat"><div class="tstat-val" id="vm-fair">—</div><div class="tstat-label">Cote juste</div></div>
+          <div class="tstat"><div class="tstat-val" id="vm-ev">—</div><div class="tstat-label">Espérance / mise</div></div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-box-title" id="vm-verdict-title">En attente</div>
+          <div class="summary-box-text" id="vm-verdict">Entre la cote et ta probabilité estimée pour voir l'analyse.</div>
+        </div>
+      </div>
+    </div>
+    <style>#vm-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#vm-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- STATISTIQUES -->
+<section id="stats">
+  <div class="section-inner">
+    <span class="section-tag">Outil #10</span>
+    <div class="section-title">Statistiques avancées</div>
+    <p class="section-sub">Analyse détaillée de tes performances — par mois, par bookmaker, par type d'opération.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="stats-grid">
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Progression cumulée</div>
+        <div class="cumul-chart" id="cumul-chart-wrap">
+          <svg class="cumul-svg" id="cumul-svg" viewBox="0 0 400 120" preserveAspectRatio="none">
+            <text x="200" y="65" text-anchor="middle" fill="var(--muted)" font-size="12">Aucune donnée</text>
+          </svg>
+        </div>
+        <div class="calc-title" style="margin-top:1rem;"><span class="calc-dot"></span>Profits par mois</div>
+        <div id="monthly-stats"><div style="color:var(--muted);font-size:0.83rem;padding:0.5rem 0;">Aucune opération enregistrée.</div></div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Par bookmaker</div>
+        <div id="bk-stats"><div style="color:var(--muted);font-size:0.83rem;">Aucune donnée.</div></div>
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Par type d'opération</div>
+        <div id="type-stats"><div style="color:var(--muted);font-size:0.83rem;">Aucune donnée.</div></div>
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Santé des comptes</div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;">Basé sur le nombre d'opérations par bookmaker — varie tes mises si tu dépasses 10 ops.</p>
+        <div class="health-grid" id="health-grid"></div>
+      </div>
+    </div>
+    <style>#stats-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#stats-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<!-- CHECKLIST PRÉ-PARI -->
+<section id="checklist" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Outil #11</span>
+    <div class="section-title">Checklist pré-pari</div>
+    <p class="section-sub">Coche chaque point avant de placer tes mises. Zéro erreur coûteuse = profits garantis.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="cl-grid">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+          <div class="calc-title" style="margin-bottom:0;"><span class="calc-dot"></span>Checklist du jour</div>
+          <button class="export-btn" onclick="resetChecklist()">↺ Réinitialiser</button>
+        </div>
+        <div class="checklist-progress"><div class="checklist-fill" id="cl-fill" style="width:0%"></div></div>
+        <div id="cl-status" style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">0 / 0 points validés</div>
+        <div id="checklist-items"></div>
+      </div>
+      <div class="card">
+        <div class="calc-title"><span class="calc-dot"></span>Ajouter un item personnalisé</div>
+        <div class="field"><label>Item de checklist</label><input type="text" id="cl-new-item" placeholder="ex: Vérifier les blessures avant de miser"></div>
+        <button class="btn-primary" style="font-size:0.83rem;padding:9px 16px;" onclick="addCheckItem()">+ Ajouter</button>
+        <div class="divider"></div>
+        <div class="calc-title"><span class="calc-dot"></span>Règles d'or rappel</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Ne jamais miser plus que ce que le calculateur indique</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Toujours ouvrir les 2 bookmakers avant de commencer</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Vérifier le solde de chaque compte avant chaque opération</div>
+          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Capturer une screenshot des mises placées (preuve)</div>
+        </div>
+      </div>
+    </div>
+    <style>#cl-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#cl-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<section id="guide">
+  <div class="section-inner">
+    <span class="section-tag">Pour débutants</span>
+    <div class="section-title">Guide matched betting France</div>
+    <p class="section-sub">Tout ce qu'il faut savoir pour générer tes premiers 200€.</p>
+    <div class="tabs" style="margin-top:1.5rem;">
+      <button class="tab active" onclick="switchGuideTab('steps',this)">Les étapes</button>
+      <button class="tab" onclick="switchGuideTab('faq',this)">FAQ</button>
+      <button class="tab" onclick="switchGuideTab('glossaire',this)">Glossaire</button>
+    </div>
+    <div class="tab-section active" id="gt-steps">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.3rem;">
+        <div class="guide-step"><div class="step-num">01</div><div class="step-title">Comprendre le principe</div><div class="step-desc">Le matched betting consiste à couvrir toutes les issues d'un match sur 2 bookmakers différents, en utilisant un bonus pour garantir un profit. Ce n'est pas du pari classique — c'est de l'arbitrage mathématique.</div></div>
+        <div class="guide-step"><div class="step-num">02</div><div class="step-title">Ouvrir tes comptes</div><div class="step-desc">Crée des comptes sur les 16 bookmakers ANJ. Commence par Bwin, Netbet et Vbet qui proposent les meilleurs freebets avec des taux de conversion élevés.</div></div>
+        <div class="guide-step"><div class="step-num">03</div><div class="step-title">Calculer tes mises</div><div class="step-desc">Utilise le calculateur ci-dessus. Entre les cotes des 2 bookmakers. L'outil calcule exactement quoi miser pour couvrir toutes les issues du match.</div></div>
+        <div class="guide-step"><div class="step-num">04</div><div class="step-title">Exploiter les freebets</div><div class="step-desc">Après ton pari qualificatif, tu reçois un freebet. Vise des cotes ≥ 4.00 pour convertir ~65-75% du freebet en cash réel. Le calculateur Freebet t'aide.</div></div>
+        <div class="guide-step"><div class="step-num">05</div><div class="step-title">Suivre et réinvestir</div><div class="step-desc">Note chaque opération dans le tracker. Réinvestis 80% des profits pour faire croître ton capital. Utilise le simulateur pour projeter tes revenus sur 12 mois.</div></div>
+        <div class="guide-step"><div class="step-num">06</div><div class="step-title">Rester discret</div><div class="step-desc">Varie tes montants de mises (évite les chiffres ronds identiques). Espace tes opérations. N'enchaîne jamais 5 surebets en 1h sur le même bookmaker.</div></div>
+      </div>
+    </div>
+    <div class="tab-section" id="gt-faq">
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Est-ce légal en France ?<span class="faq-icon">+</span></div><div class="faq-a">Oui, 100% légal. Tu paries sur des sites agréés ANJ. Le matched betting n'est pas de la fraude — tu utilises les offres promotionnelles à ton avantage, comme n'importe quel parieur intelligent.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Quel est le risque réel ?<span class="faq-icon">+</span></div><div class="faq-a">Le risque principal est humain : faire une erreur de mise ou ne pas suivre les calculs. En utilisant le calculateur à la lettre, le risque financier est quasi nul sur chaque opération.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Pourquoi pas Betfair ou Smarkets ?<span class="faq-icon">+</span></div><div class="faq-a">Les exchanges (bourses de paris) sont illégaux en France depuis 2010. PariMalin utilise uniquement des bookmakers agréés ANJ — c'est ce qui le rend unique sur le marché français.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Combien faut-il au départ ?<span class="faq-icon">+</span></div><div class="faq-a">300 à 500€ idéalement, répartis sur 8 à 10 comptes (30-50€ par compte). Ce capital ne disparaît pas — il tourne entre les bookmakers au fil des opérations.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mon compte peut-il être limité ?<span class="faq-icon">+</span></div><div class="faq-a">Oui, les bookmakers peuvent limiter les comptes trop gagnants. Pour l'éviter : varie tes montants de mises, espace tes opérations, prends des notes sur chaque bookmaker. Avec 16 bookmakers, une limitation ne stoppe jamais tout.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Dois-je déclarer mes gains ?<span class="faq-icon">+</span></div><div class="faq-a">En France, les gains aux paris sportifs ne sont pas imposables pour les particuliers. Si tu génères des revenus très importants de manière régulière, consulte un conseiller fiscal.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes données sont-elles en sécurité ?<span class="faq-icon">+</span></div><div class="faq-a">Oui. Toutes tes données (tracker, notes, bonus cochés) sont stockées uniquement sur ton appareil via le localStorage de ton navigateur. Aucune donnée n'est envoyée vers un serveur externe.</div></div>
+      </div>
+    </div>
+    <div class="tab-section" id="gt-glossaire">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:0.9rem;">
+        <div class="glossary-item"><div class="glossary-term">Matched Betting</div><div class="glossary-def">Technique consistant à couvrir toutes les issues d'un pari sur plusieurs bookmakers pour générer un profit garanti grâce aux bonus.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Freebet</div><div class="glossary-def">Pari gratuit offert par un bookmaker. La mise n'est pas incluse dans le gain — tu ne récupères que les gains nets.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Pari qualificatif</div><div class="glossary-def">Pari initial effectué pour débloquer un bonus ou freebet. Généralement couvert pour minimiser la perte lors du déclenchement.</div></div>
+        <div class="glossary-item"><div class="glossary-term">ANJ</div><div class="glossary-def">Autorité Nationale des Jeux — régulateur français qui certifie les bookmakers légaux opérant en France.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Surebet</div><div class="glossary-def">Opportunité d'arbitrage où les cotes de différents bookmakers permettent de couvrir toutes les issues avec un profit garanti.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Value Bet</div><div class="glossary-def">Pari où la cote offerte est supérieure à la probabilité réelle de l'événement — offre une espérance mathématique positive sur le long terme.</div></div>
+        <div class="glossary-item"><div class="glossary-term">ROI</div><div class="glossary-def">Return On Investment — pourcentage de gain par rapport au capital investi. Un ROI de 5% signifie 5€ de gain pour 100€ misés.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Taux de conversion</div><div class="glossary-def">Pourcentage d'un freebet converti en cash réel. Avec de bonnes cotes (≥ 4.50), tu peux atteindre 65-75% de conversion.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Limitation de compte</div><div class="glossary-def">Action d'un bookmaker qui réduit le montant maximum autorisé sur tes paris, souvent suite à trop de gains. Se gère en variant ses mises.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" style="background:var(--dark2);">
+  <div class="section-inner">
+    <span class="section-tag">Ressources</span>
+    <div class="section-title">Blog & guides</div>
+    <p class="section-sub">Stratégies, analyses et tutoriels pour maximiser tes profits.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.3rem;margin-top:2rem;">
+      <div class="blog-card"><div class="blog-img bg1">💡</div><div class="blog-body"><div class="blog-tag">Guide</div><div class="blog-title">Comment exploiter le bonus Bwin en 2026</div><div class="blog-excerpt">Tout ce qu'il faut savoir sur le bonus de bienvenue Bwin, étape par étape avec calculs inclus.</div><div class="blog-meta"><span>5 min</span><span>Débutant</span></div></div></div>
+      <div class="blog-card"><div class="blog-img bg2">📊</div><div class="blog-body"><div class="blog-tag">Stratégie</div><div class="blog-title">De 200€ à 500€/mois sans exchange</div><div class="blog-excerpt">Comment scaler ses gains une fois les bonus épuisés, uniquement avec des bookmakers ANJ français.</div><div class="blog-meta"><span>8 min</span><span>Intermédiaire</span></div></div></div>
+      <div class="blog-card"><div class="blog-img bg3">🏆</div><div class="blog-body"><div class="blog-tag">Comparatif</div><div class="blog-title">Top 5 bookmakers ANJ pour le matched betting</div><div class="blog-excerpt">Classement selon la qualité des bonus, la liquidité des cotes et le risque de limitation de compte.</div><div class="blog-meta"><span>6 min</span><span>Tous niveaux</span></div></div></div>
+      <div class="blog-card"><div class="blog-img bg4">🤖</div><div class="blog-body"><div class="blog-tag">IA</div><div class="blog-title">Utiliser ChatGPT pour trouver les meilleures cotes</div><div class="blog-excerpt">Comment l'IA peut t'aider à analyser les cotes et identifier les value bets rapidement.</div><div class="blog-meta"><span>7 min</span><span>Avancé</span></div></div></div>
+      <div class="blog-card"><div class="blog-img bg5">🛡️</div><div class="blog-body"><div class="blog-tag">Sécurité</div><div class="blog-title">Éviter la limitation de compte : les règles d'or</div><div class="blog-excerpt">Les bonnes pratiques pour durer le plus longtemps possible sur chaque bookmaker ANJ.</div><div class="blog-meta"><span>5 min</span><span>Intermédiaire</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PREMIUM -->
+<section id="premium">
+  <div class="section-inner">
+    <span class="section-tag">Futur</span>
+    <div class="section-title">Version Premium — Bientôt</div>
+    <p class="section-sub">Fonctionnalités avancées en cours de développement.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;max-width:680px;" id="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Gratuit (actuel)</div>
+        <div class="pricing-price">0€ <span>/ mois</span></div>
+        <div class="pricing-desc">L'outil complet pour démarrer</div>
+        <ul class="pricing-features">
+          <li>Calculateur 3 modes</li><li>Comparateur de cotes</li><li>16 Bonus ANJ avec filtres</li><li>Tracker illimité + export CSV/JSON</li><li>Simulateur 12 mois</li><li>Notes par bookmaker</li><li>Guide + FAQ + Glossaire</li><li>Sauvegarde locale automatique</li><li>Dashboard avec graphiques</li>
+          <li class="no">Alertes cotes temps réel</li><li class="no">Sync multi-appareils</li>
+        </ul>
+        <button class="pricing-btn outline" disabled style="opacity:0.5;cursor:default;">Déjà actif ✓</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">BIENTÔT</div>
+        <div class="pricing-name">Premium</div>
+        <div class="pricing-price">9.90€ <span>/ mois</span></div>
+        <div class="pricing-desc">Pour les parieurs sérieux</div>
+        <ul class="pricing-features">
+          <li>Tout le gratuit inclus</li><li>Alertes cotes en temps réel</li><li>Sync multi-appareils</li><li>Détection de surebets auto</li><li>Value bets assistés par IA</li><li>Statistiques avancées</li><li>Support prioritaire Discord</li>
+        </ul>
+        <button class="pricing-btn solid" onclick="openModal()">Me notifier au lancement</button>
+      </div>
+    </div>
+    <style>#pricing-grid{grid-template-columns:1fr 1fr;}@media(max-width:600px){#pricing-grid{grid-template-columns:1fr;}}</style>
+  </div>
+</section>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Me notifier au lancement Premium</div>
+    <div class="modal-sub">Laisse ton email pour être prévenu en priorité dès le lancement.</div>
+    <div class="field"><label>Adresse email</label><input type="email" id="modal-email" placeholder="ton@email.fr" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;"></div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.9rem;" onclick="closeModal();showToast('✅ Tu seras notifié au lancement !','ok')">Confirmer</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo">PariMalin.fr</div><div class="footer-desc">Le premier outil de matched betting 100% adapté au marché français. 16 bookmakers ANJ, 6 outils intégrés, sauvegarde locale automatique.</div></div>
+      <div><div class="footer-col-title">Outils</div><ul class="footer-links"><li><a href="#calculateur">Calculateur</a></li><li><a href="#bonus">Bonus ANJ</a></li><li><a href="#tracker">Tracker</a></li><li><a href="#simulateur">Simulateur</a></li><li><a href="#comparateur">Comparateur</a>
+    <a href="#scanner">🔥 Scanner</a></li><li><a href="#notes">Notes</a></li></ul></div>
+      <div><div class="footer-col-title">Ressources</div><ul class="footer-links"><li><a href="#guide">Guide débutant</a></li><li><a href="#guide">FAQ</a></li><li><a href="#guide">Glossaire</a></li><li><a href="#blog">Blog</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">⚠️ Le jeu comporte des risques : endettement, isolement, dépendance. Pour être aidé : <strong>09-74-75-13-13</strong>. PariMalin.fr est un outil de calcul personnel. Réservé aux majeurs. Jouez de manière responsable.</div>
+      <div class="footer-copy">© 2026 PariMalin.fr</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const BKS=[
+  {name:'Betclic',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
+  {name:'Bwin',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
+  {name:'Winamax',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
+  {name:'Unibet',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
+  {name:'PMU',bonus:100,type:'rembourse',profit:55,diff:'🟡 Moyen'},
+  {name:'Netbet',bonus:100,type:'freebet',profit:65,diff:'🟢 Facile'},
+  {name:'Vbet',bonus:100,type:'freebet',profit:65,diff:'🟢 Facile'},
+  {name:'Genybet',bonus:100,type:'rembourse',profit:50,diff:'🟡 Moyen'},
+  {name:'Betsson',bonus:100,type:'freebet',profit:65,diff:'🟡 Moyen'},
+  {name:'Circusbet',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
+  {name:'Daznbet',bonus:100,type:'rembourse',profit:55,diff:'🟡 Moyen'},
+  {name:'Feelingbet',bonus:50,type:'rembourse',profit:28,diff:'🔴 Difficile'},
+  {name:'Olybet',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
+  {name:'Parions Sport',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
+  {name:'Pokerstars Sports',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
+  {name:'Yes or No',bonus:50,type:'freebet',profit:32,diff:'🔴 Difficile'},
+];
+const BKNAMES=BKS.map(b=>b.name);
+const OPTS=BKNAMES.map(n=>`<option>${n}</option>`).join('');
+const OPTS2=BKNAMES.map((n,i)=>`<option${i===1?' selected':''}`+`>${n}</option>`).join('');
+
+// Inject selects
+const selMap={bk1:OPTS,bk2:OPTS2,fb_bk1:OPTS,fb_bk2:OPTS2,dc_bk1:OPTS,dc_bk2:OPTS2,'t-bk':OPTS,'comp-bk':OPTS,'note-bk':OPTS};
+Object.entries(selMap).forEach(([id,opts])=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+
+// Storage
+let completedBks=new Set(JSON.parse(localStorage.getItem('pm_bks')||'[]'));
+let trades=JSON.parse(localStorage.getItem('pm_trades')||'[]');
+let goalAmount=parseInt(localStorage.getItem('pm_goal')||'200');
+let cotes=JSON.parse(localStorage.getItem('pm_cotes')||'[]');
+let notes=JSON.parse(localStorage.getItem('pm_notes')||'[]');
+let currentCalcResult=null;
+let tradeFilter='all';
+let bonusFilter='all';
+
+function save(){
+  localStorage.setItem('pm_bks',JSON.stringify([...completedBks]));
+  localStorage.setItem('pm_trades',JSON.stringify(trades));
+  localStorage.setItem('pm_goal',goalAmount);
+  localStorage.setItem('pm_cotes',JSON.stringify(cotes));
+  localStorage.setItem('pm_notes',JSON.stringify(notes));
+}
+
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function toggleNav(){document.getElementById('navLinks').classList.toggle('open');}
+
+window.addEventListener('scroll',()=>{
+  const ids=['dashboard','calculateur','bonus','tracker','simulateur','comparateur','notes','guide','premium'];
+  let cur='';
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-80)cur=id;});
+  document.querySelectorAll('.nav-links a').forEach(a=>{a.classList.remove('active');if(a.getAttribute('href')==='#'+cur)a.classList.add('active');});
+});
+
+// TABS
+function switchCalcTab(id,btn){
+  document.querySelectorAll('#calculateur .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#calculateur .tab-section').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('ct-'+id).classList.add('active');
+  if(id==='freebet')calcFreebet();else if(id==='double')calcDouble();else calculate();
+}
+function switchGuideTab(id,btn){
+  document.querySelectorAll('#guide .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#guide .tab-section').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('gt-'+id).classList.add('active');
+}
+
+// CALCULATEUR
+function setResults(m2,m3,cap,profit,roi,scenarios){
+  document.getElementById('r-m2').textContent=m2.toFixed(0)+'€';
+  document.getElementById('r-m3').textContent=m3>0?m3.toFixed(0)+'€':'—';
+  document.getElementById('row-m3').style.display=m3>0?'flex':'none';
+  document.getElementById('r-total').textContent=cap.toFixed(0)+'€';
+  document.getElementById('r-profit').textContent=(profit>=0?'+':'')+profit.toFixed(0)+'€';
+  document.getElementById('r-roi').textContent=roi.toFixed(1)+'%';
+  let html='';
+  scenarios.forEach(s=>{
+    const cls=s.v>=-10?'b-ok':'b-bad';
+    html+=`<div class="result-item"><span style="font-size:0.8rem">${s.l} <span style="color:var(--muted);font-size:0.7rem">${s.p}</span></span><span class="badge ${cls}">${s.v>=0?'+':''}${s.v.toFixed(0)}€</span></div>`;
+  });
+  document.getElementById('scenarios').innerHTML=html;
+  const minV=Math.min(...scenarios.map(s=>s.v));
+  document.getElementById('summary-text').textContent=minV>=-5?'✅ Excellent — risque quasi nul.':minV>=-20?'⚠️ Risque modéré — vérifie les cotes.':'❌ Cotes défavorables — cherche mieux.';
+}
+
+function calculate(){
+  const mise=parseFloat(document.getElementById('mise').value)||100;
+  const c1=parseFloat(document.getElementById('cote1').value)||3.10;
+  const c2=parseFloat(document.getElementById('cote2').value)||2.10;
+  const c3=parseFloat(document.getElementById('cote3').value)||3.25;
+  const mkt=document.getElementById('mkt').value;
+  const bk1=document.getElementById('bk1').value;
+  const bk2=document.getElementById('bk2').value;
+  document.getElementById('cote3-field').style.display=mkt==='3way'?'block':'none';
+  let m2,m3=0,cap,scenarios,profit;
+  if(mkt==='3way'){
+    const d=c2*c3-c2-c3;if(d<=0){document.getElementById('summary-text').textContent='⚠️ Cotes invalides.';return;}
+    m2=(mise*c3)/d;m3=(mise*c2)/d;cap=mise+m2+m3;
+    const s1=(m2*c2)-mise-m3,s2=(m3*c3)-mise-m2,s3=(mise*c1)-mise-m2-m3;
+    profit=Math.min(s1,s2,s3);
+    scenarios=[{l:`Issue 1 (${bk2})`,v:s1,p:'~50%'},{l:`Nul (${bk2})`,v:s2,p:'~25%'},{l:`Ton pari ${bk1}`,v:s3,p:'~25%'}];
+  }else{
+    m2=(mise*c1)/c2;cap=mise+m2;
+    const s1=(m2*c2)-mise,s2=(mise*c1)-m2;
+    profit=Math.min(s1,s2);
+    scenarios=[{l:`Couverture (${bk2})`,v:s1,p:'~55%'},{l:`Pari ${bk1}`,v:s2,p:'~45%'}];
+  }
+  setResults(m2,m3,cap,profit,(profit/cap*100),scenarios);
+  currentCalcResult={match:bk1+' vs '+bk2,profit:parseFloat(profit.toFixed(2)),bk:bk1,type:'Surebet'};
+}
+
+function calcFreebet(){
+  const fb=parseFloat(document.getElementById('fb_val').value)||100;
+  const c1=parseFloat(document.getElementById('fb_c1').value)||4.50;
+  const c2=parseFloat(document.getElementById('fb_c2').value)||4.20;
+  const bk1=document.getElementById('fb_bk1').value;
+  const bk2=document.getElementById('fb_bk2').value;
+  const mise=(fb*(c1-1))/c2;
+  const pG=fb*(c1-1)-mise,pP=-mise,taux=pG/fb*100;
+  setResults(mise,0,mise,pG,taux,[{l:'Freebet gagne',v:pG,p:''},{l:`Freebet perd → ${bk2}`,v:pP,p:''}]);
+  currentCalcResult={match:'Freebet '+bk1,profit:parseFloat(pG.toFixed(2)),bk:bk1,type:'Freebet'};
+}
+
+function calcDouble(){
+  const mise=parseFloat(document.getElementById('dc_mise').value)||100;
+  const c1=parseFloat(document.getElementById('dc_c1').value)||1.45;
+  const c2=parseFloat(document.getElementById('dc_c2').value)||1.55;
+  const bk1=document.getElementById('dc_bk1').value,bk2=document.getElementById('dc_bk2').value;
+  const m1=mise*c2/(c1+c2),m2=mise*c1/(c1+c2);
+  const g1=m1*c1-m2,g2=m2*c2-m1,gN=-mise;
+  setResults(m1,m2,mise,Math.min(g1,g2),(Math.min(g1,g2)/mise*100),[{l:`Dom/Nul (${bk1})`,v:g1,p:''},{l:`Nul/Ext (${bk2})`,v:g2,p:''},{l:'Résultat non couvert',v:gN,p:''}]);
+}
+
+function addFromCalc(){
+  if(!currentCalcResult){showToast('Lance d\'abord un calcul','err');return;}
+  trades.unshift({...currentCalcResult,date:new Date().toLocaleDateString('fr-FR')});
+  save();renderTracker();renderDashboard();showToast('✅ Enregistré dans le tracker !','ok');
+}
+
+// BONUS
+let bFilter='all';
+function filterBonus(f,btn){bFilter=f;document.querySelectorAll('#bonus .bfilter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderBonusGrid();}
+function renderBonusGrid(){
+  const grid=document.getElementById('bonus-grid');
+  let html='',tB=0,tP=0,dP=0;
+  BKS.forEach((bk,i)=>{
+    const done=completedBks.has(i);
+    if(!done){tB+=bk.bonus;tP+=bk.profit;}else{dP+=bk.profit;}
+    if(bFilter==='freebet'&&bk.type!=='freebet')return;
+    if(bFilter==='rembourse'&&bk.type!=='rembourse')return;
+    if(bFilter==='todo'&&done)return;
+    if(bFilter==='done'&&!done)return;
+    const tc=bk.type==='freebet'?'type-freebet':'type-rembourse';
+    const tl=bk.type==='freebet'?'Freebet':'Pari remboursé';
+    html+=`<div class="bonus-card${done?' completed':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span class="bk-name">${bk.name}</span><span class="bk-amount">+${bk.bonus}€</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+        <span class="bk-type ${tc}">${tl}</span>
+        <span style="font-size:0.7rem;color:var(--muted);">${bk.diff}</span>
+        <button class="bk-toggle ${done?'bk-done':'bk-todo'}" onclick="toggleBonus(${i})">${done?'✓ Exploité':'À faire'}</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);"><span>Profit estimé</span><span style="color:var(--success);font-weight:700;">+${bk.profit}€</span></div>
+      <div class="bonus-prog"><div class="bonus-prog-fill" style="width:${done?100:0}%"></div></div>
+    </div>`;
+  });
+  grid.innerHTML=html||'<div style="color:var(--muted);font-size:0.83rem;padding:1rem;">Aucun bookmaker dans ce filtre.</div>';
+  document.getElementById('bt-total').textContent=tB+'€';
+  document.getElementById('bt-profit').textContent=tP+'€';
+  document.getElementById('bt-restants').textContent=BKS.length-completedBks.size;
+  document.getElementById('bt-done').textContent='+'+dP+'€';
+}
+function toggleBonus(i){
+  if(completedBks.has(i))completedBks.delete(i);else completedBks.add(i);
+  save();renderBonusGrid();renderDashboard();
+  showToast(completedBks.has(i)?'✅ Bonus marqué comme exploité':'↩ Remis à faire','ok');
+}
+
+// TRACKER
+let tFilter='all';
+function filterTrades(f,btn){tFilter=f;document.querySelectorAll('#tracker .bfilter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTracker();}
+function addTrade(){
+  const match=document.getElementById('t-match').value.trim();
+  const profit=parseFloat(document.getElementById('t-profit-input').value);
+  const bk=document.getElementById('t-bk').value;
+  const type=document.getElementById('t-type').value;
+  if(!match||isNaN(profit)){showToast('Remplis tous les champs','err');return;}
+  trades.unshift({match,profit,bk,type,date:new Date().toLocaleDateString('fr-FR')});
+  document.getElementById('t-match').value='';document.getElementById('t-profit-input').value='';
+  save();renderTracker();renderDashboard();renderStats();showToast('✅ Opération enregistrée !','ok');
+}
+function deleteTrade(i){if(!confirm('Supprimer ?'))return;trades.splice(i,1);save();renderTracker();renderDashboard();showToast('Supprimé','info');}
+function renderTracker(){
+  const total=trades.reduce((s,t)=>s+t.profit,0);
+  const wins=trades.filter(t=>t.profit>=0).length;
+  const best=trades.length?Math.max(...trades.map(t=>t.profit)):null;
+  const pct=Math.min(100,Math.max(0,total/goalAmount*100));
+  document.getElementById('t-profit').textContent=(total>=0?'+':'')+total.toFixed(0)+'€';
+  document.getElementById('t-ops').textContent=trades.length;
+  document.getElementById('t-best').textContent=best!==null?(best>=0?'+':'')+best.toFixed(0)+'€':'—';
+  document.getElementById('t-winrate').textContent=trades.length?Math.round(wins/trades.length*100)+'%':'—';
+  document.getElementById('goal-pct').textContent=Math.max(0,total).toFixed(0)+' / '+goalAmount+'€';
+  document.getElementById('goal-fill').style.width=pct+'%';
+  const filtered=tFilter==='all'?trades:trades.filter(t=>t.type===tFilter);
+  if(!filtered.length){document.getElementById('trades-list').innerHTML='<div class="empty-state">Aucune opération dans ce filtre.</div>';return;}
+  let html='';
+  filtered.forEach((t)=>{
+    const idx=trades.indexOf(t);
+    const cls=t.profit>=0?'pos':'neg';
+    html+=`<div class="tt-row"><span>${t.match}</span><span><span class="chip">${t.bk}</span></span><span class="tt-hide" style="color:var(--muted);font-size:0.77rem">${t.type}</span><span class="tt-hide" style="color:var(--muted);font-size:0.77rem">${t.date}</span><span class="pval ${cls}">${t.profit>=0?'+':''}${t.profit.toFixed(0)}€</span><button class="del-btn" onclick="deleteTrade(${idx})">✕</button></div>`;
+  });
+  document.getElementById('trades-list').innerHTML=html;
+}
+function resetTrades(){if(!confirm('Effacer tout l\'historique ?'))return;trades=[];save();renderTracker();renderDashboard();showToast('Historique effacé','info');}
+function exportCSV(){
+  if(!trades.length){showToast('Aucune opération à exporter','err');return;}
+  const rows=[['Match','Bookmaker','Type','Date','Profit (€)'],...trades.map(t=>[t.match,t.bk,t.type,t.date,t.profit])];
+  const csv=rows.map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='parimalin_tracker.csv';a.click();
+  showToast('✅ CSV téléchargé !','ok');
+}
+function exportJSON(){
+  if(!trades.length){showToast('Aucune opération à exporter','err');return;}
+  const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify(trades,null,2));a.download='parimalin_tracker.json';a.click();
+  showToast('✅ JSON téléchargé !','ok');
+}
+function updateGoal(){
+  goalAmount=parseInt(document.getElementById('goal-select').value);
+  save();renderTracker();renderDashboard();
+}
+
+// SIMULATEUR
+function simulate(){
+  const cap=parseInt(document.getElementById('s-capital').value)||400;
+  const ops=parseInt(document.getElementById('s-ops').value)||5;
+  const profitM=parseInt(document.getElementById('s-profit').value)||35;
+  const ri=parseInt(document.getElementById('s-reinvest').value)||80;
+  document.getElementById('sv-capital').textContent=cap+'€';
+  document.getElementById('sv-ops').textContent=ops;
+  document.getElementById('sv-profit').textContent=profitM+'€';
+  document.getElementById('sv-reinvest').textContent=ri+'%';
+  const wGain=ops*profitM;
+  const items=[{l:'Gain/semaine',v:wGain+'€'},{l:'Gain/mois',v:(wGain*4)+'€'},{l:'Total 6 mois',v:(wGain*4*6)+'€'},{l:'Total 12 mois',v:(wGain*4*12)+'€'}];
+  document.getElementById('sim-summary').innerHTML=items.map(i=>`<div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.7rem;text-align:center"><div style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;color:var(--acc)">${i.v}</div><div style="font-size:0.7rem;color:var(--muted);margin-top:3px">${i.l}</div></div>`).join('');
+  let mHtml='';
+  const maxGain=wGain*4;
+  for(let m=1;m<=12;m++){
+    const mG=wGain*4;const bw=Math.min(100,mG/800*100);
+    mHtml+=`<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;"><span style="font-size:0.72rem;color:var(--muted);min-width:50px;">Mois ${m}</span><div style="flex:1;height:7px;background:var(--dark3);border-radius:4px;overflow:hidden;"><div style="height:100%;background:var(--acc);border-radius:4px;width:${bw}%"></div></div><span style="font-size:0.72rem;font-weight:700;color:var(--acc);min-width:42px;text-align:right">+${mG}€</span></div>`;
+  }
+  mHtml+=`<div style="border-top:1px solid var(--border2);padding-top:8px;margin-top:8px;display:flex;justify-content:space-between;font-size:0.83rem;"><span style="color:var(--muted)">Total 12 mois</span><span style="font-weight:700;color:var(--success)">+${wGain*4*12}€</span></div>`;
+  document.getElementById('sim-months').innerHTML=mHtml;
+}
+
+// COMPARATEUR
+function addCote(){
+  const bk=document.getElementById('comp-bk').value;
+  const result=document.getElementById('comp-result').value.trim();
+  const cote=parseFloat(document.getElementById('comp-cote').value);
+  if(!result||isNaN(cote)||cote<=1){showToast('Remplis tous les champs','err');return;}
+  cotes.push({bk,result,cote});save();renderComp();document.getElementById('comp-cote').value='';showToast('✅ Cote ajoutée','ok');
+}
+function resetComp(){cotes=[];save();renderComp();}
+function deleteCote(i){cotes.splice(i,1);save();renderComp();}
+function renderComp(){
+  if(!cotes.length){document.getElementById('comp-table-wrap').style.display='none';return;}
+  document.getElementById('comp-table-wrap').style.display='block';
+  const mise=parseFloat(document.getElementById('comp-mise').value)||100;
+  const maxC=Math.max(...cotes.map(c=>c.cote));
+  const sorted=[...cotes].sort((a,b)=>b.cote-a.cote);
+  let html='';
+  sorted.forEach((c)=>{
+    const i=cotes.indexOf(c);
+    const best=c.cote===maxC;
+    html+=`<div class="comp-row${best?' best':''}"><span>${c.bk}${best?` <span class="badge b-acc" style="margin-left:6px;">Meilleure</span>`:''}</span><span style="color:var(--muted);font-size:0.8rem">${c.result}</span><span style="font-weight:700;color:${best?'var(--acc)':'var(--text)'}">${c.cote.toFixed(2)}</span><span style="color:var(--success);font-weight:700">+${(mise*c.cote).toFixed(0)}€</span><button class="del-btn" onclick="deleteCote(${i})">✕</button></div>`;
+  });
+  document.getElementById('comp-rows').innerHTML=html;
+}
+
+// NOTES
+function addNote(){
+  const bk=document.getElementById('note-bk').value;
+  const text=document.getElementById('note-text').value.trim();
+  if(!text){showToast('Écris une note d\'abord','err');return;}
+  notes.unshift({bk,text,date:new Date().toLocaleDateString('fr-FR')});
+  document.getElementById('note-text').value='';
+  save();renderNotes();showToast('✅ Note enregistrée','ok');
+}
+function deleteNote(i){notes.splice(i,1);save();renderNotes();}
+function renderNotes(){
+  if(!notes.length){document.getElementById('notes-list').innerHTML='<div class="empty-state">Aucune note enregistrée.</div>';return;}
+  document.getElementById('notes-list').innerHTML=notes.map((n,i)=>`
+    <div class="note-item">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span class="note-bk">${n.bk}</span>
+        <button class="del-btn" onclick="deleteNote(${i})">✕</button>
+      </div>
+      <div class="note-text">${n.text}</div>
+      <div class="note-date">${n.date}</div>
+    </div>`).join('');
+}
+
+// ALERTES
+function renderAlerts(){
+  const bonusLeft=BKS.filter((_,i)=>!completedBks.has(i));
+  const total=trades.reduce((s,t)=>s+t.profit,0);
+  let alerts=[];
+  if(bonusLeft.length>0) alerts.push({icon:'🎁',title:`${bonusLeft.length} bonus disponibles`,sub:`Potentiel restant : +${bonusLeft.reduce((s,b)=>s+b.profit,0)}€`,cls:'b-acc'});
+  if(total>=goalAmount) alerts.push({icon:'🏆',title:'Objectif mensuel atteint !',sub:`Tu as généré ${total.toFixed(0)}€ ce mois. Pense à augmenter ton objectif.`,cls:'b-ok'});
+  else if(total>0) alerts.push({icon:'📈',title:`${(total/goalAmount*100).toFixed(0)}% de l'objectif atteint`,sub:`Il te manque ${(goalAmount-total).toFixed(0)}€ pour atteindre ${goalAmount}€.`,cls:'b-warn'});
+  if(trades.length===0) alerts.push({icon:'👋',title:'Bienvenue sur PariMalin !',sub:'Commence par explorer les bonus des 16 bookmakers ANJ.',cls:'b-acc'});
+  const easy=bonusLeft.filter(b=>b.diff==='🟢 Facile');
+  if(easy.length>0) alerts.push({icon:'⚡',title:`${easy.length} bonus faciles disponibles`,sub:`Recommandé : ${easy[0].name} (${easy[0].type==='freebet'?'Freebet':'Pari remboursé'}, profit estimé +${easy[0].profit}€)`,cls:'b-ok'});
+  if(!alerts.length){document.getElementById('alerts-list').innerHTML='<div style="color:var(--muted);font-size:0.83rem;">Tout est à jour !</div>';return;}
+  document.getElementById('alerts-list').innerHTML=alerts.map(a=>`<div class="alert-card"><div class="alert-icon">${a.icon}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-sub">${a.sub}</div></div><span class="badge ${a.cls}" style="flex-shrink:0;align-self:flex-start;">Alerte</span></div>`).join('');
+}
+
+// DASHBOARD
+function renderDashboard(){
+  const total=trades.reduce((s,t)=>s+t.profit,0);
+  const wins=trades.filter(t=>t.profit>=0).length;
+  const pct=Math.min(100,Math.max(0,total/goalAmount*100));
+  const bonusLeft=BKS.filter((_,i)=>!completedBks.has(i)).reduce((s,b)=>s+b.profit,0);
+  document.getElementById('d-profit').textContent=(total>=0?'+':'')+total.toFixed(0)+'€';
+  document.getElementById('d-ops').textContent=trades.length;
+  document.getElementById('d-bonus-left').textContent=bonusLeft+'€';
+  document.getElementById('d-winrate').textContent=trades.length?Math.round(wins/trades.length*100)+'%':'—';
+  document.getElementById('d-goal-pct').textContent=Math.max(0,total).toFixed(0)+' / '+goalAmount+'€';
+  document.getElementById('d-goal-fill').style.width=pct+'%';
+  [0,1,2,3,4].forEach(i=>{const el=document.getElementById('ms-'+i);if(el)el.classList.toggle('reached',pct>=(i*25));});
+  // Bar chart
+  const recent=trades.slice(0,12).reverse();
+  if(!recent.length){document.getElementById('d-bar-chart').innerHTML='<div style="color:var(--muted);font-size:0.78rem;margin:auto;">Aucune opération encore</div>';return;}
+  const maxP=Math.max(...recent.map(t=>Math.abs(t.profit)),1);
+  document.getElementById('d-bar-chart').innerHTML=recent.map(t=>{
+    const h=Math.max(4,Math.round(Math.abs(t.profit)/maxP*80));
+    return `<div class="bar-wrap"><div class="bar ${t.profit>=0?'pos':'neg'}" style="height:${h}px" title="${t.match}: ${t.profit>=0?'+':''}${t.profit}€"></div><span class="bar-lbl">${t.profit>=0?'+':''}${t.profit.toFixed(0)}</span></div>`;
+  }).join('');
+  // Donut
+  const types=['Bonus bienvenue','Freebet','Surebet','Value bet'];
+  const colors=['#FF6B1A','#00c96b','#ffb800','#4a9eff'];
+  const counts=types.map(tp=>trades.filter(t=>t.type===tp).length);
+  const totalOps=trades.length||1;
+  const canvas=document.getElementById('d-donut');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,100,100);
+  let start=-Math.PI/2;
+  counts.forEach((c,i)=>{
+    if(!c)return;
+    const slice=(c/totalOps)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(50,50);ctx.arc(50,50,46,start,start+slice);ctx.closePath();
+    ctx.fillStyle=colors[i];ctx.fill();start+=slice;
+  });
+  ctx.beginPath();ctx.arc(50,50,28,0,Math.PI*2);ctx.fillStyle='#1a1108';ctx.fill();
+  let legend='';
+  types.forEach((tp,i)=>{if(!counts[i])return;legend+=`<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span><span>${tp}</span><span style="margin-left:auto;font-weight:600">${counts[i]}</span></div>`;});
+  document.getElementById('d-legend').innerHTML=legend||'<div style="color:var(--muted);font-size:0.77rem;text-align:center;">Aucune donnée</div>';
+  renderAlerts();
+}
+
+// FAQ
+function toggleFaq(el){el.parentElement.classList.toggle('open');}
+
+// MODAL
+function openModal(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeModalOutside(e){if(e.target.id==='modal')closeModal();}
+
+
+// ===== MODE CLAIR/SOMBRE =====
+let darkMode = localStorage.getItem('pm_mode') !== 'light';
+function toggleMode() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('light', !darkMode);
+  document.getElementById('mode-btn').textContent = darkMode ? '🌙' : '☀️';
+  localStorage.setItem('pm_mode', darkMode ? 'dark' : 'light');
+}
+if (!darkMode) { document.body.classList.add('light'); document.getElementById('mode-btn').textContent = '☀️'; }
+
+// ===== MINUTEUR =====
+let timerDuration = 2 * 60;
+let timerRemaining = timerDuration;
+let timerInterval = null;
+let timerRunning = false;
+
+function setTimerDuration(min, btn) {
+  document.querySelectorAll('#minuteur .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  timerDuration = min * 60;
+  timerReset();
+}
+function timerStart() {
+  if (timerRunning) return;
+  timerRunning = true;
+  document.getElementById('timer-start-btn').style.display = 'none';
+  document.getElementById('timer-pause-btn').style.display = 'inline-flex';
+  document.getElementById('timer-status').textContent = '⏱ En cours — place ta couverture !';
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timer-status').textContent = '⚠️ Temps écoulé ! Vérifie tes mises.';
+      document.getElementById('timer-display').className = 'timer-text danger';
+      showToast('⏰ Timer écoulé ! Vérifiez tes mises de couverture.', 'err');
+    }
+  }, 1000);
+}
+function timerPause() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById('timer-start-btn').style.display = 'inline-flex';
+  document.getElementById('timer-pause-btn').style.display = 'none';
+  document.getElementById('timer-status').textContent = '⏸ En pause';
+}
+function timerReset() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = timerDuration;
+  updateTimerDisplay();
+  document.getElementById('timer-start-btn').style.display = 'inline-flex';
+  document.getElementById('timer-pause-btn').style.display = 'none';
+  document.getElementById('timer-status').textContent = 'Prêt — entre ta mise, puis démarre';
+  document.getElementById('timer-display').className = 'timer-text';
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timer-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const pct = timerRemaining / timerDuration;
+  const circumference = 2 * Math.PI * 70;
+  document.getElementById('timer-arc').style.strokeDashoffset = circumference * (1 - pct);
+  document.getElementById('timer-arc').style.stroke = pct > 0.5 ? 'var(--acc)' : pct > 0.25 ? 'var(--warning)' : 'var(--danger)';
+  if (pct <= 0.25) document.getElementById('timer-display').className = 'timer-text danger';
+  else if (pct <= 0.5) document.getElementById('timer-display').className = 'timer-text warn';
+  else document.getElementById('timer-display').className = 'timer-text';
+}
+
+// ===== VALUE METER =====
+function calcValue() {
+  const cote = parseFloat(document.getElementById('vm-cote').value) || 2.5;
+  const prob = parseInt(document.getElementById('vm-prob').value) / 100;
+  const mise = parseFloat(document.getElementById('vm-mise').value) || 50;
+  const fairCote = 1 / prob;
+  const edge = ((cote / fairCote) - 1) * 100;
+  const ev = (prob * (cote - 1) - (1 - prob)) * mise;
+  document.getElementById('vm-edge').textContent = (edge >= 0 ? '+' : '') + edge.toFixed(1) + '%';
+  document.getElementById('vm-edge').style.color = edge > 5 ? 'var(--success)' : edge > 0 ? 'var(--warning)' : 'var(--danger)';
+  document.getElementById('vm-fair').textContent = fairCote.toFixed(2);
+  document.getElementById('vm-ev').textContent = (ev >= 0 ? '+' : '') + ev.toFixed(1) + '€';
+  // Gauge: center = 50% width at edge=0, max at edge=+20%
+  const gaugeW = Math.max(5, Math.min(95, 50 + edge * 2));
+  document.getElementById('vm-fill').style.width = gaugeW + '%';
+  document.getElementById('vm-fill').style.background = edge > 5 ? 'var(--success)' : edge > 0 ? 'var(--warning)' : 'var(--danger)';
+  if (edge > 10) {
+    document.getElementById('vm-verdict-title').textContent = '🔥 Excellente valeur !';
+    document.getElementById('vm-verdict').textContent = `Edge de +${edge.toFixed(1)}% — cette cote est largement sous-estimée par le bookmaker. Espérance : ${ev >= 0 ? '+' : ''}${ev.toFixed(1)}€ sur ${mise}€ misés.`;
+  } else if (edge > 3) {
+    document.getElementById('vm-verdict-title').textContent = '✅ Bonne valeur';
+    document.getElementById('vm-verdict').textContent = `Edge de +${edge.toFixed(1)}% — ce pari est légèrement avantageux mathématiquement. Espérance : +${ev.toFixed(1)}€.`;
+  } else if (edge > 0) {
+    document.getElementById('vm-verdict-title').textContent = '⚠️ Valeur marginale';
+    document.getElementById('vm-verdict').textContent = `Edge de seulement +${edge.toFixed(1)}% — la valeur est trop faible pour être significative. Cherche mieux.`;
+  } else {
+    document.getElementById('vm-verdict-title').textContent = '❌ Pas de valeur';
+    document.getElementById('vm-verdict').textContent = `Edge négatif (${edge.toFixed(1)}%) — cette cote est surévaluée par le bookmaker. Espérance négative : ${ev.toFixed(1)}€.`;
+  }
+}
+
+// ===== STATS AVANCÉES =====
+function renderStats() {
+  if (!trades.length) {
+    ['monthly-stats','bk-stats','type-stats','health-grid'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<div style="color:var(--muted);font-size:0.83rem;padding:0.5rem 0;">Aucune opération enregistrée.</div>';
+    });
+    const svg = document.getElementById('cumul-svg');
+    if (svg) svg.innerHTML = '<text x="200" y="65" text-anchor="middle" fill="var(--muted)" font-size="12">Aucune donnée</text>';
+    return;
+  }
+
+  // Monthly stats
+  const byMonth = {};
+  trades.forEach(t => {
+    const parts = t.date ? t.date.split('/') : [];
+    const key = parts.length >= 2 ? parts[1] + '/' + (parts[2] || '26') : 'N/A';
+    if (!byMonth[key]) byMonth[key] = { profit: 0, ops: 0 };
+    byMonth[key].profit += t.profit;
+    byMonth[key].ops++;
+  });
+  const months = Object.entries(byMonth).sort((a, b) => a[0].localeCompare(b[0]));
+  const maxP = Math.max(...months.map(([, v]) => Math.abs(v.profit)), 1);
+  let mHtml = '<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">';
+  months.forEach(([month, data]) => {
+    const barW = Math.min(100, Math.abs(data.profit) / maxP * 100);
+    const cls = data.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    mHtml += `<div class="monthly-row">
+      <span style="min-width:60px;color:var(--muted);font-size:0.78rem">${month}</span>
+      <div class="monthly-bar"><div class="monthly-fill" style="width:${barW}%;background:${cls};"></div></div>
+      <span style="font-weight:700;color:${cls};min-width:60px;text-align:right">${data.profit >= 0 ? '+' : ''}${data.profit.toFixed(0)}€</span>
+      <span style="color:var(--muted);font-size:0.78rem;min-width:40px;text-align:right">${data.ops} op.</span>
+    </div>`;
+  });
+  mHtml += '</div>';
+  document.getElementById('monthly-stats').innerHTML = mHtml;
+
+  // By bookmaker
+  const byBk = {};
+  trades.forEach(t => {
+    if (!byBk[t.bk]) byBk[t.bk] = { profit: 0, ops: 0 };
+    byBk[t.bk].profit += t.profit; byBk[t.bk].ops++;
+  });
+  const bkEntries = Object.entries(byBk).sort((a, b) => b[1].profit - a[1].profit);
+  const maxBk = Math.max(...bkEntries.map(([, v]) => Math.abs(v.profit)), 1);
+  let bkHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
+  bkEntries.forEach(([bk, data]) => {
+    const bw = Math.min(100, Math.abs(data.profit) / maxBk * 100);
+    const cls = data.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    bkHtml += `<div style="font-size:0.82rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span>${bk}</span>
+        <span style="font-weight:700;color:${cls}">${data.profit >= 0 ? '+' : ''}${data.profit.toFixed(0)}€ · ${data.ops} op.</span>
+      </div>
+      <div style="height:5px;background:var(--dark3);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${bw}%;background:${cls};border-radius:3px;"></div>
+      </div>
+    </div>`;
+  });
+  bkHtml += '</div>';
+  document.getElementById('bk-stats').innerHTML = bkHtml;
+
+  // By type
+  const types = ['Bonus bienvenue', 'Freebet', 'Surebet', 'Value bet'];
+  let typeHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
+  types.forEach(tp => {
+    const tTrades = trades.filter(t => t.type === tp);
+    if (!tTrades.length) return;
+    const tProfit = tTrades.reduce((s, t) => s + t.profit, 0);
+    typeHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--dark3);border-radius:var(--radius-sm);font-size:0.82rem;">
+      <span>${tp}</span>
+      <span style="color:var(--muted);font-size:0.75rem;">${tTrades.length} op.</span>
+      <span style="font-weight:700;color:${tProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${tProfit >= 0 ? '+' : ''}${tProfit.toFixed(0)}€</span>
+    </div>`;
+  });
+  typeHtml += '</div>';
+  document.getElementById('type-stats').innerHTML = typeHtml;
+
+  // Health grid
+  const healthBks = BKS.slice(0, 8);
+  let hHtml = '';
+  healthBks.forEach(bk => {
+    const bkOps = trades.filter(t => t.bk === bk.name).length;
+    const score = Math.max(0, 100 - bkOps * 8);
+    const cls = score > 60 ? 'good' : score > 30 ? 'warn' : 'bad';
+    const label = score > 60 ? '✅ Sain' : score > 30 ? '⚠️ Surveiller' : '🔴 Risque élevé';
+    hHtml += `<div class="health-card">
+      <div class="health-name">${bk.name}</div>
+      <div class="health-bar"><div class="health-fill ${cls}" style="width:${score}%"></div></div>
+      <div class="health-label">${label} · ${bkOps} op.</div>
+    </div>`;
+  });
+  document.getElementById('health-grid').innerHTML = hHtml || '<div style="color:var(--muted);font-size:0.83rem;">Aucune opération enregistrée.</div>';
+
+  // Cumulative chart SVG
+  const sorted = [...trades].reverse();
+  if (sorted.length > 1) {
+    let cumul = 0;
+    const points = sorted.map(t => { cumul += t.profit; return cumul; });
+    const minP = Math.min(0, ...points);
+    const maxPt = Math.max(1, ...points);
+    const range = maxPt - minP;
+    const svgPoints = points.map((p, i) => {
+      const x = 10 + (i / (points.length - 1)) * 380;
+      const y = 110 - ((p - minP) / range) * 100;
+      return `${x},${y}`;
+    }).join(' ');
+    const lastP = points[points.length - 1];
+    const color = lastP >= 0 ? 'var(--success)' : 'var(--danger)';
+    const svg = `<polyline points="${svgPoints}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${points.map((p, i) => {
+      const x = 10 + (i / (points.length - 1)) * 380;
+      const y = 110 - ((p - minP) / range) * 100;
+      return `<circle cx="${x}" cy="${y}" r="3" fill="${color}" opacity="0.7"/>`;
+    }).join('')}
+    <text x="390" y="${110 - ((lastP - minP) / range) * 100 - 5}" text-anchor="end" fill="${color}" font-size="11" font-weight="700">${lastP >= 0 ? '+' : ''}${lastP.toFixed(0)}€</text>`;
+    document.getElementById('cumul-svg').innerHTML = svg;
+  }
+}
+
+// ===== CHECKLIST =====
+const DEFAULT_CHECKS = [
+  { text: "J'ai vérifié les cotes dans le calculateur", sub: "Les cotes sont à jour et non expirées" },
+  { text: "Les 2 bookmakers sont ouverts et connectés", sub: "Vérifie aussi le solde de chaque compte" },
+  { text: "Mon solde est suffisant sur les 2 comptes", sub: "Compte au moins 10% de marge supplémentaire" },
+  { text: "Je connais les mises exactes à placer", sub: "Pas de chiffres arrondis approximatifs" },
+  { text: "Le match commence dans plus de 15 minutes", sub: "Évite les matches qui démarrent dans moins de 5 min" },
+  { text: "J'ai noté l'opération dans le tracker", sub: "Ou je le ferai dès que les paris sont placés" },
+  { text: "J'ai activé le minuteur anti-panique", sub: "Optionnel mais recommandé pour les débutants" },
+];
+let checks = JSON.parse(localStorage.getItem('pm_checks') || 'null') || DEFAULT_CHECKS.map(c => ({ ...c, done: false }));
+let customChecks = JSON.parse(localStorage.getItem('pm_custom_checks') || '[]');
+
+function renderChecklist() {
+  const allChecks = [...checks, ...customChecks];
+  const done = allChecks.filter(c => c.done).length;
+  const pct = allChecks.length ? (done / allChecks.length * 100) : 0;
+  document.getElementById('cl-fill').style.width = pct + '%';
+  document.getElementById('cl-status').textContent = `${done} / ${allChecks.length} points validés${pct === 100 ? ' 🎉' : ''}`;
+  document.getElementById('cl-fill').style.background = pct === 100 ? 'var(--success)' : 'var(--acc)';
+  let html = '';
+  allChecks.forEach((c, i) => {
+    html += `<div class="check-item${c.done ? ' done' : ''}" onclick="toggleCheck(${i})">
+      <input type="checkbox" ${c.done ? 'checked' : ''} onclick="event.stopPropagation();toggleCheck(${i})">
+      <div class="flex-1">
+        <div class="check-label">${c.text}</div>
+        ${c.sub ? `<div class="check-sub">${c.sub}</div>` : ''}
+      </div>
+      ${i >= DEFAULT_CHECKS.length ? `<button class="del-btn" onclick="event.stopPropagation();deleteCustomCheck(${i - DEFAULT_CHECKS.length})">✕</button>` : ''}
+    </div>`;
+  });
+  document.getElementById('checklist-items').innerHTML = html;
+}
+function toggleCheck(i) {
+  const allChecks = [...checks, ...customChecks];
+  if (i < checks.length) checks[i].done = !checks[i].done;
+  else customChecks[i - checks.length].done = !customChecks[i - checks.length].done;
+  localStorage.setItem('pm_checks', JSON.stringify(checks));
+  localStorage.setItem('pm_custom_checks', JSON.stringify(customChecks));
+  renderChecklist();
+  const allDone = [...checks, ...customChecks].every(c => c.done);
+  if (allDone) showToast('🎉 Checklist complète ! Tu peux parier en confiance.', 'ok');
+}
+function resetChecklist() {
+  checks = DEFAULT_CHECKS.map(c => ({ ...c, done: false }));
+  customChecks = customChecks.map(c => ({ ...c, done: false }));
+  localStorage.setItem('pm_checks', JSON.stringify(checks));
+  localStorage.setItem('pm_custom_checks', JSON.stringify(customChecks));
+  renderChecklist();
+}
+function addCheckItem() {
+  const text = document.getElementById('cl-new-item').value.trim();
+  if (!text) { showToast('Entre un texte pour l\'item', 'err'); return; }
+  customChecks.push({ text, sub: '', done: false });
+  document.getElementById('cl-new-item').value = '';
+  localStorage.setItem('pm_custom_checks', JSON.stringify(customChecks));
+  renderChecklist();
+  showToast('✅ Item ajouté à la checklist', 'ok');
+}
+function deleteCustomCheck(i) {
+  customChecks.splice(i, 1);
+  localStorage.setItem('pm_custom_checks', JSON.stringify(customChecks));
+  renderChecklist();
+}
+
+
+// ===== SCANNER DE COTES IA =====
+let scanData = [];
+let scanFilter = 'all';
+let scanLoading = false;
+
+const BK_SCANNER = ['Betclic','Bwin','Winamax','Unibet','Netbet','Vbet','PMU','Parions Sport','Betsson','Genybet'];
+
+function filterScan(f, btn) {
+  scanFilter = f;
+  document.querySelectorAll('#scanner .bfilter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScanResults();
+}
+
+
+// ===== DEMO SCAN GRATUIT =====
+function loadDemoScan() {
+  scanData = [
+    {
+      id:"m1", equipe1:"Paris Saint-Germain", equipe2:"Olympique de Marseille",
+      competition:"Ligue 1", heure:"21:00",
+      bookmakers:{
+        "Betclic":   {"1":1.62,"X":3.90,"2":5.50},
+        "Bwin":      {"1":1.65,"X":3.85,"2":5.20},
+        "Winamax":   {"1":1.63,"X":3.95,"2":5.40},
+        "Unibet":    {"1":1.61,"X":3.88,"2":5.55},
+        "Netbet":    {"1":1.66,"X":3.80,"2":5.30},
+        "Vbet":      {"1":1.64,"X":3.92,"2":5.45},
+        "PMU":       {"1":1.60,"X":3.95,"2":5.60},
+        "Parions Sport":{"1":1.62,"X":3.87,"2":5.35},
+        "Betsson":   {"1":1.63,"X":3.83,"2":5.25},
+        "Genybet":   {"1":1.61,"X":3.91,"2":5.50}
+      }
+    },
+    {
+      id:"m2", equipe1:"Olympique Lyonnais", equipe2:"AS Monaco",
+      competition:"Ligue 1", heure:"17:05",
+      bookmakers:{
+        "Betclic":   {"1":2.45,"X":3.30,"2":2.90},
+        "Bwin":      {"1":2.50,"X":3.25,"2":2.85},
+        "Winamax":   {"1":2.48,"X":3.35,"2":2.88},
+        "Unibet":    {"1":2.42,"X":3.28,"2":2.95},
+        "Netbet":    {"1":2.55,"X":3.20,"2":2.80},
+        "Vbet":      {"1":2.60,"X":3.15,"2":2.78},
+        "PMU":       {"1":2.40,"X":3.40,"2":2.98},
+        "Parions Sport":{"1":2.44,"X":3.32,"2":2.92},
+        "Betsson":   {"1":2.46,"X":3.27,"2":2.87},
+        "Genybet":   {"1":2.43,"X":3.30,"2":2.93}
+      }
+    },
+    {
+      id:"m3", equipe1:"Real Madrid", equipe2:"Atletico Madrid",
+      competition:"La Liga", heure:"20:00",
+      bookmakers:{
+        "Betclic":   {"1":2.10,"X":3.40,"2":3.60},
+        "Bwin":      {"1":2.15,"X":3.35,"2":3.55},
+        "Winamax":   {"1":2.12,"X":3.45,"2":3.50},
+        "Unibet":    {"1":2.08,"X":3.42,"2":3.65},
+        "Netbet":    {"1":2.18,"X":3.30,"2":3.45},
+        "Vbet":      {"1":2.20,"X":3.28,"2":3.40},
+        "PMU":       {"1":2.06,"X":3.50,"2":3.70},
+        "Parions Sport":{"1":2.11,"X":3.38,"2":3.58},
+        "Betsson":   {"1":2.09,"X":3.36,"2":3.62},
+        "Genybet":   {"1":2.13,"X":3.44,"2":3.48}
+      }
+    },
+    {
+      id:"m4", equipe1:"Arsenal", equipe2:"Chelsea",
+      competition:"Premier League", heure:"16:30",
+      bookmakers:{
+        "Betclic":   {"1":2.20,"X":3.40,"2":3.30},
+        "Bwin":      {"1":2.25,"X":3.35,"2":3.25},
+        "Winamax":   {"1":2.22,"X":3.42,"2":3.28},
+        "Unibet":    {"1":2.18,"X":3.38,"2":3.35},
+        "Netbet":    {"1":2.28,"X":3.30,"2":3.20},
+        "Vbet":      {"1":2.30,"X":3.28,"2":3.18},
+        "PMU":       {"1":2.16,"X":3.45,"2":3.38},
+        "Parions Sport":{"1":2.19,"X":3.40,"2":3.32},
+        "Betsson":   {"1":2.21,"X":3.36,"2":3.27},
+        "Genybet":   {"1":2.17,"X":3.43,"2":3.33}
+      }
+    },
+    {
+      id:"m5", equipe1:"Stade Rennais", equipe2:"RC Lens",
+      competition:"Ligue 1", heure:"19:00",
+      bookmakers:{
+        "Betclic":   {"1":2.60,"X":3.20,"2":2.75},
+        "Bwin":      {"1":2.65,"X":3.15,"2":2.70},
+        "Winamax":   {"1":2.55,"X":3.25,"2":2.80},
+        "Unibet":    {"1":2.62,"X":3.18,"2":2.73},
+        "Netbet":    {"1":2.70,"X":3.10,"2":2.65},
+        "Vbet":      {"1":2.80,"X":3.05,"2":2.60},
+        "PMU":       {"1":2.58,"X":3.22,"2":2.78},
+        "Parions Sport":{"1":2.63,"X":3.17,"2":2.72},
+        "Betsson":   {"1":2.61,"X":3.19,"2":2.74},
+        "Genybet":   {"1":2.57,"X":3.23,"2":2.77}
+      }
+    },
+    {
+      id:"m6", equipe1:"Bayern Munich", equipe2:"Borussia Dortmund",
+      competition:"Bundesliga", heure:"18:30",
+      // Surebet intentionnel : somme proba < 1
+      bookmakers:{
+        "Betclic":   {"1":1.80,"X":3.90,"2":4.20},
+        "Bwin":      {"1":1.82,"X":3.95,"2":4.10},
+        "Winamax":   {"1":1.78,"X":4.00,"2":4.30},
+        "Unibet":    {"1":1.81,"X":3.88,"2":4.25},
+        "Netbet":    {"1":1.83,"X":4.05,"2":4.15},
+        "Vbet":      {"1":1.84,"X":4.10,"2":4.05},
+        "PMU":       {"1":1.79,"X":3.92,"2":4.35},
+        "Parions Sport":{"1":1.80,"X":3.96,"2":4.22},
+        "Betsson":   {"1":1.82,"X":3.97,"2":4.18},
+        "Genybet":   {"1":1.77,"X":4.08,"2":4.40}
+      }
+    }
+  ];
+
+  const dot = document.getElementById('scan-dot');
+  dot.className = 'scanner-dot live';
+  document.getElementById('scan-status-text').textContent = scanData.length + ' matchs analysés (démo)';
+  document.getElementById('scan-last-update').textContent = 'Données de démonstration — ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('scan-summary').style.display = 'grid';
+  renderScanResults();
+  showToast('✅ Scan démo chargé — 6 matchs, 1 surebet détecté !', 'ok');
+}
+
+async function launchScan() {
+  if (scanLoading) return;
+  scanLoading = true;
+  const sport = document.getElementById('scan-sport').value;
+  const dot = document.getElementById('scan-dot');
+  dot.className = 'scanner-dot loading';
+  document.getElementById('scan-status-text').textContent = 'Récupération des cotes réelles...';
+  document.getElementById('scanner-output').innerHTML = `
+    <div class="scanner-loading">
+      <div class="spinner"></div>
+      <div style="font-size:0.85rem;color:var(--muted);">Connexion aux bookmakers ANJ...</div>
+    </div>`;
+  document.getElementById('scan-summary').style.display = 'none';
+
+  // Using real Odds API — no prompt needed
+
+  try {
+    const apiKey = (document.getElementById('api-key-input') || {}).value || localStorage.getItem('pm_oddskey') || '';
+    if (!apiKey) throw new Error('401');
+
+    // Map sport selection to Odds API sport key
+    const sportMap = {
+      football: 'soccer_france_ligue1',
+      tennis: 'tennis_atp_french_open',
+      basket: 'basketball_nba',
+      rugby: 'rugbyleague_nrl'
+    };
+    const compMap = {
+      all: 'soccer_france_ligue1',
+      ligue1: 'soccer_france_ligue1',
+      cl: 'soccer_uefa_champs_league',
+      el: 'soccer_uefa_europa_league',
+      prem: 'soccer_epl',
+      liga: 'soccer_spain_la_liga'
+    };
+    const sportKey = document.getElementById('scan-comp').value !== 'all'
+      ? compMap[document.getElementById('scan-comp').value]
+      : sportMap[document.getElementById('scan-sport').value] || 'soccer_france_ligue1';
+
+    // ANJ bookmakers available on The Odds API
+    const ANJ_BOOKS = ['betclic','winamax','unibet','pmu','bwin'];
+
+    // Fetch odds from The Odds API
+    const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal&bookmakers=${ANJ_BOOKS.join(',')}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      const msg = errBody.message || response.status;
+      throw new Error('HTTP ' + response.status + ': ' + msg);
+    }
+
+    const rawData = await response.json();
+
+    // Show remaining quota
+    const remaining = response.headers.get('x-requests-remaining');
+    if (remaining) document.getElementById('scan-last-update').textContent = `Requêtes restantes ce mois : ${remaining}/500`;
+
+    if (!rawData.length) throw new Error('Aucun match disponible pour cette compétition actuellement.');
+
+    // Convert Odds API format to PariMalin format
+    const BK_DISPLAY = {betclic:'Betclic', winamax:'Winamax', unibet:'Unibet', pmu:'PMU', bwin:'Bwin'};
+
+    scanData = rawData.slice(0, 10).map((match, idx) => {
+      const bookmakers = {};
+      match.bookmakers.forEach(bk => {
+        const bkName = BK_DISPLAY[bk.key] || bk.title;
+        const h2h = bk.markets.find(m => m.key === 'h2h');
+        if (!h2h) return;
+        const odds = {};
+        h2h.outcomes.forEach(o => {
+          if (o.name === match.home_team) odds['1'] = o.price;
+          else if (o.name === match.away_team) odds['2'] = o.price;
+          else odds['X'] = o.price;
+        });
+        bookmakers[bkName] = odds;
+      });
+
+      // Format match time
+      const matchTime = new Date(match.commence_time);
+      const heure = matchTime.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+      const dateStr = matchTime.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
+
+      return {
+        id: 'm' + idx,
+        equipe1: match.home_team,
+        equipe2: match.away_team,
+        competition: match.sport_title,
+        heure: dateStr + ' ' + heure,
+        bookmakers
+      };
+    }).filter(m => Object.keys(m.bookmakers).length >= 2);
+
+    if (!scanData.length) throw new Error('Aucun bookmaker ANJ disponible sur ces matchs. Essaie une autre compétition.');
+    dot.className = 'scanner-dot live';
+    document.getElementById('scan-status-text').textContent = `${scanData.length} matchs analysés`;
+    document.getElementById('scan-last-update').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('scan-summary').style.display = 'grid';
+    renderScanResults();
+  } catch(e) {
+    console.error('Scanner error:', e);
+    dot.className = 'scanner-dot';
+    const isMissingKey = e.message && (e.message.includes('401') || e.message.includes('403'));
+    document.getElementById('scan-status-text').textContent = 'Erreur — ' + (isMissingKey ? 'clé API manquante' : 'réessaie');
+    document.getElementById('scanner-output').innerHTML = isMissingKey ? `
+      <div class="scanner-empty">
+        <div class="scanner-empty-icon">🔑</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">Clé API requise</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Entre ta clé The Odds API ci-dessus (the-odds-api.com — gratuit).</div>
+        <a href="https://the-odds-api.com" target="_blank" class="btn-primary" style="font-size:0.82rem;padding:9px 18px;">Obtenir une clé gratuite →</a>
+      </div>` : `
+      <div class="scanner-empty">
+        <div class="scanner-empty-icon">⚠️</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">Erreur : ${e.message}</div>
+        <div style="font-size:0.82rem;color:var(--muted);">Vérifie ta clé API et ta connexion, puis réessaie.</div>
+      </div>`;
+  }
+  scanLoading = false;
+}
+
+function analyzeSurebet(matchData) {
+  const bks = Object.entries(matchData.bookmakers);
+  let best1 = {v:0,bk:''}, bestX = {v:0,bk:''}, best2 = {v:0,bk:''};
+  bks.forEach(([bk, odds]) => {
+    if ((odds['1']||0) > best1.v) best1 = {v:odds['1'],bk};
+    if ((odds['X']||0) > bestX.v) bestX = {v:odds['X'],bk};
+    if ((odds['2']||0) > best2.v) best2 = {v:odds['2'],bk};
+  });
+  const margin = (1/best1.v) + (1/bestX.v) + (1/best2.v);
+  const isSurebet = margin < 1.0;
+  const profit = isSurebet ? ((1/margin - 1) * 100) : 0;
+  return { best1, bestX, best2, margin, isSurebet, profit };
+}
+
+function analyzeValueBets(matchData) {
+  const bks = Object.entries(matchData.bookmakers);
+  const outcomes = ['1','X','2'];
+  const values = [];
+  outcomes.forEach(o => {
+    const odds = bks.map(([bk,v]) => ({bk, v:v[o]||0})).filter(x=>x.v>0);
+    if (!odds.length) return;
+    const avg = odds.reduce((s,x)=>s+x.v,0)/odds.length;
+    const best = odds.reduce((a,b)=>a.v>b.v?a:b);
+    const edge = ((best.v/avg)-1)*100;
+    if (edge > 4) values.push({outcome:o,bk:best.bk,cote:best.v,avg,edge});
+  });
+  return values.sort((a,b)=>b.edge-a.edge);
+}
+
+function renderScanResults() {
+  if (!scanData.length) return;
+  let surebets=0, valuebets=0, bestEdge=0;
+  const filtered = scanData.filter(m => {
+    const sb = analyzeSurebet(m);
+    const vb = analyzeValueBets(m);
+    if (sb.isSurebet) surebets++;
+    if (vb.length) valuebets++;
+    if (vb.length && vb[0].edge > bestEdge) bestEdge = vb[0].edge;
+    if (scanFilter === 'surebet') return sb.isSurebet;
+    if (scanFilter === 'value') return vb.length > 0;
+    if (scanFilter === 'high') {
+      const allOdds = Object.values(m.bookmakers).flatMap(o=>Object.values(o));
+      return Math.max(...allOdds) >= 3.0;
+    }
+    return true;
+  });
+
+  document.getElementById('ss-matchs').textContent = scanData.length;
+  document.getElementById('ss-surebets').textContent = surebets;
+  document.getElementById('ss-values').textContent = valuebets;
+  document.getElementById('ss-best-edge').textContent = bestEdge > 0 ? '+'+bestEdge.toFixed(1)+'%' : '—';
+
+  if (!filtered.length) {
+    document.getElementById('scanner-output').innerHTML = `<div class="scanner-empty"><div class="scanner-empty-icon">🔎</div><div>Aucun match ne correspond à ce filtre.</div></div>`;
+    return;
+  }
+
+  let html = '<div class="scanner-grid">';
+  filtered.forEach((m, idx) => {
+    const sb = analyzeSurebet(m);
+    const vb = analyzeValueBets(m);
+    const bks = Object.entries(m.bookmakers);
+    const outcomes = ['1','X','2'];
+    const outLabels = {1:'1 ('+m.equipe1+')',X:'Nul',2:'2 ('+m.equipe2+')'};
+    // find best per outcome
+    const bestPerOutcome = {};
+    outcomes.forEach(o => {
+      let best = {v:0,bk:''};
+      bks.forEach(([bk,odds])=>{if((odds[o]||0)>best.v)best={v:odds[o],bk};});
+      bestPerOutcome[o] = best;
+    });
+
+    let alerts = '';
+    if (sb.isSurebet) alerts += `<span class="match-alert alert-surebet">🟢 Surebet +${sb.profit.toFixed(1)}%</span>`;
+    if (vb.length) alerts += `<span class="match-alert alert-value">🔥 Value +${vb[0].edge.toFixed(1)}%</span>`;
+
+    let tableRows = '';
+    bks.forEach(([bk, odds]) => {
+      let cells = '';
+      outcomes.forEach(o => {
+        const v = odds[o];
+        const isBest = v && v === bestPerOutcome[o].v;
+        const cls = isBest ? 'odd-best' : v && v >= 2.5 ? 'ok' : 'odd-low';
+        cells += `<td><span class="odd-val ${cls}">${v ? v.toFixed(2) : '—'}</span></td>`;
+      });
+      tableRows += `<tr><td style="font-weight:600;font-size:0.82rem;">${bk}</td>${cells}</tr>`;
+    });
+
+    let surebetBanner = '';
+    if (sb.isSurebet) {
+      surebetBanner = `<div class="surebet-banner">
+        <div>
+          <div class="surebet-detail">✅ Surebet confirmé — profit garanti +${sb.profit.toFixed(2)}%</div>
+          <div style="font-size:0.77rem;color:var(--muted);margin-top:3px;">
+            1 → <strong>${sb.best1.bk}</strong> @ ${sb.best1.v} &nbsp;|&nbsp;
+            X → <strong>${sb.bestX.bk}</strong> @ ${sb.bestX.v} &nbsp;|&nbsp;
+            2 → <strong>${sb.best2.bk}</strong> @ ${sb.best2.v}
+          </div>
+        </div>
+        <button class="surebet-calc-btn" onclick="openSurebetCalc('${m.equipe1} vs ${m.equipe2}',${sb.best1.v},${sb.bestX.v},${sb.best2.v},'${sb.best1.bk}','${sb.best2.bk}')">Calculer les mises →</button>
+      </div>`;
+    }
+
+    let valueBanner = '';
+    if (vb.length && !sb.isSurebet) {
+      valueBanner = `<div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.8rem;">
+        <div style="font-size:0.82rem;font-weight:600;color:var(--acc);">🔥 Value bet — ${vb[0].bk} propose la meilleure cote sur l'issue ${vb[0].outcome}</div>
+        <div style="font-size:0.77rem;color:var(--muted);margin-top:3px;">Cote : ${vb[0].cote.toFixed(2)} vs moyenne ${vb[0].avg.toFixed(2)} → edge +${vb[0].edge.toFixed(1)}%</div>
+      </div>`;
+    }
+
+    html += `<div class="match-card ${sb.isSurebet?'has-surebet':vb.length?'has-value':''}">
+      <div class="match-header" onclick="toggleMatch('mb-${idx}',this)">
+        <div>
+          <div class="match-teams">${m.equipe1} <span style="color:var(--muted);font-weight:400;">vs</span> ${m.equipe2}</div>
+          <div class="match-meta" style="margin-top:4px;">
+            <span class="match-comp">${m.competition || ''}</span>
+            <span class="match-time">${m.heure || ''}</span>
+            ${alerts}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="text-align:right;">
+            <div style="font-size:0.72rem;color:var(--muted);">Meilleure cote</div>
+            <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.1rem;color:var(--acc);">${Math.max(...bks.flatMap(([,o])=>Object.values(o))).toFixed(2)}</div>
+          </div>
+          <div class="match-toggle" id="mt-${idx}">▼</div>
+        </div>
+      </div>
+      <div class="match-body" id="mb-${idx}">
+        <table class="odds-table">
+          <thead><tr><th>Bookmaker</th><th>${m.equipe1}</th><th>Nul</th><th>${m.equipe2}</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+        ${surebetBanner}${valueBanner}
+        <div style="margin-top:0.8rem;display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="font-size:0.75rem;color:var(--muted);padding:5px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+            🟠 = Meilleure cote &nbsp; | &nbsp; Marge bookmaker : ${((sb.margin-1)*100).toFixed(1) > 0 ? '+':'' }${((sb.margin-1)*100).toFixed(1)}%
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('scanner-output').innerHTML = html;
+}
+
+function toggleMatch(id, header) {
+  const body = document.getElementById(id);
+  const idx = id.replace('mb-','');
+  const toggle = document.getElementById('mt-'+idx);
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function openSurebetCalc(match, c1, cX, c2, bk1, bk2) {
+  // Pre-fill the calculator and scroll to it
+  document.getElementById('mise').value = 100;
+  document.getElementById('cote1').value = c1;
+  document.getElementById('cote2').value = cX;
+  document.getElementById('cote3').value = c2;
+  document.getElementById('mkt').value = '3way';
+  // Set bk selects
+  const bk1El = document.getElementById('bk1');
+  const bk2El = document.getElementById('bk2');
+  for (let i=0; i<bk1El.options.length; i++) if (bk1El.options[i].text === bk1) { bk1El.selectedIndex=i; break; }
+  for (let i=0; i<bk2El.options.length; i++) if (bk2El.options[i].text === bk2) { bk2El.selectedIndex=i; break; }
+  calculate();
+  // Switch to qualifying tab
+  document.querySelectorAll('#calculateur .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#calculateur .tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelector('#calculateur .tab').classList.add('active');
+  document.getElementById('ct-qualifying').classList.add('active');
+  window.location.hash = '#calculateur';
+  showToast('✅ Cotes injectées dans le calculateur !', 'ok');
+}
+
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'd') window.location.hash = '#dashboard';
+  if (e.key === 'c') window.location.hash = '#calculateur';
+  if (e.key === 't') window.location.hash = '#tracker';
+  if (e.key === 'b') window.location.hash = '#bonus';
+  if (e.key === 'm') toggleMode();
+  if (e.key === ' ' && document.getElementById('minuteur')) {
+    e.preventDefault();
+    timerRunning ? timerPause() : timerStart();
+  }
+});
+
+
+// INIT
+calculate();
+calcFreebet();
+renderBonusGrid();
+renderTracker();
+renderDashboard();
+simulate();
+renderComp();
+renderNotes();
+document.getElementById('goal-select').value=goalAmount<=200?'200':goalAmount<=500?'500':'1000';
+renderStats();
+renderChecklist();
+calcValue();
+updateTimerDisplay();
+// Restore API key
+const savedKey = localStorage.getItem('pm_oddskey');
+if (savedKey) { const el = document.getElementById('api-key-input'); if(el) el.value = savedKey; }
+// Pre-fill Odds API key if stored
+const oddsKey = localStorage.getItem('pm_oddskey') || 'c16d010825f228e484bdd527b49539bc';
+if (oddsKey) { localStorage.setItem('pm_oddskey', oddsKey); const el = document.getElementById('api-key-input'); if(el) el.value = oddsKey; }
+</script>
+</body>
+</html>
