@@ -1926,6 +1926,12 @@ async function launchScan() {
 
       data.forEach(match => {
         const bookmakers = {};
+        // Display name mapping for ANJ bookmakers
+        const BK_DISPLAY = {
+          'betclic_fr':'Betclic','winamax_fr':'Winamax','unibet_fr':'Unibet',
+          'pmu_fr':'PMU','parionssport_fr':'Parions Sport','netbet_fr':'Netbet',
+          'bwin':'Bwin','betsson':'Betsson','vbet':'Vbet','genybet':'Genybet'
+        };
         match.bookmakers.forEach(bk => {
           const h2h = bk.markets && bk.markets.find(m => m.key === 'h2h');
           if (!h2h) return;
@@ -1935,7 +1941,8 @@ async function launchScan() {
             else if (o.name === match.away_team) odds['2'] = parseFloat(o.price.toFixed(2));
             else odds['X'] = parseFloat(o.price.toFixed(2));
           });
-          if (Object.keys(odds).length >= 2) bookmakers[bk.title] = odds;
+          const displayName = BK_DISPLAY[bk.key] || bk.title;
+          if (Object.keys(odds).length >= 2) bookmakers[displayName] = odds;
         });
         if (Object.keys(bookmakers).length >= 2) {
           const matchTime = new Date(match.commence_time);
