@@ -588,13 +588,15 @@ body.light .hero-grid{opacity:0.15;}
     <div class="sport-tabs" id="sport-tabs">
       <button class="sport-tab active" data-sport="all" onclick="selectSport('all',this)">🌍 Tous</button>
       <button class="sport-tab" data-sport="soccer" onclick="selectSport('soccer',this)">⚽ Football</button>
+      <button class="sport-tab" data-sport="tennis" onclick="selectSport('tennis',this)">🎾 Tennis</button>
       <button class="sport-tab" data-sport="basketball" onclick="selectSport('basketball',this)">🏀 Basket</button>
       <button class="sport-tab" data-sport="americanfootball" onclick="selectSport('americanfootball',this)">🏈 NFL</button>
       <button class="sport-tab" data-sport="baseball" onclick="selectSport('baseball',this)">⚾ Baseball</button>
-      <button class="sport-tab" data-sport="tennis" onclick="selectSport('tennis',this)">🎾 Tennis</button>
       <button class="sport-tab" data-sport="icehockey" onclick="selectSport('icehockey',this)">🏒 Hockey</button>
       <button class="sport-tab" data-sport="rugby" onclick="selectSport('rugby',this)">🏉 Rugby</button>
       <button class="sport-tab" data-sport="mma" onclick="selectSport('mma',this)">🥊 MMA</button>
+      <button class="sport-tab" data-sport="golf" onclick="selectSport('golf',this)">⛳ Golf</button>
+      <button class="sport-tab" data-sport="boxing" onclick="selectSport('boxing',this)">🥊 Boxe</button>
     </div>
 
     <!-- Competition pills (dynamic) -->
@@ -1761,54 +1763,70 @@ let scanComp = 'all';
 let scanSort = 'profit';
 let scanLoading = false;
 
-// All competitions available on The Odds API free tier
+// Toutes les compétitions disponibles sur The Odds API
 const ALL_COMPS = {
   soccer: [
-    {key:'soccer_epl', label:'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {key:'soccer_uefa_champs_league', label:'Champions League'},
-    {key:'soccer_uefa_europa_league', label:'Europa League'},
-    {key:'soccer_spain_la_liga', label:'La Liga 🇪🇸'},
-    {key:'soccer_germany_bundesliga', label:'Bundesliga 🇩🇪'},
-    {key:'soccer_italy_serie_a', label:'Serie A 🇮🇹'},
-    {key:'soccer_france_ligue1', label:'Ligue 1 🇫🇷'},
+    {key:'soccer_france_ligue1',          label:'Ligue 1 🇫🇷'},
+    {key:'soccer_france_ligue2',          label:'Ligue 2 🇫🇷'},
+    {key:'soccer_uefa_champs_league',     label:'Champions League'},
+    {key:'soccer_uefa_europa_league',     label:'Europa League'},
+    {key:'soccer_uefa_europa_conf_league',label:'Conference League'},
+    {key:'soccer_epl',                    label:'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+    {key:'soccer_spain_la_liga',          label:'La Liga 🇪🇸'},
+    {key:'soccer_germany_bundesliga',     label:'Bundesliga 🇩🇪'},
+    {key:'soccer_italy_serie_a',          label:'Serie A 🇮🇹'},
     {key:'soccer_netherlands_eredivisie', label:'Eredivisie 🇳🇱'},
     {key:'soccer_portugal_primeira_liga', label:'Liga Portugal 🇵🇹'},
-    {key:'soccer_turkey_super_ligi', label:'Süper Lig 🇹🇷'},
-    {key:'soccer_belgium_first_div', label:'Pro League 🇧🇪'},
+    {key:'soccer_turkey_super_ligi',      label:'Süper Lig 🇹🇷'},
+    {key:'soccer_belgium_first_div',      label:'Pro League 🇧🇪'},
+    {key:'soccer_spain_segunda_division', label:'Liga 2 🇪🇸'},
+    {key:'soccer_germany_bundesliga2',    label:'2. Bundesliga 🇩🇪'},
+    {key:'soccer_italy_serie_b',          label:'Serie B 🇮🇹'},
+  ],
+  tennis: [
+    {key:'tennis_atp_french_open',     label:'Roland Garros ATP 🇫🇷'},
+    {key:'tennis_wta_french_open',     label:'Roland Garros WTA 🇫🇷'},
+    {key:'tennis_atp_wimbledon',       label:'Wimbledon ATP'},
+    {key:'tennis_wta_wimbledon',       label:'Wimbledon WTA'},
+    {key:'tennis_atp_us_open',         label:'US Open ATP'},
+    {key:'tennis_wta_us_open',         label:'US Open WTA'},
+    {key:'tennis_atp_australian_open', label:'Open Australie ATP'},
+    {key:'tennis_wta_australian_open', label:'Open Australie WTA'},
   ],
   basketball: [
-    {key:'basketball_nba', label:'NBA 🇺🇸'},
+    {key:'basketball_nba',        label:'NBA 🇺🇸'},
     {key:'basketball_euroleague', label:'Euroleague 🇪🇺'},
-    {key:'basketball_nbl', label:'NBL 🇦🇺'},
+    {key:'basketball_nbl',        label:'NBL 🇦🇺'},
   ],
   americanfootball: [
-    {key:'americanfootball_nfl', label:'NFL 🇺🇸'},
+    {key:'americanfootball_nfl',   label:'NFL 🏈'},
     {key:'americanfootball_ncaaf', label:'NCAA Football'},
   ],
   baseball: [
-    {key:'baseball_mlb', label:'MLB 🇺🇸'},
-  ],
-  tennis: [
-    {key:'tennis_atp_french_open', label:'Roland Garros ATP'},
-    {key:'tennis_wta_french_open', label:'Roland Garros WTA'},
-    {key:'tennis_atp_us_open', label:'US Open ATP'},
-    {key:'tennis_wta_us_open', label:'US Open WTA'},
-    {key:'tennis_atp_wimbledon', label:'Wimbledon ATP'},
-    {key:'tennis_wta_wimbledon', label:'Wimbledon WTA'},
+    {key:'baseball_mlb', label:'MLB ⚾'},
   ],
   icehockey: [
-    {key:'icehockey_nhl', label:'NHL 🇺🇸'},
-    {key:'icehockey_sweden_hockey_league', label:'SHL 🇸🇪'},
-    {key:'icehockey_switzerland_national_league', label:'NL 🇨🇭'},
+    {key:'icehockey_nhl',                       label:'NHL 🏒'},
+    {key:'icehockey_sweden_hockey_league',      label:'SHL 🇸🇪'},
+    {key:'icehockey_switzerland_national_league',label:'NL 🇨🇭'},
   ],
   rugby: [
-    {key:'rugbyleague_nrl', label:'NRL 🇦🇺'},
-    {key:'rugbyunion_premiership', label:'Premiership Rugby 🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {key:'rugbyunion_super_rugby', label:'Super Rugby'},
-    {key:'rugbyunion_six_nations', label:'Six Nations 🏆'},
+    {key:'rugbyunion_six_nations',  label:'6 Nations 🏆'},
+    {key:'rugbyunion_premiership',  label:'Premiership / Top 14'},
+    {key:'rugbyunion_super_rugby',  label:'Super Rugby'},
+    {key:'rugbyleague_nrl',         label:'NRL 🇦🇺'},
   ],
   mma: [
-    {key:'mma_mixed_martial_arts', label:'UFC / MMA'},
+    {key:'mma_mixed_martial_arts', label:'UFC / MMA 🥊'},
+  ],
+  golf: [
+    {key:'golf_masters_tournament_winner', label:'The Masters ⛳'},
+    {key:'golf_pga_championship_winner',   label:'PGA Championship'},
+    {key:'golf_the_open_championship_winner', label:'The Open'},
+    {key:'golf_us_open_winner',            label:'US Open Golf'},
+  ],
+  boxing: [
+    {key:'boxing_boxing', label:'Boxe 🥊'},
   ],
 };
 
@@ -1862,7 +1880,7 @@ function getSportKeys() {
   if (scanComp !== 'all') return [scanComp];
   if (scanSport !== 'all' && ALL_COMPS[scanSport]) return ALL_COMPS[scanSport].map(c => c.key);
   // Default: most popular competitions
-  return ['soccer_epl','soccer_uefa_champs_league','basketball_nba','soccer_spain_la_liga','americanfootball_nfl'];
+  return ['soccer_france_ligue1','soccer_uefa_champs_league','soccer_epl','tennis_atp_french_open','basketball_nba'];
 }
 
 async function launchScan() {
