@@ -480,7 +480,7 @@ body.light .hero-grid{opacity:0.15;}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
       <div>
         <div class="section-title">Scanner de cotes</div>
-        <p class="section-sub">Vraies cotes en temps réel · Détection automatique surebets &amp; value bets · Tri par rentabilité</p>
+        <p class="section-sub">Vraies cotes en temps réel · Détection automatique surebets &amp; value bets · Tri par rentabilité<br><span style="font-size:0.75rem;color:var(--muted);">⚠️ Couverture limitée aux 6 bookmakers ANJ disponibles sur The Odds API : <strong style="color:var(--text);">Betclic · Winamax · Unibet · PMU · Parions Sport · Netbet</strong></span></p>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <div class="scanner-status">
@@ -491,13 +491,18 @@ body.light .hero-grid{opacity:0.15;}
       </div>
     </div>
 
-    <!-- Clé API bar -->
+    <!-- Source de données -->
     <div class="scan-key-bar">
-      <span class="scan-key-label">🔑 Clé Odds API :</span>
-      <input type="text" id="api-key-input" class="scan-key-input" placeholder="Colle ta clé the-odds-api.com ici..."
-        oninput="localStorage.setItem('pm_oddskey',this.value)">
-      <span class="scan-quota" id="scan-quota">— requêtes restantes</span>
-      <a href="https://the-odds-api.com" target="_blank" style="font-size:0.72rem;color:var(--acc);text-decoration:none;white-space:nowrap;">Clé gratuite →</a>
+      <span class="scan-key-label">📡 Source :</span>
+      <div style="display:flex;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;">
+        <button id="src-custom" onclick="setSource('custom')" style="padding:5px 12px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:rgba(255,107,26,0.12);color:var(--acc);font-weight:700;transition:all 0.2s;">🏠 Mon API</button>
+        <button id="src-odds" onclick="setSource('odds')" style="padding:5px 12px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;">🌐 The Odds API</button>
+      </div>
+      <input type="text" id="api-key-input" class="scan-key-input" placeholder="Clé The Odds API (6 BK ANJ)..."
+        oninput="localStorage.setItem('pm_oddskey',this.value)" style="display:none;">
+      <input type="text" id="api-url-input" class="scan-key-input" placeholder="https://parimalin-api.onrender.com  (ton serveur Render)"
+        oninput="localStorage.setItem('pm_apiurl',this.value)">
+      <span class="scan-quota" id="scan-quota"></span>
     </div>
 
     <!-- Sport tabs -->
@@ -2107,6 +2112,27 @@ function selectComp(comp, btn) {
   btn.classList.add('active');
 }
 
+function setSource(src) {
+  localStorage.setItem('pm_source', src);
+  const isCustom = src === 'custom';
+  const customBtn = document.getElementById('src-custom');
+  const oddsBtn = document.getElementById('src-odds');
+  const keyInput = document.getElementById('api-key-input');
+  const urlInput = document.getElementById('api-url-input');
+  if (customBtn) {
+    customBtn.style.background = isCustom ? 'rgba(255,107,26,0.12)' : 'transparent';
+    customBtn.style.color = isCustom ? 'var(--acc)' : 'var(--muted)';
+    customBtn.style.fontWeight = isCustom ? '700' : '400';
+  }
+  if (oddsBtn) {
+    oddsBtn.style.background = !isCustom ? 'rgba(255,107,26,0.12)' : 'transparent';
+    oddsBtn.style.color = !isCustom ? 'var(--acc)' : 'var(--muted)';
+    oddsBtn.style.fontWeight = !isCustom ? '700' : '400';
+  }
+  if (keyInput) keyInput.style.display = isCustom ? 'none' : 'block';
+  if (urlInput) urlInput.style.display = isCustom ? 'block' : 'none';
+}
+
 function filterScan(f, btn) {
   scanFilter = f;
   document.querySelectorAll('#scanner .bfilter').forEach(b => b.classList.remove('active'));
@@ -2132,8 +2158,16 @@ function getSportKeys() {
 async function launchScan() {
   if (scanLoading) return;
   scanLoading = true;
-  const apiKey = document.getElementById('api-key-input').value || localStorage.getItem('pm_oddskey') || '';
-  if (!apiKey) {
+  const source = localStorage.getItem('pm_source') || 'custom';
+  const apiKey = document.getElementById('api-key-input')?.value || localStorage.getItem('pm_oddskey') || '';
+  const apiUrl = document.getElementById('api-url-input')?.value || localStorage.getItem('pm_apiurl') || '';
+
+  if (source === 'custom' && !apiUrl) {
+    showToast("Entre l'URL de ton serveur Render", 'err');
+    scanLoading = false;
+    return;
+  }
+  if (source === 'odds' && !apiKey) {
     showToast('Entre ta clé The Odds API', 'err');
     scanLoading = false;
     return;
@@ -2149,7 +2183,69 @@ async function launchScan() {
   document.getElementById('scan-summary').style.display = 'none';
 
   const sportKeys = getSportKeys();
-  const ANJ_BOOKS = ['betclic','winamax','unibet','bwin','betsson','william_hill','bet365','unibet_fr','betway'];
+
+  // ── Source : Mon API (Render) — tous les bookmakers ANJ ──
+  if (source === 'custom') {
+    try {
+      const sportLabel = document.getElementById('scan-comp')?.value?.includes('soccer') ? 'football'
+        : document.getElementById('scan-comp')?.value?.includes('tennis') ? 'tennis'
+        : document.getElementById('scan-comp')?.value?.includes('basketball') ? 'basket'
+        : document.getElementById('scan-comp')?.value?.includes('rugby') ? 'rugby'
+        : 'football';
+
+      const url = `${apiUrl.replace(/\/$/, '')}/cotes?sport=${sportLabel}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+
+      // Afficher les bookmakers disponibles/en erreur
+      const bksOk = data.bookmakers_disponibles || [];
+      const bksErr = data.bookmakers_erreur || [];
+      document.getElementById('scan-quota').innerHTML =
+        `<span style="color:var(--success)">✅ ${bksOk.length} BK</span>` +
+        (bksErr.length ? ` <span style="color:var(--muted)">· ${bksErr.length} indisponibles</span>` : '') +
+        ` · ${data.cached ? 'Cache ' + data.cache_age_seconds + 's' : 'Fraîcheur: ' + data.updated_at}`;
+
+      scanData = (data.matchs || []).map((m, idx) => ({
+        id: 'm' + idx,
+        equipe1: m.equipe1,
+        equipe2: m.equipe2,
+        competition: m.competition,
+        heure: m.heure,
+        timestamp: new Date(m.heure).getTime() || 0,
+        bookmakers: m.bookmakers || {}
+      })).filter(m => Object.keys(m.bookmakers).length >= 2);
+
+      if (!scanData.length) throw new Error('Aucun match avec 2+ bookmakers disponibles.');
+
+      const dot = document.getElementById('scan-dot');
+      dot.className = 'scanner-dot live';
+      document.getElementById('scan-status-text').textContent = `${scanData.length} matchs · ${bksOk.length} bookmakers ANJ`;
+      document.getElementById('scan-last-update').textContent = 'Mis à jour ' + data.updated_at;
+      document.getElementById('scan-summary').style.display = 'grid';
+      renderScanResults();
+      scanLoading = false;
+      return; // Ne pas continuer vers The Odds API
+    } catch(e) {
+      const dot = document.getElementById('scan-dot');
+      dot.className = 'scanner-dot';
+      document.getElementById('scan-status-text').textContent = 'Erreur serveur';
+      document.getElementById('scanner-output').innerHTML = `
+        <div class="scanner-empty">
+          <div style="font-size:2.5rem;margin-bottom:0.8rem;">⚠️</div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">Serveur injoignable : ${e.message}</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Vérifie que ton serveur Render est bien démarré.</div>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+            <a href="${apiUrl}" target="_blank" class="btn-primary" style="font-size:0.8rem;padding:8px 16px;">Ouvrir le serveur →</a>
+            <button onclick="loadDemoScan()" style="font-size:0.78rem;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(255,107,26,0.08);color:var(--acc);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">▶ Démo en attendant</button>
+          </div>
+        </div>`;
+      scanLoading = false;
+      return;
+    }
+  }
+  // ── Source : The Odds API (6 bookmakers ANJ seulement) ──
+  const ANJ_BOOKS = ['betclic_fr','winamax_fr','unibet_fr','pmu_fr','parionssport_fr','netbet_fr','betsson'];
   let allMatches = [];
   let remaining = null;
 
@@ -2172,13 +2268,20 @@ async function launchScan() {
 
       data.forEach(match => {
         const bookmakers = {};
-        // Display name mapping for ANJ bookmakers
-        const BK_DISPLAY = {
-          'betclic_fr':'Betclic','winamax_fr':'Winamax','unibet_fr':'Unibet',
-          'pmu_fr':'PMU','parionssport_fr':'Parions Sport','netbet_fr':'Netbet',
-          'bwin':'Bwin','betsson':'Betsson','vbet':'Vbet','genybet':'Genybet'
+        // Whitelist strict des bookmakers ANJ autorisés en France
+        // (limité aux bookmakers disponibles sur The Odds API)
+        const ANJ_WHITELIST = {
+          'betclic_fr':      'Betclic',
+          'winamax_fr':      'Winamax',
+          'unibet_fr':       'Unibet',
+          'pmu_fr':          'PMU',
+          'parionssport_fr': 'Parions Sport',
+          'netbet_fr':       'Netbet',
+          'betsson':         'Betsson', // disponible région EU, agréé ANJ
         };
         match.bookmakers.forEach(bk => {
+          // Ignorer tout bookmaker qui n'est pas dans la whitelist ANJ
+          if (!ANJ_WHITELIST[bk.key]) return;
           const h2h = bk.markets && bk.markets.find(m => m.key === 'h2h');
           if (!h2h) return;
           const odds = {};
@@ -2187,7 +2290,7 @@ async function launchScan() {
             else if (o.name === match.away_team) odds['2'] = parseFloat(o.price.toFixed(2));
             else odds['X'] = parseFloat(o.price.toFixed(2));
           });
-          const displayName = BK_DISPLAY[bk.key] || bk.title;
+          const displayName = ANJ_WHITELIST[bk.key];
           if (Object.keys(odds).length >= 2) bookmakers[displayName] = odds;
         });
         if (Object.keys(bookmakers).length >= 2) {
@@ -2596,6 +2699,17 @@ renderNotes();
 document.getElementById('goal-select').value=goalAmount<=200?'200':goalAmount<=500?'500':'1000';
 renderStats();
 renderChecklist();calcValue();updateTimerDisplay();renderCompPills();
+// Init scanner source + restore values
+const savedSource = localStorage.getItem('pm_source') || 'custom';
+const savedApiUrl = localStorage.getItem('pm_apiurl') || '';
+const savedOddsKey = localStorage.getItem('pm_oddskey') || '';
+setTimeout(() => {
+  setSource(savedSource);
+  const urlEl = document.getElementById('api-url-input');
+  const keyEl = document.getElementById('api-key-input');
+  if (urlEl && savedApiUrl) urlEl.value = savedApiUrl;
+  if (keyEl && savedOddsKey) keyEl.value = savedOddsKey;
+}, 100);
 // Init doneView button state
 setTimeout(()=>setDoneView(doneView), 50);
 renderJournal();
