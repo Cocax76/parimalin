@@ -239,53 +239,84 @@ footer{background:var(--dark2);border-top:1px solid var(--border2);padding:3rem 
 .alert-badge{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
 
 
-/* ===== SCANNER ===== */
-.scanner-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;}
-.scanner-status{display:flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:600;}
-.scanner-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
-.scanner-dot.live{background:var(--success);animation:pulse 1.5s infinite;}
-.scanner-dot.loading{background:var(--warning);animation:pulse 0.7s infinite;}
-.scanner-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.2rem;}
-.scanner-grid{display:flex;flex-direction:column;gap:1rem;}
-.match-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;transition:border-color 0.3s;}
-.match-card.has-surebet{border-color:rgba(0,201,107,0.5);box-shadow:0 0 20px rgba(0,201,107,0.08);}
+
+/* ===== SCANNER V2 ===== */
+.sport-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border2);}
+.sport-tab{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.82rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.sport-tab:hover{border-color:var(--acc);color:var(--acc);}
+.sport-tab.active{background:rgba(255,107,26,0.12);border-color:var(--acc);color:var(--acc);font-weight:700;}
+.sport-tab .tab-count{background:rgba(255,107,26,0.2);color:var(--acc);font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:999px;}
+.comp-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.comp-pill{padding:5px 12px;border-radius:999px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.75rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.comp-pill:hover{border-color:var(--acc);color:var(--acc);}
+.comp-pill.active{background:rgba(255,107,26,0.1);border-color:var(--acc);color:var(--acc);font-weight:600;}
+.scan-topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;}
+.scan-sort-btn{padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.75rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:5px;}
+.scan-sort-btn.active{background:rgba(255,107,26,0.1);border-color:var(--acc);color:var(--acc);font-weight:600;}
+.scan-sort-btn:hover{border-color:var(--acc);color:var(--acc);}
+.match-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;transition:border-color 0.2s,transform 0.15s;}
+.match-card:hover{transform:translateY(-2px);}
+.match-card.has-surebet{border-color:rgba(0,201,107,0.5);box-shadow:0 0 20px rgba(0,201,107,0.06);}
 .match-card.has-value{border-color:rgba(255,107,26,0.4);}
 .match-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem;cursor:pointer;transition:background 0.15s;}
 .match-header:hover{background:rgba(255,255,255,0.02);}
 .match-teams{font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;}
-.match-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.match-comp{font-size:0.72rem;color:var(--muted);}
-.match-time{font-size:0.72rem;font-weight:600;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.06);}
-.match-alert{font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:999px;}
-.alert-surebet{background:rgba(0,201,107,0.15);color:var(--success);}
-.alert-value{background:rgba(255,107,26,0.15);color:var(--acc);}
-.match-toggle{color:var(--muted);font-size:0.85rem;transition:transform 0.2s;}
-.match-body{display:none;padding:0 1.2rem 1.2rem;}
+.match-sub{display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap;}
+.match-comp-tag{font-size:0.7rem;color:var(--muted);}
+.match-time-tag{font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--text);}
+.match-alert-tag{font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:999px;}
+.tag-surebet{background:rgba(0,201,107,0.15);color:var(--success);}
+.tag-value{background:rgba(255,107,26,0.15);color:var(--acc);}
+.tag-high{background:rgba(255,184,0,0.15);color:var(--warning);}
+.match-right{display:flex;align-items:center;gap:14px;}
+.match-best-odd{text-align:right;}
+.match-best-odd-val{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.2rem;color:var(--acc);}
+.match-best-odd-label{font-size:0.65rem;color:var(--muted);margin-top:2px;}
+.match-edge{text-align:center;}
+.match-edge-val{font-family:'Outfit',sans-serif;font-weight:800;font-size:0.95rem;}
+.match-edge-label{font-size:0.65rem;color:var(--muted);margin-top:2px;}
+.match-chevron{color:var(--muted);font-size:0.85rem;transition:transform 0.2s;flex-shrink:0;}
+.match-chevron.open{transform:rotate(180deg);}
+.match-body{display:none;border-top:1px solid var(--border2);}
 .match-body.open{display:block;}
-.match-toggle.open{transform:rotate(180deg);}
+.odds-grid{overflow-x:auto;}
 .odds-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
-.odds-table th{padding:8px 10px;text-align:left;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border2);}
-.odds-table td{padding:9px 10px;border-bottom:1px solid var(--border2);}
+.odds-table th{padding:8px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border2);white-space:nowrap;}
+.odds-table td{padding:9px 12px;border-bottom:1px solid var(--border2);}
 .odds-table tr:last-child td{border-bottom:none;}
-.odds-table tr:hover td{background:rgba(255,255,255,0.02);}
-.odd-val{font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;font-size:0.88rem;}
+.odds-table tr:hover td{background:rgba(255,255,255,0.015);}
+.odd-pill{font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block;font-size:0.85rem;min-width:52px;text-align:center;}
 .odd-best{background:rgba(255,107,26,0.15);color:var(--acc);border:1px solid rgba(255,107,26,0.3);}
-.odd-ok{color:var(--text);}
-.odd-low{color:var(--muted);}
-.surebet-banner{background:rgba(0,201,107,0.07);border:1px solid rgba(0,201,107,0.25);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-.surebet-detail{font-size:0.82rem;color:var(--success);font-weight:600;}
-.surebet-calc-btn{font-size:0.78rem;padding:6px 14px;border-radius:var(--radius-sm);background:rgba(0,201,107,0.15);border:1px solid rgba(0,201,107,0.3);color:var(--success);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all 0.2s;}
-.surebet-calc-btn:hover{background:rgba(0,201,107,0.25);}
-.scanner-empty{text-align:center;padding:4rem 2rem;color:var(--muted);}
-.scanner-empty-icon{font-size:3rem;margin-bottom:1rem;}
+.odd-good{color:var(--text);}
+.odd-low{color:var(--muted);font-weight:400;}
+.odd-none{color:var(--dark3);}
+.match-footer{padding:0.9rem 1.2rem;background:rgba(0,0,0,0.1);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.surebet-pill{background:rgba(0,201,107,0.08);border:1px solid rgba(0,201,107,0.25);border-radius:var(--radius-sm);padding:0.7rem 1rem;flex:1;min-width:280px;}
+.surebet-pill-title{font-size:0.82rem;font-weight:700;color:var(--success);margin-bottom:4px;}
+.surebet-pill-detail{font-size:0.75rem;color:var(--muted);line-height:1.6;}
+.value-pill{background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:var(--radius-sm);padding:0.7rem 1rem;flex:1;min-width:200px;}
+.value-pill-title{font-size:0.82rem;font-weight:700;color:var(--acc);margin-bottom:4px;}
+.value-pill-detail{font-size:0.75rem;color:var(--muted);}
+.scan-action-btn{font-size:0.78rem;padding:7px 14px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;white-space:nowrap;}
+.btn-calc{background:var(--acc);color:var(--dark);}
+.btn-calc:hover{background:var(--acc-dim);}
+.btn-track{background:rgba(0,201,107,0.15);color:var(--success);border:1px solid rgba(0,201,107,0.3)!important;border:none;}
+.btn-track:hover{background:rgba(0,201,107,0.25);}
+.scan-stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:0.8rem;margin-bottom:1.2rem;}
+@media(max-width:700px){.scan-stats-bar{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:450px){.scan-stats-bar{grid-template-columns:1fr 1fr;}}
+.scan-stat{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.8rem;text-align:center;}
+.scan-stat-val{font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;}
+.scan-stat-label{font-size:0.65rem;color:var(--muted);margin-top:2px;}
+.scanner-empty{text-align:center;padding:3rem 2rem;color:var(--muted);}
 .scanner-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:1rem;}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.scanner-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
-@media(max-width:600px){.scanner-summary{grid-template-columns:1fr 1fr;}}
-.scan-stat{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;text-align:center;}
-.scan-stat-val{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;}
-.scan-stat-label{font-size:0.68rem;color:var(--muted);margin-top:2px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin 0.8s linear infinite;}
+.scan-key-bar{display:flex;align-items:center;gap:10px;padding:0.8rem 1rem;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);margin-bottom:1rem;flex-wrap:wrap;}
+.scan-key-label{font-size:0.75rem;color:var(--muted);white-space:nowrap;}
+.scan-key-input{flex:1;min-width:180px;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:7px 10px;outline:none;transition:border-color 0.2s;}
+.scan-key-input:focus{border-color:var(--acc);}
+.scan-quota{font-size:0.72rem;color:var(--muted);white-space:nowrap;}
+.scan-quota span{color:var(--success);font-weight:700;}
 
 /* ===== TIMER ===== */
 .timer-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;}
@@ -380,7 +411,7 @@ body.light .hero-grid{opacity:0.15;}
       <a href="#guide" class="btn-secondary">Guide débutant</a>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-val">736€</div><div class="hero-stat-label">Bonus exploitables</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">779€</div><div class="hero-stat-label">Profits estimés</div></div>
       <div class="hero-stat"><div class="hero-stat-val">16</div><div class="hero-stat-label">Bookmakers ANJ</div></div>
       <div class="hero-stat"><div class="hero-stat-val">~97%</div><div class="hero-stat-label">Opérations gagnantes</div></div>
       <div class="hero-stat"><div class="hero-stat-val">200€</div><div class="hero-stat-label">Objectif mois 1</div></div>
@@ -529,79 +560,82 @@ body.light .hero-grid{opacity:0.15;}
 <!-- SCANNER DE COTES IA -->
 <section id="scanner" style="background:var(--dark2);">
   <div class="section-inner">
-    <span class="section-tag">Outil #2 — IA Powered 🔥</span>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <span class="section-tag">Outil #2 — Temps Réel 🔥</span>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
       <div>
         <div class="section-title">Scanner de cotes</div>
-        <p class="section-sub">Compare les cotes de tous les bookmakers ANJ sur les matchs du moment. L'IA détecte les surebets et les value bets automatiquement.</p>
+        <p class="section-sub">Vraies cotes en temps réel · Détection automatique surebets &amp; value bets · Tri par rentabilité</p>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <div class="scanner-status">
           <div class="scanner-dot" id="scan-dot"></div>
           <span id="scan-status-text">Prêt à scanner</span>
         </div>
-        <div style="font-size:0.72rem;color:var(--muted);" id="scan-last-update"></div>
+        <div style="font-size:0.7rem;color:var(--muted);" id="scan-last-update"></div>
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;align-items:center;">
-      <div class="field" style="margin:0;flex:1;max-width:580px;">
-        <select id="scan-comp" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
-          <option value="soccer_epl">⚽ Premier League</option>
-          <option value="soccer_uefa_champs_league">⚽ Champions League</option>
-          <option value="soccer_uefa_europa_league">⚽ Europa League</option>
-          <option value="soccer_spain_la_liga">⚽ La Liga</option>
-          <option value="soccer_germany_bundesliga">⚽ Bundesliga</option>
-          <option value="soccer_italy_serie_a">⚽ Serie A</option>
-          <option value="soccer_france_ligue1">⚽ Ligue 1</option>
-          <option value="basketball_nba">🏀 NBA</option>
-          <option value="americanfootball_nfl">🏈 NFL</option>
-          <option value="tennis_wta_us_open">🎾 Tennis WTA</option>
-        </select>
-      </div>
-      <div class="field" style="margin:0;flex:1;max-width:300px;">
-        <div style="position:relative;">
-          <input type="text" id="api-key-input" placeholder="Clé The Odds API..." 
-            style="width:100%;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.83rem;padding:9px 70px 9px 11px;outline:none;transition:border-color 0.2s;"
-            oninput="localStorage.setItem('pm_oddskey',this.value)"
-            onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor=''"
-          >
-          <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:0.68rem;color:var(--muted);pointer-events:none;">Odds API</span>
-        </div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:3px;">
-          <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc);text-decoration:none;">the-odds-api.com</a>
-          · 500 requêtes/mois gratuites · Stockée localement
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-start;">
-        <button class="btn-primary" style="padding:10px 22px;font-size:0.88rem;" onclick="launchScan()">
-          🔍 Scanner (API)
-        </button>
-        <button onclick="loadDemoScan()" style="font-size:0.75rem;padding:5px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(255,107,26,0.08);color:var(--acc);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">
-          ▶ Démo gratuite (sans clé)
-        </button>
-      </div>
+    <!-- Clé API bar -->
+    <div class="scan-key-bar">
+      <span class="scan-key-label">🔑 Clé Odds API :</span>
+      <input type="text" id="api-key-input" class="scan-key-input" placeholder="Colle ta clé the-odds-api.com ici..."
+        oninput="localStorage.setItem('pm_oddskey',this.value)">
+      <span class="scan-quota" id="scan-quota">— requêtes restantes</span>
+      <a href="https://the-odds-api.com" target="_blank" style="font-size:0.72rem;color:var(--acc);text-decoration:none;white-space:nowrap;">Clé gratuite →</a>
     </div>
 
-    <div class="scanner-filters" style="margin-top:1rem;">
-      <button class="bfilter active" onclick="filterScan('all',this)">Tous les matchs</button>
-      <button class="bfilter" onclick="filterScan('surebet',this)">🟢 Surebets uniquement</button>
+    <!-- Sport tabs -->
+    <div class="sport-tabs" id="sport-tabs">
+      <button class="sport-tab active" data-sport="all" onclick="selectSport('all',this)">🌍 Tous</button>
+      <button class="sport-tab" data-sport="soccer" onclick="selectSport('soccer',this)">⚽ Football</button>
+      <button class="sport-tab" data-sport="basketball" onclick="selectSport('basketball',this)">🏀 Basket</button>
+      <button class="sport-tab" data-sport="americanfootball" onclick="selectSport('americanfootball',this)">🏈 NFL</button>
+      <button class="sport-tab" data-sport="baseball" onclick="selectSport('baseball',this)">⚾ Baseball</button>
+      <button class="sport-tab" data-sport="tennis" onclick="selectSport('tennis',this)">🎾 Tennis</button>
+      <button class="sport-tab" data-sport="icehockey" onclick="selectSport('icehockey',this)">🏒 Hockey</button>
+      <button class="sport-tab" data-sport="rugby" onclick="selectSport('rugby',this)">🏉 Rugby</button>
+      <button class="sport-tab" data-sport="mma" onclick="selectSport('mma',this)">🥊 MMA</button>
+    </div>
+
+    <!-- Competition pills (dynamic) -->
+    <div class="comp-pills" id="comp-pills">
+      <button class="comp-pill active" data-comp="all" onclick="selectComp('all',this)">Toutes compétitions</button>
+    </div>
+
+    <!-- Controls bar -->
+    <div class="scan-topbar">
+      <button class="btn-primary" style="padding:9px 20px;font-size:0.85rem;" onclick="launchScan()">🔍 Scanner</button>
+      <button onclick="loadDemoScan()" style="font-size:0.75rem;padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(255,107,26,0.08);color:var(--acc);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">▶ Démo</button>
+      <div style="flex:1;"></div>
+      <span style="font-size:0.75rem;color:var(--muted);">Trier par :</span>
+      <button class="scan-sort-btn active" id="sort-profit" onclick="setSortMode('profit',this)">💰 Rentabilité</button>
+      <button class="scan-sort-btn" id="sort-time" onclick="setSortMode('time',this)">⏰ Heure</button>
+      <button class="scan-sort-btn" id="sort-edge" onclick="setSortMode('edge',this)">📈 Edge</button>
+    </div>
+
+    <!-- Quick filters -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+      <button class="bfilter active" onclick="filterScan('all',this)">Tous</button>
+      <button class="bfilter" onclick="filterScan('surebet',this)">🟢 Surebets</button>
       <button class="bfilter" onclick="filterScan('value',this)">🔥 Value bets</button>
-      <button class="bfilter" onclick="filterScan('high',this)">📈 Cotes élevées (≥ 3.00)</button>
+      <button class="bfilter" onclick="filterScan('high',this)">📈 Cotes ≥ 3.00</button>
+      <button class="bfilter" onclick="filterScan('edge5',this)">⚡ Edge &gt; 5%</button>
     </div>
 
-    <div class="scanner-summary" id="scan-summary" style="display:none;">
-      <div class="scan-stat"><div class="scan-stat-val ok" id="ss-matchs">0</div><div class="scan-stat-label">Matchs analysés</div></div>
-      <div class="scan-stat"><div class="scan-stat-val" style="color:var(--success);" id="ss-surebets">0</div><div class="scan-stat-label">Surebets détectés</div></div>
+    <!-- Stats bar -->
+    <div class="scan-stats-bar" id="scan-summary" style="display:none;">
+      <div class="scan-stat"><div class="scan-stat-val ok" id="ss-matchs">0</div><div class="scan-stat-label">Matchs</div></div>
+      <div class="scan-stat"><div class="scan-stat-val" style="color:var(--success);" id="ss-surebets">0</div><div class="scan-stat-label">Surebets</div></div>
       <div class="scan-stat"><div class="scan-stat-val acc" id="ss-values">0</div><div class="scan-stat-label">Value bets</div></div>
       <div class="scan-stat"><div class="scan-stat-val warn" id="ss-best-edge">—</div><div class="scan-stat-label">Meilleur edge</div></div>
+      <div class="scan-stat"><div class="scan-stat-val" style="color:var(--acc);" id="ss-best-odd">—</div><div class="scan-stat-label">Meilleure cote</div></div>
     </div>
 
     <div id="scanner-output">
       <div class="scanner-empty">
-        <div class="scanner-empty-icon">🔍</div>
-        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Lance un scan pour voir les meilleures cotes</div>
-        <div style="font-size:0.83rem;">L'IA va analyser les matchs du moment et comparer les cotes<br>de tous les bookmakers ANJ pour toi.</div>
+        <div style="font-size:3rem;margin-bottom:0.8rem;">🔍</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Lance un scan pour voir les cotes en temps réel</div>
+        <div style="font-size:0.82rem;">Sélectionne un sport, une compétition et clique Scanner</div>
       </div>
     </div>
   </div>
@@ -1055,22 +1089,25 @@ body.light .hero-grid{opacity:0.15;}
 
 <script>
 const BKS=[
-  {name:'Betclic',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
-  {name:'Bwin',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
-  {name:'Winamax',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
-  {name:'Unibet',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
-  {name:'PMU',bonus:100,type:'rembourse',profit:55,diff:'🟡 Moyen'},
-  {name:'Netbet',bonus:100,type:'freebet',profit:65,diff:'🟢 Facile'},
-  {name:'Vbet',bonus:100,type:'freebet',profit:65,diff:'🟢 Facile'},
-  {name:'Genybet',bonus:100,type:'rembourse',profit:50,diff:'🟡 Moyen'},
-  {name:'Betsson',bonus:100,type:'freebet',profit:65,diff:'🟡 Moyen'},
-  {name:'Circusbet',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
-  {name:'Daznbet',bonus:100,type:'rembourse',profit:55,diff:'🟡 Moyen'},
-  {name:'Feelingbet',bonus:50,type:'rembourse',profit:28,diff:'🔴 Difficile'},
-  {name:'Olybet',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
-  {name:'Parions Sport',bonus:100,type:'rembourse',profit:55,diff:'🟢 Facile'},
-  {name:'Pokerstars Sports',bonus:50,type:'freebet',profit:32,diff:'🟡 Moyen'},
-  {name:'Yes or No',bonus:50,type:'freebet',profit:32,diff:'🔴 Difficile'},
+  // ── FACILES (bonus généreux, cotes compétitives) ──
+  {name:'Winamax',     bonus:100, type:'rembourse', profit:58, diff:'🟢 Facile',  note:'Meilleur taux de conversion, cotes excellentes'},
+  {name:'Betclic',     bonus:100, type:'rembourse', profit:55, diff:'🟢 Facile',  note:'Interface simple, paiement rapide'},
+  {name:'Bwin',        bonus:100, type:'rembourse', profit:55, diff:'🟢 Facile',  note:'Bon pour le foot européen'},
+  {name:'Parions Sport',bonus:100,type:'rembourse', profit:55, diff:'🟢 Facile',  note:'Anciennement Zebet (fusion jul 2025)'},
+  {name:'Unibet',      bonus:100, type:'rembourse', profit:55, diff:'🟢 Facile',  note:'Large offre sportive'},
+  {name:'Netbet',      bonus:100, type:'freebet',   profit:65, diff:'🟢 Facile',  note:'Freebet = meilleur profit'},
+  {name:'Vbet',        bonus:100, type:'freebet',   profit:65, diff:'🟢 Facile',  note:'Cotes élevées sur tennis'},
+  // ── MOYENS ──
+  {name:'PMU',         bonus:100, type:'rembourse', profit:52, diff:'🟡 Moyen',   note:'Spécialiste courses + foot'},
+  {name:'Betsson',     bonus:100, type:'freebet',   profit:63, diff:'🟡 Moyen',   note:'Bon freebet, interface correcte'},
+  {name:'Genybet',     bonus:100, type:'rembourse', profit:50, diff:'🟡 Moyen',   note:'Filiale PMU, cotes proches'},
+  {name:'Daznbet',     bonus:100, type:'rembourse', profit:52, diff:'🟡 Moyen',   note:'Anciennement Betsport, sport live'},
+  {name:'Olybet',      bonus:50,  type:'freebet',   profit:32, diff:'🟡 Moyen',   note:'Bonus modeste mais facile'},
+  {name:'PokerStars Sports',bonus:50,type:'freebet',profit:32, diff:'🟡 Moyen',   note:'Bon pour le poker sportif'},
+  {name:'Circusbet',   bonus:50,  type:'freebet',   profit:32, diff:'🟡 Moyen',   note:'Opérateur belge en France'},
+  // ── DIFFICILES ──
+  {name:'Feelingbet',  bonus:50,  type:'rembourse', profit:28, diff:'🔴 Difficile',note:'Conditions strictes, à faire en dernier'},
+  {name:'YESorNO',     bonus:50,  type:'freebet',   profit:30, diff:'🔴 Difficile',note:'Niche, peu de marchés disponibles'},
 ];
 const BKNAMES=BKS.map(b=>b.name);
 const OPTS=BKNAMES.map(n=>`<option>${n}</option>`).join('');
@@ -1221,11 +1258,12 @@ function renderBonusGrid(){
         <button class="bk-toggle ${done?'bk-done':'bk-todo'}" onclick="toggleBonus(${i})">${done?'✓ Exploité':'À faire'}</button>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);"><span>Profit estimé</span><span style="color:var(--success);font-weight:700;">+${bk.profit}€</span></div>
+      ${bk.note?`<div style="font-size:0.72rem;color:var(--muted);font-style:italic;padding-top:2px;">💡 ${bk.note}</div>`:''}
       <div class="bonus-prog"><div class="bonus-prog-fill" style="width:${done?100:0}%"></div></div>
     </div>`;
   });
   grid.innerHTML=html||'<div style="color:var(--muted);font-size:0.83rem;padding:1rem;">Aucun bookmaker dans ce filtre.</div>';
-  document.getElementById('bt-total').textContent=tB+'€';
+  document.getElementById('bt-total').textContent=tB+'€'; document.getElementById('bt-profit').textContent=tP+'€';
   document.getElementById('bt-profit').textContent=tP+'€';
   document.getElementById('bt-restants').textContent=BKS.length-completedBks.size;
   document.getElementById('bt-done').textContent='+'+dP+'€';
@@ -1714,12 +1752,96 @@ function deleteCustomCheck(i) {
 }
 
 
-// ===== SCANNER DE COTES IA =====
+
+// ===== SCANNER V2 =====
 let scanData = [];
 let scanFilter = 'all';
+let scanSport = 'all';
+let scanComp = 'all';
+let scanSort = 'profit';
 let scanLoading = false;
 
-const BK_SCANNER = ['Betclic','Bwin','Winamax','Unibet','Netbet','Vbet','PMU','Parions Sport','Betsson','Genybet'];
+// All competitions available on The Odds API free tier
+const ALL_COMPS = {
+  soccer: [
+    {key:'soccer_epl', label:'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+    {key:'soccer_uefa_champs_league', label:'Champions League'},
+    {key:'soccer_uefa_europa_league', label:'Europa League'},
+    {key:'soccer_spain_la_liga', label:'La Liga 🇪🇸'},
+    {key:'soccer_germany_bundesliga', label:'Bundesliga 🇩🇪'},
+    {key:'soccer_italy_serie_a', label:'Serie A 🇮🇹'},
+    {key:'soccer_france_ligue1', label:'Ligue 1 🇫🇷'},
+    {key:'soccer_netherlands_eredivisie', label:'Eredivisie 🇳🇱'},
+    {key:'soccer_portugal_primeira_liga', label:'Liga Portugal 🇵🇹'},
+    {key:'soccer_turkey_super_ligi', label:'Süper Lig 🇹🇷'},
+    {key:'soccer_belgium_first_div', label:'Pro League 🇧🇪'},
+  ],
+  basketball: [
+    {key:'basketball_nba', label:'NBA 🇺🇸'},
+    {key:'basketball_euroleague', label:'Euroleague 🇪🇺'},
+    {key:'basketball_nbl', label:'NBL 🇦🇺'},
+  ],
+  americanfootball: [
+    {key:'americanfootball_nfl', label:'NFL 🇺🇸'},
+    {key:'americanfootball_ncaaf', label:'NCAA Football'},
+  ],
+  baseball: [
+    {key:'baseball_mlb', label:'MLB 🇺🇸'},
+  ],
+  tennis: [
+    {key:'tennis_atp_french_open', label:'Roland Garros ATP'},
+    {key:'tennis_wta_french_open', label:'Roland Garros WTA'},
+    {key:'tennis_atp_us_open', label:'US Open ATP'},
+    {key:'tennis_wta_us_open', label:'US Open WTA'},
+    {key:'tennis_atp_wimbledon', label:'Wimbledon ATP'},
+    {key:'tennis_wta_wimbledon', label:'Wimbledon WTA'},
+  ],
+  icehockey: [
+    {key:'icehockey_nhl', label:'NHL 🇺🇸'},
+    {key:'icehockey_sweden_hockey_league', label:'SHL 🇸🇪'},
+    {key:'icehockey_switzerland_national_league', label:'NL 🇨🇭'},
+  ],
+  rugby: [
+    {key:'rugbyleague_nrl', label:'NRL 🇦🇺'},
+    {key:'rugbyunion_premiership', label:'Premiership Rugby 🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+    {key:'rugbyunion_super_rugby', label:'Super Rugby'},
+    {key:'rugbyunion_six_nations', label:'Six Nations 🏆'},
+  ],
+  mma: [
+    {key:'mma_mixed_martial_arts', label:'UFC / MMA'},
+  ],
+};
+
+function selectSport(sport, btn) {
+  scanSport = sport;
+  scanComp = 'all';
+  document.querySelectorAll('.sport-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderCompPills();
+}
+
+function renderCompPills() {
+  const container = document.getElementById('comp-pills');
+  let html = '<button class="comp-pill active" data-comp="all" onclick="selectComp(\'all\',this)">Toutes</button>';
+  if (scanSport === 'all') {
+    Object.values(ALL_COMPS).forEach(comps => {
+      comps.forEach(c => {
+        html += `<button class="comp-pill" data-comp="${c.key}" onclick="selectComp('${c.key}',this)">${c.label}</button>`;
+      });
+    });
+  } else if (ALL_COMPS[scanSport]) {
+    ALL_COMPS[scanSport].forEach(c => {
+      html += `<button class="comp-pill" data-comp="${c.key}" onclick="selectComp('${c.key}',this)">${c.label}</button>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function selectComp(comp, btn) {
+  scanComp = comp;
+  document.querySelectorAll('.comp-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+}
 
 function filterScan(f, btn) {
   scanFilter = f;
@@ -1728,299 +1850,192 @@ function filterScan(f, btn) {
   renderScanResults();
 }
 
-
-// ===== DEMO SCAN GRATUIT =====
-function loadDemoScan() {
-  scanData = [
-    {
-      id:"m1", equipe1:"Paris Saint-Germain", equipe2:"Olympique de Marseille",
-      competition:"Ligue 1", heure:"21:00",
-      bookmakers:{
-        "Betclic":   {"1":1.62,"X":3.90,"2":5.50},
-        "Bwin":      {"1":1.65,"X":3.85,"2":5.20},
-        "Winamax":   {"1":1.63,"X":3.95,"2":5.40},
-        "Unibet":    {"1":1.61,"X":3.88,"2":5.55},
-        "Netbet":    {"1":1.66,"X":3.80,"2":5.30},
-        "Vbet":      {"1":1.64,"X":3.92,"2":5.45},
-        "PMU":       {"1":1.60,"X":3.95,"2":5.60},
-        "Parions Sport":{"1":1.62,"X":3.87,"2":5.35},
-        "Betsson":   {"1":1.63,"X":3.83,"2":5.25},
-        "Genybet":   {"1":1.61,"X":3.91,"2":5.50}
-      }
-    },
-    {
-      id:"m2", equipe1:"Olympique Lyonnais", equipe2:"AS Monaco",
-      competition:"Ligue 1", heure:"17:05",
-      bookmakers:{
-        "Betclic":   {"1":2.45,"X":3.30,"2":2.90},
-        "Bwin":      {"1":2.50,"X":3.25,"2":2.85},
-        "Winamax":   {"1":2.48,"X":3.35,"2":2.88},
-        "Unibet":    {"1":2.42,"X":3.28,"2":2.95},
-        "Netbet":    {"1":2.55,"X":3.20,"2":2.80},
-        "Vbet":      {"1":2.60,"X":3.15,"2":2.78},
-        "PMU":       {"1":2.40,"X":3.40,"2":2.98},
-        "Parions Sport":{"1":2.44,"X":3.32,"2":2.92},
-        "Betsson":   {"1":2.46,"X":3.27,"2":2.87},
-        "Genybet":   {"1":2.43,"X":3.30,"2":2.93}
-      }
-    },
-    {
-      id:"m3", equipe1:"Real Madrid", equipe2:"Atletico Madrid",
-      competition:"La Liga", heure:"20:00",
-      bookmakers:{
-        "Betclic":   {"1":2.10,"X":3.40,"2":3.60},
-        "Bwin":      {"1":2.15,"X":3.35,"2":3.55},
-        "Winamax":   {"1":2.12,"X":3.45,"2":3.50},
-        "Unibet":    {"1":2.08,"X":3.42,"2":3.65},
-        "Netbet":    {"1":2.18,"X":3.30,"2":3.45},
-        "Vbet":      {"1":2.20,"X":3.28,"2":3.40},
-        "PMU":       {"1":2.06,"X":3.50,"2":3.70},
-        "Parions Sport":{"1":2.11,"X":3.38,"2":3.58},
-        "Betsson":   {"1":2.09,"X":3.36,"2":3.62},
-        "Genybet":   {"1":2.13,"X":3.44,"2":3.48}
-      }
-    },
-    {
-      id:"m4", equipe1:"Arsenal", equipe2:"Chelsea",
-      competition:"Premier League", heure:"16:30",
-      bookmakers:{
-        "Betclic":   {"1":2.20,"X":3.40,"2":3.30},
-        "Bwin":      {"1":2.25,"X":3.35,"2":3.25},
-        "Winamax":   {"1":2.22,"X":3.42,"2":3.28},
-        "Unibet":    {"1":2.18,"X":3.38,"2":3.35},
-        "Netbet":    {"1":2.28,"X":3.30,"2":3.20},
-        "Vbet":      {"1":2.30,"X":3.28,"2":3.18},
-        "PMU":       {"1":2.16,"X":3.45,"2":3.38},
-        "Parions Sport":{"1":2.19,"X":3.40,"2":3.32},
-        "Betsson":   {"1":2.21,"X":3.36,"2":3.27},
-        "Genybet":   {"1":2.17,"X":3.43,"2":3.33}
-      }
-    },
-    {
-      id:"m5", equipe1:"Stade Rennais", equipe2:"RC Lens",
-      competition:"Ligue 1", heure:"19:00",
-      bookmakers:{
-        "Betclic":   {"1":2.60,"X":3.20,"2":2.75},
-        "Bwin":      {"1":2.65,"X":3.15,"2":2.70},
-        "Winamax":   {"1":2.55,"X":3.25,"2":2.80},
-        "Unibet":    {"1":2.62,"X":3.18,"2":2.73},
-        "Netbet":    {"1":2.70,"X":3.10,"2":2.65},
-        "Vbet":      {"1":2.80,"X":3.05,"2":2.60},
-        "PMU":       {"1":2.58,"X":3.22,"2":2.78},
-        "Parions Sport":{"1":2.63,"X":3.17,"2":2.72},
-        "Betsson":   {"1":2.61,"X":3.19,"2":2.74},
-        "Genybet":   {"1":2.57,"X":3.23,"2":2.77}
-      }
-    },
-    {
-      id:"m6", equipe1:"Bayern Munich", equipe2:"Borussia Dortmund",
-      competition:"Bundesliga", heure:"18:30",
-      // Surebet intentionnel : somme proba < 1
-      bookmakers:{
-        "Betclic":   {"1":1.80,"X":3.90,"2":4.20},
-        "Bwin":      {"1":1.82,"X":3.95,"2":4.10},
-        "Winamax":   {"1":1.78,"X":4.00,"2":4.30},
-        "Unibet":    {"1":1.81,"X":3.88,"2":4.25},
-        "Netbet":    {"1":1.83,"X":4.05,"2":4.15},
-        "Vbet":      {"1":1.84,"X":4.10,"2":4.05},
-        "PMU":       {"1":1.79,"X":3.92,"2":4.35},
-        "Parions Sport":{"1":1.80,"X":3.96,"2":4.22},
-        "Betsson":   {"1":1.82,"X":3.97,"2":4.18},
-        "Genybet":   {"1":1.77,"X":4.08,"2":4.40}
-      }
-    }
-  ];
-
-  const dot = document.getElementById('scan-dot');
-  dot.className = 'scanner-dot live';
-  document.getElementById('scan-status-text').textContent = scanData.length + ' matchs analysés (démo)';
-  document.getElementById('scan-last-update').textContent = 'Données de démonstration — ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
-  document.getElementById('scan-summary').style.display = 'grid';
+function setSortMode(mode, btn) {
+  scanSort = mode;
+  document.querySelectorAll('.scan-sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
   renderScanResults();
-  showToast('✅ Scan démo chargé — 6 matchs, 1 surebet détecté !', 'ok');
+}
+
+// Get list of sport keys to scan
+function getSportKeys() {
+  if (scanComp !== 'all') return [scanComp];
+  if (scanSport !== 'all' && ALL_COMPS[scanSport]) return ALL_COMPS[scanSport].map(c => c.key);
+  // Default: most popular competitions
+  return ['soccer_epl','soccer_uefa_champs_league','basketball_nba','soccer_spain_la_liga','americanfootball_nfl'];
 }
 
 async function launchScan() {
   if (scanLoading) return;
   scanLoading = true;
+  const apiKey = document.getElementById('api-key-input').value || localStorage.getItem('pm_oddskey') || '';
+  if (!apiKey) {
+    showToast('Entre ta clé The Odds API', 'err');
+    scanLoading = false;
+    return;
+  }
   const dot = document.getElementById('scan-dot');
   dot.className = 'scanner-dot loading';
-  document.getElementById('scan-status-text').textContent = 'Récupération des cotes réelles...';
+  document.getElementById('scan-status-text').textContent = 'Récupération des cotes...';
   document.getElementById('scanner-output').innerHTML = `
     <div class="scanner-loading">
       <div class="spinner"></div>
-      <div style="font-size:0.85rem;color:var(--muted);">Connexion aux bookmakers ANJ...</div>
+      <div style="font-size:0.85rem;color:var(--muted);" id="scan-progress">Connexion aux bookmakers...</div>
     </div>`;
   document.getElementById('scan-summary').style.display = 'none';
 
-  // Using real Odds API — no prompt needed
+  const sportKeys = getSportKeys();
+  const ANJ_BOOKS = ['betclic','winamax','unibet','bwin','betsson','william_hill','bet365','unibet_fr','betway'];
+  let allMatches = [];
+  let remaining = null;
 
   try {
-    const apiKey = (document.getElementById('api-key-input') || {}).value || localStorage.getItem('pm_oddskey') || '';
-    if (!apiKey) throw new Error('401');
+    for (let i = 0; i < Math.min(sportKeys.length, 3); i++) {
+      const key = sportKeys[i];
+      const prog = document.getElementById('scan-progress');
+      if (prog) prog.textContent = `Scan ${i+1}/${Math.min(sportKeys.length,3)} : ${key.replace(/_/g,' ')}...`;
 
-    // Use sport key directly from select
-    const sportKey = document.getElementById('scan-comp').value || 'soccer_epl';
+      const url = `https://api.the-odds-api.com/v4/sports/${key}/odds/?apiKey=${apiKey}&regions=eu,us&markets=h2h&oddsFormat=decimal`;
+      const resp = await fetch(url);
 
-    // ANJ bookmakers available on The Odds API
-    const ANJ_BOOKS = ['betclic','winamax','unibet','bwin','betsson','betway','william_hill','bet365','pinnacle','onexbet'];
+      if (resp.status === 404) continue; // sport not available, skip
+      if (resp.status === 401) throw new Error('Clé API invalide');
+      if (resp.status === 429) throw new Error('Quota dépassé — réessaie demain');
+      if (!resp.ok) continue;
 
-    // Fetch odds from The Odds API
-    const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal&bookmakers=${ANJ_BOOKS.join(',')}`;
-    const response = await fetch(url);
+      remaining = resp.headers.get('x-requests-remaining');
+      const data = await resp.json();
 
-    if (!response.ok) {
-      const errBody = await response.json().catch(() => ({}));
-      const msg = errBody.message || response.status;
-      throw new Error('HTTP ' + response.status + ': ' + msg);
-    }
-
-    const rawData = await response.json();
-
-    // Show remaining quota
-    const remaining = response.headers.get('x-requests-remaining');
-    if (remaining) document.getElementById('scan-last-update').textContent = `Requêtes restantes ce mois : ${remaining}/500`;
-
-    if (!rawData.length) throw new Error('Aucun match disponible pour cette compétition actuellement.');
-
-    // Convert Odds API format to PariMalin format
-    const BK_DISPLAY = {betclic:'Betclic', winamax:'Winamax', unibet:'Unibet', pmu:'PMU', bwin:'Bwin'};
-
-    scanData = rawData.slice(0, 10).map((match, idx) => {
-      const bookmakers = {};
-      match.bookmakers.forEach(bk => {
-        const bkName = BK_DISPLAY[bk.key] || bk.title;
-        const h2h = bk.markets.find(m => m.key === 'h2h');
-        if (!h2h) return;
-        const odds = {};
-        h2h.outcomes.forEach(o => {
-          if (o.name === match.home_team) odds['1'] = o.price;
-          else if (o.name === match.away_team) odds['2'] = o.price;
-          else odds['X'] = o.price;
-        });
-        bookmakers[bkName] = odds;
-      });
-
-      // Format match time
-      const matchTime = new Date(match.commence_time);
-      const heure = matchTime.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-      const dateStr = matchTime.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
-
-      return {
-        id: 'm' + idx,
-        equipe1: match.home_team,
-        equipe2: match.away_team,
-        competition: match.sport_title,
-        heure: dateStr + ' ' + heure,
-        bookmakers
-      };
-    }).filter(m => Object.keys(m.bookmakers).length >= 2);
-
-    if (!scanData.length) {
-      // Try fallback with all EU bookmakers
-      const url2 = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal`;
-      const resp2 = await fetch(url2);
-      const raw2 = await resp2.json();
-      scanData = raw2.slice(0, 10).map((match, idx) => {
+      data.forEach(match => {
         const bookmakers = {};
-        match.bookmakers.slice(0, 6).forEach(bk => {
-          const h2h = bk.markets.find(m => m.key === 'h2h');
+        match.bookmakers.forEach(bk => {
+          const h2h = bk.markets && bk.markets.find(m => m.key === 'h2h');
           if (!h2h) return;
           const odds = {};
           h2h.outcomes.forEach(o => {
-            if (o.name === match.home_team) odds['1'] = o.price;
-            else if (o.name === match.away_team) odds['2'] = o.price;
-            else odds['X'] = o.price;
+            if (o.name === match.home_team) odds['1'] = parseFloat(o.price.toFixed(2));
+            else if (o.name === match.away_team) odds['2'] = parseFloat(o.price.toFixed(2));
+            else odds['X'] = parseFloat(o.price.toFixed(2));
           });
-          bookmakers[bk.title] = odds;
+          if (Object.keys(odds).length >= 2) bookmakers[bk.title] = odds;
         });
-        const matchTime = new Date(match.commence_time);
-        const heure = matchTime.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-        const dateStr = matchTime.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
-        return { id:'m'+idx, equipe1:match.home_team, equipe2:match.away_team, competition:match.sport_title, heure:dateStr+' '+heure, bookmakers };
-      }).filter(m => Object.keys(m.bookmakers).length >= 2);
+        if (Object.keys(bookmakers).length >= 2) {
+          const matchTime = new Date(match.commence_time);
+          allMatches.push({
+            id: match.id,
+            equipe1: match.home_team,
+            equipe2: match.away_team,
+            competition: match.sport_title,
+            sportKey: key,
+            heure: matchTime.toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),
+            timestamp: matchTime.getTime(),
+            bookmakers
+          });
+        }
+      });
     }
+
+    if (remaining) {
+      document.getElementById('scan-quota').innerHTML = `Quota : <span>${remaining}</span>/500 restantes`;
+    }
+
+    scanData = allMatches;
     if (!scanData.length) throw new Error('Aucun match disponible. Essaie une autre compétition.');
+
     dot.className = 'scanner-dot live';
     document.getElementById('scan-status-text').textContent = `${scanData.length} matchs analysés`;
-    document.getElementById('scan-last-update').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('scan-last-update').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
     document.getElementById('scan-summary').style.display = 'grid';
     renderScanResults();
+
   } catch(e) {
-    console.error('Scanner error:', e);
     dot.className = 'scanner-dot';
-    const isMissingKey = e.message && (e.message.includes('401') || e.message.includes('403'));
-    document.getElementById('scan-status-text').textContent = 'Erreur — ' + (isMissingKey ? 'clé API manquante' : 'réessaie');
-    document.getElementById('scanner-output').innerHTML = isMissingKey ? `
+    document.getElementById('scan-status-text').textContent = 'Erreur';
+    document.getElementById('scanner-output').innerHTML = `
       <div class="scanner-empty">
-        <div class="scanner-empty-icon">🔑</div>
-        <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">Clé API requise</div>
-        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Entre ta clé The Odds API ci-dessus (the-odds-api.com — gratuit).</div>
-        <a href="https://the-odds-api.com" target="_blank" class="btn-primary" style="font-size:0.82rem;padding:9px 18px;">Obtenir une clé gratuite →</a>
-      </div>` : `
-      <div class="scanner-empty">
-        <div class="scanner-empty-icon">⚠️</div>
-        <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">Erreur : ${e.message}</div>
-        <div style="font-size:0.82rem;color:var(--muted);">Vérifie ta clé API et ta connexion, puis réessaie.</div>
+        <div style="font-size:2.5rem;margin-bottom:0.8rem;">⚠️</div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:0.5rem;">${e.message}</div>
+        <div style="font-size:0.82rem;color:var(--muted);">Vérifie ta clé API et réessaie.</div>
       </div>`;
   }
   scanLoading = false;
 }
 
-function analyzeSurebet(matchData) {
-  const bks = Object.entries(matchData.bookmakers);
-  let best1 = {v:0,bk:''}, bestX = {v:0,bk:''}, best2 = {v:0,bk:''};
-  bks.forEach(([bk, odds]) => {
-    if ((odds['1']||0) > best1.v) best1 = {v:odds['1'],bk};
-    if ((odds['X']||0) > bestX.v) bestX = {v:odds['X'],bk};
-    if ((odds['2']||0) > best2.v) best2 = {v:odds['2'],bk};
+function analyzeSurebet(m) {
+  const bks = Object.entries(m.bookmakers);
+  let best1={v:0,bk:''}, bestX={v:0,bk:''}, best2={v:0,bk:''};
+  bks.forEach(([bk,odds]) => {
+    if((odds['1']||0)>best1.v) best1={v:odds['1'],bk};
+    if((odds['X']||0)>bestX.v) bestX={v:odds['X'],bk};
+    if((odds['2']||0)>best2.v) best2={v:odds['2'],bk};
   });
-  const margin = (1/best1.v) + (1/bestX.v) + (1/best2.v);
+  const has3 = bestX.v > 0;
+  const margin = has3
+    ? (1/best1.v)+(1/bestX.v)+(1/best2.v)
+    : (1/best1.v)+(1/best2.v);
   const isSurebet = margin < 1.0;
-  const profit = isSurebet ? ((1/margin - 1) * 100) : 0;
-  return { best1, bestX, best2, margin, isSurebet, profit };
+  const profit = isSurebet ? ((1/margin-1)*100) : 0;
+  return {best1, bestX, best2, margin, isSurebet, profit, has3};
 }
 
-function analyzeValueBets(matchData) {
-  const bks = Object.entries(matchData.bookmakers);
+function analyzeValueBets(m) {
+  const bks = Object.entries(m.bookmakers);
   const outcomes = ['1','X','2'];
   const values = [];
   outcomes.forEach(o => {
-    const odds = bks.map(([bk,v]) => ({bk, v:v[o]||0})).filter(x=>x.v>0);
-    if (!odds.length) return;
+    const odds = bks.map(([bk,v])=>({bk,v:v[o]||0})).filter(x=>x.v>1.01);
+    if (odds.length < 2) return;
     const avg = odds.reduce((s,x)=>s+x.v,0)/odds.length;
     const best = odds.reduce((a,b)=>a.v>b.v?a:b);
     const edge = ((best.v/avg)-1)*100;
-    if (edge > 4) values.push({outcome:o,bk:best.bk,cote:best.v,avg,edge});
+    if (edge > 3) values.push({outcome:o, bk:best.bk, cote:best.v, avg, edge});
   });
   return values.sort((a,b)=>b.edge-a.edge);
 }
 
+function getMatchScore(m) {
+  const sb = analyzeSurebet(m);
+  const vb = analyzeValueBets(m);
+  if (sb.isSurebet) return 1000 + sb.profit;
+  if (vb.length) return vb[0].edge;
+  return 0;
+}
+
 function renderScanResults() {
   if (!scanData.length) return;
-  let surebets=0, valuebets=0, bestEdge=0;
-  const filtered = scanData.filter(m => {
+  let surebets=0, valuebets=0, bestEdge=0, bestOdd=0;
+
+  let filtered = scanData.filter(m => {
     const sb = analyzeSurebet(m);
     const vb = analyzeValueBets(m);
+    const allOdds = Object.values(m.bookmakers).flatMap(o=>Object.values(o)).filter(v=>v>1);
+    const maxOdd = allOdds.length ? Math.max(...allOdds) : 0;
     if (sb.isSurebet) surebets++;
-    if (vb.length) valuebets++;
-    if (vb.length && vb[0].edge > bestEdge) bestEdge = vb[0].edge;
-    if (scanFilter === 'surebet') return sb.isSurebet;
-    if (scanFilter === 'value') return vb.length > 0;
-    if (scanFilter === 'high') {
-      const allOdds = Object.values(m.bookmakers).flatMap(o=>Object.values(o));
-      return Math.max(...allOdds) >= 3.0;
-    }
+    if (vb.length) { valuebets++; if(vb[0].edge>bestEdge) bestEdge=vb[0].edge; }
+    if (maxOdd > bestOdd) bestOdd = maxOdd;
+    if (scanFilter==='surebet') return sb.isSurebet;
+    if (scanFilter==='value') return vb.length>0;
+    if (scanFilter==='high') return maxOdd>=3.0;
+    if (scanFilter==='edge5') return vb.length>0 && vb[0].edge>=5;
     return true;
+  });
+
+  // Sort
+  if (scanSort==='profit') filtered.sort((a,b)=>getMatchScore(b)-getMatchScore(a));
+  else if (scanSort==='time') filtered.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  else if (scanSort==='edge') filtered.sort((a,b)=>{
+    const ea=analyzeValueBets(a); const eb=analyzeValueBets(b);
+    return (eb[0]?.edge||0)-(ea[0]?.edge||0);
   });
 
   document.getElementById('ss-matchs').textContent = scanData.length;
   document.getElementById('ss-surebets').textContent = surebets;
   document.getElementById('ss-values').textContent = valuebets;
-  document.getElementById('ss-best-edge').textContent = bestEdge > 0 ? '+'+bestEdge.toFixed(1)+'%' : '—';
+  document.getElementById('ss-best-edge').textContent = bestEdge>0 ? '+'+bestEdge.toFixed(1)+'%' : '—';
+  document.getElementById('ss-best-odd').textContent = bestOdd>0 ? bestOdd.toFixed(2) : '—';
 
   if (!filtered.length) {
-    document.getElementById('scanner-output').innerHTML = `<div class="scanner-empty"><div class="scanner-empty-icon">🔎</div><div>Aucun match ne correspond à ce filtre.</div></div>`;
+    document.getElementById('scanner-output').innerHTML = `<div class="scanner-empty"><div style="font-size:2rem;">🔎</div><div style="margin-top:0.5rem;">Aucun match dans ce filtre.</div></div>`;
     return;
   }
 
@@ -2029,84 +2044,99 @@ function renderScanResults() {
     const sb = analyzeSurebet(m);
     const vb = analyzeValueBets(m);
     const bks = Object.entries(m.bookmakers);
-    const outcomes = ['1','X','2'];
-    const outLabels = {1:'1 ('+m.equipe1+')',X:'Nul',2:'2 ('+m.equipe2+')'};
-    // find best per outcome
+    const allOdds = bks.flatMap(([,o])=>Object.values(o)).filter(v=>v>1);
+    const maxOdd = allOdds.length ? Math.max(...allOdds) : 0;
+
+    // Best per outcome
     const bestPerOutcome = {};
-    outcomes.forEach(o => {
-      let best = {v:0,bk:''};
+    ['1','X','2'].forEach(o => {
+      let best={v:0,bk:''};
       bks.forEach(([bk,odds])=>{if((odds[o]||0)>best.v)best={v:odds[o],bk};});
-      bestPerOutcome[o] = best;
+      bestPerOutcome[o]=best;
     });
 
-    let alerts = '';
-    if (sb.isSurebet) alerts += `<span class="match-alert alert-surebet">🟢 Surebet +${sb.profit.toFixed(1)}%</span>`;
-    if (vb.length) alerts += `<span class="match-alert alert-value">🔥 Value +${vb[0].edge.toFixed(1)}%</span>`;
+    // Tags
+    let tags = '';
+    if (sb.isSurebet) tags += `<span class="match-alert-tag tag-surebet">🟢 Surebet +${sb.profit.toFixed(2)}%</span>`;
+    if (vb.length) tags += `<span class="match-alert-tag tag-value">🔥 Value +${vb[0].edge.toFixed(1)}%</span>`;
+    if (maxOdd >= 4) tags += `<span class="match-alert-tag tag-high">📈 ${maxOdd.toFixed(2)}</span>`;
 
+    // Edge display
+    const topEdge = sb.isSurebet ? sb.profit : (vb[0]?.edge || 0);
+    const edgeColor = topEdge > 5 ? 'var(--success)' : topEdge > 0 ? 'var(--acc)' : 'var(--muted)';
+
+    // Odds table rows
+    const hasX = bks.some(([,o])=>o['X']>0);
     let tableRows = '';
     bks.forEach(([bk, odds]) => {
-      let cells = '';
-      outcomes.forEach(o => {
-        const v = odds[o];
-        const isBest = v && v === bestPerOutcome[o].v;
-        const cls = isBest ? 'odd-best' : v && v >= 2.5 ? 'ok' : 'odd-low';
-        cells += `<td><span class="odd-val ${cls}">${v ? v.toFixed(2) : '—'}</span></td>`;
-      });
-      tableRows += `<tr><td style="font-weight:600;font-size:0.82rem;">${bk}</td>${cells}</tr>`;
+      const c1 = odds['1']||0, cX = odds['X']||0, c2 = odds['2']||0;
+      const best1 = c1===bestPerOutcome['1']?.v && c1>0;
+      const bestX = cX===bestPerOutcome['X']?.v && cX>0;
+      const best2 = c2===bestPerOutcome['2']?.v && c2>0;
+      tableRows += `<tr>
+        <td style="font-weight:600;white-space:nowrap;">${bk}</td>
+        <td><span class="odd-pill ${best1?'odd-best':'odd-good'}">${c1>0?c1.toFixed(2):'—'}</span></td>
+        ${hasX?`<td><span class="odd-pill ${bestX?'odd-best':cX>0?'odd-good':'odd-none'}">${cX>0?cX.toFixed(2):'—'}</span></td>`:''}
+        <td><span class="odd-pill ${best2?'odd-best':'odd-good'}">${c2>0?c2.toFixed(2):'—'}</span></td>
+      </tr>`;
     });
 
-    let surebetBanner = '';
+    // Footer pills
+    let footerHtml = '<div class="match-footer">';
     if (sb.isSurebet) {
-      surebetBanner = `<div class="surebet-banner">
-        <div>
-          <div class="surebet-detail">✅ Surebet confirmé — profit garanti +${sb.profit.toFixed(2)}%</div>
-          <div style="font-size:0.77rem;color:var(--muted);margin-top:3px;">
-            1 → <strong>${sb.best1.bk}</strong> @ ${sb.best1.v} &nbsp;|&nbsp;
-            X → <strong>${sb.bestX.bk}</strong> @ ${sb.bestX.v} &nbsp;|&nbsp;
-            2 → <strong>${sb.best2.bk}</strong> @ ${sb.best2.v}
-          </div>
+      footerHtml += `<div class="surebet-pill">
+        <div class="surebet-pill-title">✅ Surebet confirmé — profit garanti +${sb.profit.toFixed(2)}%</div>
+        <div class="surebet-pill-detail">
+          ${m.equipe1} → <strong>${sb.best1.bk}</strong> @ ${sb.best1.v}
+          ${sb.has3 ? `&nbsp;·&nbsp; Nul → <strong>${sb.bestX.bk}</strong> @ ${sb.bestX.v}` : ''}
+          &nbsp;·&nbsp; ${m.equipe2} → <strong>${sb.best2.bk}</strong> @ ${sb.best2.v}
         </div>
-        <button class="surebet-calc-btn" onclick="openSurebetCalc('${m.equipe1} vs ${m.equipe2}',${sb.best1.v},${sb.bestX.v},${sb.best2.v},'${sb.best1.bk}','${sb.best2.bk}')">Calculer les mises →</button>
       </div>`;
     }
-
-    let valueBanner = '';
-    if (vb.length && !sb.isSurebet) {
-      valueBanner = `<div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.8rem;">
-        <div style="font-size:0.82rem;font-weight:600;color:var(--acc);">🔥 Value bet — ${vb[0].bk} propose la meilleure cote sur l'issue ${vb[0].outcome}</div>
-        <div style="font-size:0.77rem;color:var(--muted);margin-top:3px;">Cote : ${vb[0].cote.toFixed(2)} vs moyenne ${vb[0].avg.toFixed(2)} → edge +${vb[0].edge.toFixed(1)}%</div>
+    if (vb.length) {
+      footerHtml += `<div class="value-pill">
+        <div class="value-pill-title">🔥 Value bet — ${vb[0].bk}</div>
+        <div class="value-pill-detail">Issue ${vb[0].outcome==='1'?m.equipe1:vb[0].outcome==='2'?m.equipe2:'Nul'} @ ${vb[0].cote.toFixed(2)} · Edge +${vb[0].edge.toFixed(1)}% vs moy. ${vb[0].avg.toFixed(2)}</div>
       </div>`;
     }
+    footerHtml += `<div style="display:flex;gap:8px;flex-wrap:wrap;">`;
+    if (sb.isSurebet) {
+      const sbStr = encodeURIComponent(JSON.stringify({m:m.equipe1+' vs '+m.equipe2, c1:sb.best1.v, cX:sb.bestX.v||0, c2:sb.best2.v, bk1:sb.best1.bk, bk2:sb.best2.bk, has3:sb.has3}));
+      footerHtml += `<button class="scan-action-btn btn-calc" onclick="openSurebetCalc('${encodeURIComponent(m.equipe1+' vs '+m.equipe2)}',${sb.best1.v},${sb.bestX.v||0},${sb.best2.v},'${sb.best1.bk}','${sb.best2.bk}',${sb.has3})">⚡ Calculer mises</button>`;
+    }
+    const trackId = 'scan_'+idx;
+    footerHtml += `<button class="scan-action-btn btn-track" onclick="quickTrack('${encodeURIComponent(m.equipe1+' vs '+m.equipe2)}','${encodeURIComponent(m.bookmakers ? Object.keys(m.bookmakers)[0] : '')}',${topEdge.toFixed(1)})">📊 Tracker</button>`;
+    footerHtml += `</div></div>`;
 
     html += `<div class="match-card ${sb.isSurebet?'has-surebet':vb.length?'has-value':''}">
-      <div class="match-header" onclick="toggleMatch('mb-${idx}',this)">
+      <div class="match-header" onclick="toggleMatch('mb-${idx}','mc-${idx}')">
         <div>
-          <div class="match-teams">${m.equipe1} <span style="color:var(--muted);font-weight:400;">vs</span> ${m.equipe2}</div>
-          <div class="match-meta" style="margin-top:4px;">
-            <span class="match-comp">${m.competition || ''}</span>
-            <span class="match-time">${m.heure || ''}</span>
-            ${alerts}
+          <div class="match-teams">${m.equipe1} <span style="color:var(--muted);font-weight:400;font-size:0.85rem;">vs</span> ${m.equipe2}</div>
+          <div class="match-sub">
+            <span class="match-comp-tag">${m.competition}</span>
+            <span class="match-time-tag">${m.heure}</span>
+            ${tags}
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="text-align:right;">
-            <div style="font-size:0.72rem;color:var(--muted);">Meilleure cote</div>
-            <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.1rem;color:var(--acc);">${Math.max(...bks.flatMap(([,o])=>Object.values(o))).toFixed(2)}</div>
-          </div>
-          <div class="match-toggle" id="mt-${idx}">▼</div>
+        <div class="match-right">
+          ${topEdge>0?`<div class="match-edge"><div class="match-edge-val" style="color:${edgeColor}">${topEdge>100?'+'+sb.profit.toFixed(1)+'%':'+'+topEdge.toFixed(1)+'%'}</div><div class="match-edge-label">${sb.isSurebet?'Profit':'Edge'}</div></div>`:''}
+          <div class="match-best-odd"><div class="match-best-odd-val">${maxOdd.toFixed(2)}</div><div class="match-best-odd-label">Meilleure cote</div></div>
+          <div class="match-chevron" id="mc-${idx}">▼</div>
         </div>
       </div>
       <div class="match-body" id="mb-${idx}">
-        <table class="odds-table">
-          <thead><tr><th>Bookmaker</th><th>${m.equipe1}</th><th>Nul</th><th>${m.equipe2}</th></tr></thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-        ${surebetBanner}${valueBanner}
-        <div style="margin-top:0.8rem;display:flex;gap:8px;flex-wrap:wrap;">
-          <div style="font-size:0.75rem;color:var(--muted);padding:5px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
-            🟠 = Meilleure cote &nbsp; | &nbsp; Marge bookmaker : ${((sb.margin-1)*100).toFixed(1) > 0 ? '+':'' }${((sb.margin-1)*100).toFixed(1)}%
-          </div>
+        <div class="odds-grid">
+          <table class="odds-table">
+            <thead><tr>
+              <th>Bookmaker</th>
+              <th>${m.equipe1}</th>
+              ${hasX?'<th>Nul</th>':''}
+              <th>${m.equipe2}</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
         </div>
+        ${footerHtml}
       </div>
     </div>`;
   });
@@ -2114,34 +2144,38 @@ function renderScanResults() {
   document.getElementById('scanner-output').innerHTML = html;
 }
 
-function toggleMatch(id, header) {
-  const body = document.getElementById(id);
-  const idx = id.replace('mb-','');
-  const toggle = document.getElementById('mt-'+idx);
-  body.classList.toggle('open');
-  toggle.classList.toggle('open');
+function toggleMatch(bodyId, chevronId) {
+  document.getElementById(bodyId).classList.toggle('open');
+  document.getElementById(chevronId).classList.toggle('open');
 }
 
-function openSurebetCalc(match, c1, cX, c2, bk1, bk2) {
-  // Pre-fill the calculator and scroll to it
+function openSurebetCalc(matchEnc, c1, cX, c2, bk1, bk2, has3) {
   document.getElementById('mise').value = 100;
   document.getElementById('cote1').value = c1;
-  document.getElementById('cote2').value = cX;
-  document.getElementById('cote3').value = c2;
-  document.getElementById('mkt').value = '3way';
+  document.getElementById('cote2').value = has3 ? cX : c2;
+  if (has3) document.getElementById('cote3').value = c2;
+  document.getElementById('mkt').value = has3 ? '3way' : '2way';
   // Set bk selects
-  const bk1El = document.getElementById('bk1');
-  const bk2El = document.getElementById('bk2');
-  for (let i=0; i<bk1El.options.length; i++) if (bk1El.options[i].text === bk1) { bk1El.selectedIndex=i; break; }
-  for (let i=0; i<bk2El.options.length; i++) if (bk2El.options[i].text === bk2) { bk2El.selectedIndex=i; break; }
+  [['bk1',bk1],['bk2',bk2]].forEach(([id,name])=>{
+    const sel=document.getElementById(id);
+    for(let i=0;i<sel.options.length;i++){if(sel.options[i].text===name){sel.selectedIndex=i;break;}}
+  });
   calculate();
-  // Switch to qualifying tab
   document.querySelectorAll('#calculateur .tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('#calculateur .tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelector('#calculateur .tab').classList.add('active');
   document.getElementById('ct-qualifying').classList.add('active');
-  window.location.hash = '#calculateur';
-  showToast('✅ Cotes injectées dans le calculateur !', 'ok');
+  window.location.hash='#calculateur';
+  showToast('✅ Cotes injectées dans le calculateur !','ok');
+}
+
+function quickTrack(matchEnc, bkEnc, profit) {
+  const match = decodeURIComponent(matchEnc);
+  const bk = decodeURIComponent(bkEnc);
+  trades.unshift({match, profit:parseFloat(profit)||0, bk:bk||'Inconnu', type:'Value bet', date:new Date().toLocaleDateString('fr-FR')});
+  save(); renderTracker(); renderDashboard(); renderStats();
+  showToast('📊 Ajouté au tracker !','ok');
+  window.location.hash='#tracker';
 }
 
 
@@ -2174,11 +2208,12 @@ renderStats();
 renderChecklist();
 calcValue();
 updateTimerDisplay();
+renderCompPills();
 // Restore API key
 const savedKey = localStorage.getItem('pm_oddskey');
 if (savedKey) { const el = document.getElementById('api-key-input'); if(el) el.value = savedKey; }
 // Pre-fill Odds API key if stored
-const oddsKey = localStorage.getItem('pm_oddskey') || 'c16d010825f228e484bdd527b49539bc';
+const oddsKey = localStorage.getItem('pm_oddskey') || '';
 if (oddsKey) { localStorage.setItem('pm_oddskey', oddsKey); const el = document.getElementById('api-key-input'); if(el) el.value = oddsKey; }
 </script>
 </body>
