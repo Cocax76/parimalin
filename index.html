@@ -545,22 +545,18 @@ body.light .hero-grid{opacity:0.15;}
     </div>
 
     <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;align-items:center;">
-      <div class="field" style="margin:0;flex:1;max-width:280px;">
-        <select id="scan-sport" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
-          <option value="football">⚽ Football</option>
-          <option value="tennis">🎾 Tennis</option>
-          <option value="basket">🏀 Basketball</option>
-          <option value="rugby">🏉 Rugby</option>
-        </select>
-      </div>
-      <div class="field" style="margin:0;flex:1;max-width:280px;">
+      <div class="field" style="margin:0;flex:1;max-width:580px;">
         <select id="scan-comp" style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:9px 11px;width:100%;outline:none;">
-          <option value="all">Toutes compétitions</option>
-          <option value="ligue1">Ligue 1</option>
-          <option value="cl">Champions League</option>
-          <option value="el">Europa League</option>
-          <option value="prem">Premier League</option>
-          <option value="liga">La Liga</option>
+          <option value="soccer_epl">⚽ Premier League</option>
+          <option value="soccer_uefa_champs_league">⚽ Champions League</option>
+          <option value="soccer_uefa_europa_league">⚽ Europa League</option>
+          <option value="soccer_spain_la_liga">⚽ La Liga</option>
+          <option value="soccer_germany_bundesliga">⚽ Bundesliga</option>
+          <option value="soccer_italy_serie_a">⚽ Serie A</option>
+          <option value="soccer_france_ligue1">⚽ Ligue 1</option>
+          <option value="basketball_nba">🏀 NBA</option>
+          <option value="americanfootball_nfl">🏈 NFL</option>
+          <option value="tennis_wta_us_open">🎾 Tennis WTA</option>
         </select>
       </div>
       <div class="field" style="margin:0;flex:1;max-width:300px;">
@@ -1847,7 +1843,6 @@ function loadDemoScan() {
 async function launchScan() {
   if (scanLoading) return;
   scanLoading = true;
-  const sport = document.getElementById('scan-sport').value;
   const dot = document.getElementById('scan-dot');
   dot.className = 'scanner-dot loading';
   document.getElementById('scan-status-text').textContent = 'Récupération des cotes réelles...';
@@ -1864,24 +1859,8 @@ async function launchScan() {
     const apiKey = (document.getElementById('api-key-input') || {}).value || localStorage.getItem('pm_oddskey') || '';
     if (!apiKey) throw new Error('401');
 
-    // Map sport selection to Odds API sport key (free tier compatible)
-    const compMap = {
-      all: 'soccer_epl',
-      ligue1: 'soccer_france_ligue1',
-      cl: 'soccer_uefa_champs_league',
-      el: 'soccer_uefa_europa_league',
-      prem: 'soccer_epl',
-      liga: 'soccer_spain_la_liga'
-    };
-    const sportMap = {
-      football: 'soccer_epl',
-      tennis: 'tennis_atp_us_open',
-      basket: 'basketball_nba',
-      rugby: 'rugbyleague_nrl'
-    };
-    const compVal = document.getElementById('scan-comp').value;
-    const sportVal = document.getElementById('scan-sport').value;
-    const sportKey = compVal !== 'all' ? compMap[compVal] : sportMap[sportVal] || 'soccer_epl';
+    // Use sport key directly from select
+    const sportKey = document.getElementById('scan-comp').value || 'soccer_epl';
 
     // ANJ bookmakers available on The Odds API
     const ANJ_BOOKS = ['betclic','winamax','unibet','bwin','betsson','betway','william_hill','bet365','pinnacle','onexbet'];
