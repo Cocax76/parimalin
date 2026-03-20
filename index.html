@@ -1864,27 +1864,27 @@ async function launchScan() {
     const apiKey = (document.getElementById('api-key-input') || {}).value || localStorage.getItem('pm_oddskey') || '';
     if (!apiKey) throw new Error('401');
 
-    // Map sport selection to Odds API sport key
-    const sportMap = {
-      football: 'soccer_france_ligue1',
-      tennis: 'tennis_atp_french_open',
-      basket: 'basketball_nba',
-      rugby: 'rugbyleague_nrl'
-    };
+    // Map sport selection to Odds API sport key (free tier compatible)
     const compMap = {
-      all: 'soccer_france_ligue1',
+      all: 'soccer_epl',
       ligue1: 'soccer_france_ligue1',
       cl: 'soccer_uefa_champs_league',
       el: 'soccer_uefa_europa_league',
       prem: 'soccer_epl',
       liga: 'soccer_spain_la_liga'
     };
-    const sportKey = document.getElementById('scan-comp').value !== 'all'
-      ? compMap[document.getElementById('scan-comp').value]
-      : sportMap[document.getElementById('scan-sport').value] || 'soccer_france_ligue1';
+    const sportMap = {
+      football: 'soccer_epl',
+      tennis: 'tennis_atp_us_open',
+      basket: 'basketball_nba',
+      rugby: 'rugbyleague_nrl'
+    };
+    const compVal = document.getElementById('scan-comp').value;
+    const sportVal = document.getElementById('scan-sport').value;
+    const sportKey = compVal !== 'all' ? compMap[compVal] : sportMap[sportVal] || 'soccer_epl';
 
     // ANJ bookmakers available on The Odds API
-    const ANJ_BOOKS = ['betclic','winamax','unibet','pmu','bwin'];
+    const ANJ_BOOKS = ['betclic','winamax','unibet','bwin','betsson','betway','william_hill','bet365','pinnacle','onexbet'];
 
     // Fetch odds from The Odds API
     const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal&bookmakers=${ANJ_BOOKS.join(',')}`;
@@ -1937,7 +1937,31 @@ async function launchScan() {
       };
     }).filter(m => Object.keys(m.bookmakers).length >= 2);
 
-    if (!scanData.length) throw new Error('Aucun bookmaker ANJ disponible sur ces matchs. Essaie une autre compétition.');
+    if (!scanData.length) {
+      // Try fallback with all EU bookmakers
+      const url2 = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal`;
+      const resp2 = await fetch(url2);
+      const raw2 = await resp2.json();
+      scanData = raw2.slice(0, 10).map((match, idx) => {
+        const bookmakers = {};
+        match.bookmakers.slice(0, 6).forEach(bk => {
+          const h2h = bk.markets.find(m => m.key === 'h2h');
+          if (!h2h) return;
+          const odds = {};
+          h2h.outcomes.forEach(o => {
+            if (o.name === match.home_team) odds['1'] = o.price;
+            else if (o.name === match.away_team) odds['2'] = o.price;
+            else odds['X'] = o.price;
+          });
+          bookmakers[bk.title] = odds;
+        });
+        const matchTime = new Date(match.commence_time);
+        const heure = matchTime.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        const dateStr = matchTime.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'});
+        return { id:'m'+idx, equipe1:match.home_team, equipe2:match.away_team, competition:match.sport_title, heure:dateStr+' '+heure, bookmakers };
+      }).filter(m => Object.keys(m.bookmakers).length >= 2);
+    }
+    if (!scanData.length) throw new Error('Aucun match disponible. Essaie une autre compétition.');
     dot.className = 'scanner-dot live';
     document.getElementById('scan-status-text').textContent = `${scanData.length} matchs analysés`;
     document.getElementById('scan-last-update').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
