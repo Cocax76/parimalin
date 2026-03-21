@@ -149,6 +149,9 @@
     }
     .pill.todo{background:rgba(184,120,0,.12);color:var(--warn)}
     .pill.done{background:rgba(22,138,82,.12);color:var(--good)}
+.pill.live{background:rgba(22,138,82,.12);color:var(--good)}
+    .pill.manual{background:rgba(184,120,0,.12);color:var(--warn)}
+    .pill.unavailable{background:rgba(184,58,47,.10);color:var(--bad)}
     .empty{
       padding:16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff;
     }
@@ -213,7 +216,7 @@
       <div class="section-head">
         <div>
           <h2>Scanner central</h2>
-          <div class="muted">Le tableau principal devient le centre du site.</div>
+          <div class="muted">Le scanner se limite aux 6 books FR disponibles via API + Betsson.</div>
         </div>
       </div>
       <div class="card panel">
@@ -252,6 +255,36 @@
 
         <div class="small api-note" id="apiStatus">
           Mode démo supprimé. Tu dois utiliser ta clé API. Avec une clé valide, le scanner charge The Odds API.
+        </div>
+
+        <div style="height:16px"></div>
+
+        <div class="soft">
+          <div class="section-head" style="margin-bottom:10px">
+            <div>
+              <strong>Couverture des 6 books FR + Betsson</strong>
+              <div class="small">Live API quand disponible, sinon saisie manuelle rapide.</div>
+            </div>
+          </div>
+          <div id="anjCoverageGrid" class="bonus-grid"></div>
+        </div>
+
+        <div style="height:16px"></div>
+
+        <div class="soft">
+          <div class="section-head" style="margin-bottom:10px">
+            <div>
+              <strong>Ajout manuel ANJ</strong>
+              <div class="small">Si un des 7 books n’apparaît pas sur le sport choisi, tu peux l’ajouter manuellement au scanner.</div>
+            </div>
+          </div>
+          <div class="toolbar-compact">
+            <select id="manualAnjBook"></select>
+            <input id="manualAnjEvent" placeholder="Match / événement" />
+            <input id="manualAnjOdds" type="number" step="0.01" placeholder="Cote" />
+            <button class="primary" id="addManualAnjBtn">Ajouter au scanner</button>
+            <button class="ghost" id="clearManualAnjBtn">Vider</button>
+          </div>
         </div>
 
         <div style="height:16px"></div>
@@ -648,6 +681,7 @@
 
       renderTop5(rows.slice(0,5));
       saveData(STORAGE.scanner, scannerRows);
+      renderAnjCoverage();
     }
 
     function renderTop5(rows){
@@ -827,81 +861,102 @@
     async function loadApiRows(){
       const apiKey = document.getElementById("apiKey").value.trim();
       const sport = document.getElementById("apiSport").value.trim();
-      const regions = "eu";
-      document.getElementById("apiRegions").value = "eu";
       const status = document.getElementById("apiStatus");
       if(!apiKey){
         status.textContent = "Ajoute une clé The Odds API valide pour charger les cotes.";
         return;
       }
-      try{
-        status.textContent = "Chargement API…";
+
+      document.getElementById("apiRegions").value = "fr,eu";
+      saveUiState({ apiRegions: "fr,eu" });
+
+      async function fetchRegion(region){
         const params = new URLSearchParams({
           apiKey,
-          regions,
-          markets:"h2h",
-          oddsFormat:"decimal"
+          regions: region,
+          markets: "h2h",
+          oddsFormat: "decimal"
         });
         const url = `https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sport)}/odds/?${params.toString()}`;
         const res = await fetch(url);
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        if(!res.ok) throw new Error(`${region.toUpperCase()} HTTP ${res.status}`);
         const data = await res.json();
+        return { region, data, res };
+      }
+
+      try{
+        status.textContent = "Chargement API FR + EU…";
+        const [frPack, euPack] = await Promise.all([fetchRegion("fr"), fetchRegion("eu")]);
         const rows = [];
         const seen = new Set();
 
-        (Array.isArray(data) ? data : []).forEach(ev => {
-          const offers = [];
-          (ev.bookmakers || [])
-            .filter(bm => ANJ_NORMALIZED.includes(normalizeBook(bm.title || bm.key)))
-            .forEach(bm => {
-              (bm.markets || []).forEach(market => {
-                if(market.key !== "h2h") return;
-                (market.outcomes || []).forEach(outcome => {
-                  offers.push({
-                    bookmaker: bm.title || bm.key,
-                    outcome: outcome.name,
-                    price: Number(outcome.price || 0)
+        function extractRows(pack){
+          const normalizedAllowed = pack.region === "fr" ? API_FR_NORMALIZED : API_EU_NORMALIZED;
+          (Array.isArray(pack.data) ? pack.data : []).forEach(ev => {
+            const offers = [];
+            (ev.bookmakers || [])
+              .filter(bm => normalizedAllowed.includes(normalizeBook(bm.title || bm.key)))
+              .forEach(bm => {
+                (bm.markets || []).forEach(market => {
+                  if(market.key !== "h2h") return;
+                  (market.outcomes || []).forEach(outcome => {
+                    offers.push({
+                      bookmaker: bm.title || bm.key,
+                      outcome: outcome.name,
+                      price: Number(outcome.price || 0),
+                      region: pack.region
+                    });
                   });
                 });
               });
+
+            if(offers.length < 2) return;
+
+            const byOutcome = {};
+            offers.forEach(o => {
+              if(!byOutcome[o.outcome]) byOutcome[o.outcome] = [];
+              byOutcome[o.outcome].push(o);
             });
 
-          if(offers.length < 2) return;
+            Object.entries(byOutcome).forEach(([outcome, list]) => {
+              list.sort((a,b)=>b.price-a.price);
+              const best = list[0];
+              const opposite = offers
+                .filter(x => x.outcome !== outcome && x.bookmaker !== best.bookmaker)
+                .sort((a,b)=>b.price-a.price)[0];
 
-          const byOutcome = {};
-          offers.forEach(o => {
-            if(!byOutcome[o.outcome]) byOutcome[o.outcome] = [];
-            byOutcome[o.outcome].push(o);
+              if(best && opposite && best.price > 1 && opposite.price > 1){
+                const eventName = `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim();
+                const key = [eventName, outcome, best.bookmaker, opposite.bookmaker].join("|");
+                if(seen.has(key)) return;
+                seen.add(key);
+                rows.push({
+                  event: eventName,
+                  sport: sport,
+                  time: ev.commence_time ? new Date(ev.commence_time).toLocaleString("fr-FR") : "—",
+                  mainBook: best.bookmaker,
+                  mainOdds: best.price,
+                  hedgeBook: opposite.bookmaker,
+                  hedgeOdds: opposite.price,
+                  source: "api",
+                  apiRegion: pack.region
+                });
+              }
+            });
           });
+        }
 
-          Object.entries(byOutcome).forEach(([outcome, list]) => {
-            list.sort((a,b)=>b.price-a.price);
-            const best = list[0];
-            const opposite = offers
-              .filter(x => x.outcome !== outcome && x.bookmaker !== best.bookmaker)
-              .sort((a,b)=>b.price-a.price)[0];
-            if(best && opposite && best.price > 1 && opposite.price > 1){
-              const eventName = `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim();
-              const key = [eventName, outcome, best.bookmaker, opposite.bookmaker].join("|");
-              if(seen.has(key)) return;
-              seen.add(key);
-              rows.push({
-                event: eventName,
-                sport: sport,
-                time: ev.commence_time ? new Date(ev.commence_time).toLocaleString("fr-FR") : "—",
-                mainBook: best.bookmaker,
-                mainOdds: best.price,
-                hedgeBook: opposite.bookmaker,
-                hedgeOdds: opposite.price
-              });
-            }
-          });
-        });
+        extractRows(frPack);
+        extractRows(euPack);
 
         scannerRows = rows;
-        const remaining = res.headers.get("x-requests-remaining");
-        status.textContent = `API chargée : ${rows.length} lignes construites · filtre ANJ actif${remaining ? ` · requêtes restantes : ${remaining}` : ""}.`;
+        const frRemaining = frPack.res.headers.get("x-requests-remaining");
+        const euRemaining = euPack.res.headers.get("x-requests-remaining");
+        status.innerHTML = rows.length
+          ? `API chargée : <strong>${rows.length}</strong> lignes construites · set limité à <strong>Betclic, NetBet, Parions Sport, PMU, Unibet, Winamax, Betsson</strong> · FR restants : <strong>${escapeHtml(frRemaining || "—")}</strong> · EU restants : <strong>${escapeHtml(euRemaining || "—")}</strong>.`
+          : `API chargée mais <strong>0 ligne exploitable</strong>. Causes probables : sport sans cotes actives, books absents sur ce sport, ou marché h2h vide.`;
         renderScanner();
+        renderAnjCoverage();
       } catch(err){
         status.textContent = `Erreur API : ${err.message}`;
       }
@@ -977,6 +1032,79 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
       });
     }
 
+    
+    function getBooksSeenInScanner(){
+      const set = new Set();
+      scannerRows.forEach(r => {
+        if(r.mainBook) set.add(normalizeBook(r.mainBook));
+        if(r.hedgeBook) set.add(normalizeBook(r.hedgeBook));
+      });
+      return set;
+    }
+
+    function renderAnjCoverage(){
+      const seen = getBooksSeenInScanner();
+      const grid = document.getElementById("anjCoverageGrid");
+      const apiPossible = new Set([...API_FR_BOOKS, ...API_EU_BOOKS].map(normalizeBook));
+
+      grid.innerHTML = ANJ_ALL_BOOKS.map(name => {
+        const n = normalizeBook(name);
+        let label = '<span class="pill unavailable">Absent API</span>';
+        if(seen.has(n)) label = '<span class="pill live">Visible scanner</span>';
+        else if(apiPossible.has(n)) label = '<span class="pill manual">Possible via API/manuel</span>';
+        else label = '<span class="pill unavailable">Manuel seulement</span>';
+
+        return `
+          <div class="bonus-card">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
+              <div>
+                <h3>${escapeHtml(name)}</h3>
+                <div class="small">${seen.has(n) ? "Présent dans les lignes actuelles" : apiPossible.has(n) ? "Peut apparaître selon le sport / la compétition" : "À ajouter manuellement dans le scanner"}</div>
+              </div>
+              ${label}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function initManualAnjSelect(){
+      const sel = document.getElementById("manualAnjBook");
+      sel.innerHTML = ANJ_ALL_BOOKS.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+    }
+
+    function addManualAnjRow(){
+      const book = document.getElementById("manualAnjBook").value;
+      const event = document.getElementById("manualAnjEvent").value.trim();
+      const odds = Number(document.getElementById("manualAnjOdds").value || 0);
+      if(!book || !event || !(odds > 1)){
+        document.getElementById("apiStatus").textContent = "Pour l’ajout manuel, saisis un bookmaker, un événement et une cote valide.";
+        return;
+      }
+
+      const hedgeSource = scannerRows.find(r => normalize(r.event).includes(normalize(event)) || normalize(event).includes(normalize(r.event)));
+      const hedgeBook = hedgeSource ? hedgeSource.hedgeBook : "Couverture à compléter";
+      const hedgeOdds = hedgeSource ? hedgeSource.hedgeOdds : Math.max(1.01, odds - 0.15);
+
+      scannerRows.unshift({
+        event,
+        sport: hedgeSource ? hedgeSource.sport : "Manuel",
+        time: hedgeSource ? hedgeSource.time : "—",
+        mainBook: book,
+        mainOdds: odds,
+        hedgeBook,
+        hedgeOdds,
+        source: "manual"
+      });
+
+      document.getElementById("manualAnjEvent").value = "";
+      document.getElementById("manualAnjOdds").value = "";
+      renderScanner();
+      renderAnjCoverage();
+      document.getElementById("apiStatus").textContent = `${book} ajouté manuellement au scanner.`;
+    }
+
+
     // Exposed functions
     window.playScannerRow = function(idx){
       const rows = getFilteredScannerRows();
@@ -1016,6 +1144,8 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
       document.getElementById(id).addEventListener("change", renderScanner);
     });
     document.getElementById("loadDemoBtn").addEventListener("click", loadDemo);
+    document.getElementById("addManualAnjBtn").addEventListener("click", addManualAnjRow);
+    document.getElementById("clearManualAnjBtn").addEventListener("click", () => { document.getElementById("manualAnjEvent").value = ""; document.getElementById("manualAnjOdds").value = ""; });
     document.getElementById("loadApiBtn").addEventListener("click", loadApiRows);
     document.getElementById("clearScannerBtn").addEventListener("click", () => {
       scannerRows = [];
@@ -1060,6 +1190,7 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
     // Init
     renderBonuses();
     renderTracker();
+    renderAnjCoverage();
     if(scannerRows.length){
       renderScanner();
     } else {
