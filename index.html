@@ -1503,15 +1503,16 @@ function calcQualif() {
     mCouv = (mise * c3) / d;
     mNul  = (mise * c2) / d;
     cap   = mise + mCouv + mNul;
-    // Net dans chaque scénario = encaissé - toutes les mises perdues dans ce cas
-    net_ppal_gagne = (mise * c1) - mCouv - mNul;   // bk1 gagne, bk2 perd sur les 2
-    net_ppal_perd  = (mCouv * c2) - mise - mNul;   // adverse gagne
-    net_nul        = (mNul  * c3) - mise - mCouv;  // nul gagne
+    // Net = retour brut - TOUTES les mises engagées (y compris la mise principale)
+    // Formule : retour_brut - mise_gagnante - toutes_les_autres_mises
+    net_ppal_gagne = (mise * c1) - mise - mCouv - mNul;   // Betsson gagne : retour 238 - 100 - couvertures
+    net_ppal_perd  = (mCouv * c2) - mCouv - mise - mNul;  // adverse gagne : retour couv - mise couv - autres
+    net_nul        = (mNul  * c3) - mNul  - mise - mCouv; // nul gagne     : retour nul - mise nul - autres
   } else {
     mCouv = (mise * c1) / c2;
     cap   = mise + mCouv;
-    net_ppal_gagne = (mise * c1) - mCouv;   // bk1 gagne
-    net_ppal_perd  = (mCouv * c2) - mise;   // couverture gagne
+    net_ppal_gagne = (mise * c1) - mise - mCouv;   // bk1 gagne : retour - mise principale - mise couverture
+    net_ppal_perd  = (mCouv * c2) - mCouv - mise;  // couverture gagne : retour - mise couv - mise principale
   }
 
   // Valeur du bonus uniquement dans le scénario perdant
@@ -1542,15 +1543,23 @@ function calcQualif() {
   const scenarios = [];
 
   // Scénario : pari principal GAGNE
+  // → cash positif MAIS bonus non déclenché
+  // → pour l'opération matched betting, ce scénario est un ÉCHEC si on vise le bonus
+  const netGagneTotal = net_ppal_gagne; // cash seul, pas de bonus
   scenarios.push({
     label: `${bk1} gagne — ton pari principal`,
-    detail: `Encaissé : ${formatC(mise*c1)} | Perdu : couverture ${formatC(mkt==='3way'?mCouv+mNul:mCouv)}`,
+    detail: `Encaissé : ${formatC(mise*c1)} | Couvertures perdues : ${formatC(mkt==='3way'?mCouv+mNul:mCouv)} | Net cash : ${formatS(net_ppal_gagne)}`,
     cash: net_ppal_gagne,
     bonus: 0,
-    bonusNote: bonusType !== 'none' ? '⚠️ Bonus NON déclenché — le pari doit perdre pour obtenir le remboursement' : null,
+    // Si bonus attendu : forcer l'affichage en négatif pour l'opération
+    // car le but était de perdre pour déclencher le remboursement
+    netForDisplay: bonusType !== 'none' ? -(bonusValeur - net_ppal_gagne) : net_ppal_gagne,
+    bonusNote: bonusType !== 'none'
+      ? `⚠️ BONUS NON DÉCLENCHÉ — tu gagnes ${formatC(net_ppal_gagne)} cash MAIS tu rates le bonus estimé à ${formatC(bonusValeur)}. Résultat net de l'opération : ${formatS(net_ppal_gagne - bonusValeur)} vs objectif visé`
+      : null,
     total: net_ppal_gagne,
     isGarantied: false,
-    warningLevel: bonusType !== 'none' ? 'warn' : null
+    warningLevel: bonusType !== 'none' ? 'miss' : null
   });
 
   if (mkt === '3way') {
@@ -1672,9 +1681,10 @@ function calcFreebet() {
   // Gain utile si freebet gagne = fb × (c1 - 1)
   // Couverture optimale = fb × (c1 - 1) / c2
   const gainUtile  = fb * (c1 - 1);          // gain net si freebet gagne
-  const couverture = gainUtile / c2;           // mise de couverture
-  const net_gagne  = gainUtile - couverture;   // profit si freebet gagne
-  const net_perd   = -couverture;              // perte si freebet perd
+  const couverture = gainUtile / c2;                        // mise de couverture
+  const net_gagne  = gainUtile - couverture;                 // freebet gagne : gain net - couverture perdue
+  // Note : la mise freebet n'est pas du vrai argent donc pas à soustraire
+  const net_perd   = (couverture * c2) - couverture;        // couverture gagne si freebet perd : retour - mise couv
   const tauxConv   = (net_gagne / fb) * 100;   // taux de conversion réel
 
   const mises = [
@@ -1741,8 +1751,8 @@ function calcCashback() {
 
   const mCouv        = (mise * c1) / c2;
   const cap          = mise + mCouv;
-  const net_gagne    = (mise * c1) - mCouv;      // bk1 gagne, pas de remboursement
-  const cash_si_perd = (mCouv * c2) - mise;       // couverture gagne
+  const net_gagne    = (mise * c1) - mise - mCouv;    // bk1 gagne : retour - mise - couverture
+  const cash_si_perd = (mCouv * c2) - mCouv - mise;  // couverture gagne : retour - mise couv - mise principale
   const net_perd     = cash_si_perd + remb;        // + remboursement cash
 
   const mises = [
@@ -1810,8 +1820,8 @@ function calcSurebet() {
   const m2     = (total * c1) / (c1 + c2);        // mise sur issue 2
   const cap    = m1 + m2;
 
-  const net1   = (m1 * c1) - m2;   // issue 1 gagne
-  const net2   = (m2 * c2) - m1;   // issue 2 gagne
+  const net1   = (m1 * c1) - m1 - m2;   // issue 1 gagne : retour - mise1 - mise2
+  const net2   = (m2 * c2) - m2 - m1;   // issue 2 gagne : retour - mise2 - mise1
   const profit = Math.min(net1, net2);
   const roi    = cap > 0 ? (profit / cap * 100) : 0;
 
@@ -1819,8 +1829,8 @@ function calcSurebet() {
   const m1_fix  = mise;
   const m2_fix  = (mise * c1) / c2;
   const cap_fix = m1_fix + m2_fix;
-  const net1_fix = (m1_fix * c1) - m2_fix;
-  const net2_fix = (m2_fix * c2) - m1_fix;
+  const net1_fix = (m1_fix * c1) - m1_fix - m2_fix;
+  const net2_fix = (m2_fix * c2) - m2_fix - m1_fix;
 
   const mises = [
     { bk: bk1, label: `Issue 1 (mise ${isSB?'équilibrée':'de référence'})`, mise: isSB ? m1 : m1_fix, tag: 'ppal' },
@@ -1894,8 +1904,8 @@ function calcAdvanced() {
   const retour2   = m2 * c2;   // brut si mise 2 gagne
 
   // Cash immédiat dans chaque scénario
-  const cash1 = retour1 - cap;   // mise 1 gagne : encaisse retour1, perd m2
-  const cash2 = retour2 - cap;   // mise 2 gagne : encaisse retour2, perd m1
+  const cash1 = retour1 - m1 - m2;   // mise 1 gagne : retour - toutes les mises
+  const cash2 = retour2 - m2 - m1;   // mise 2 gagne : retour - toutes les mises
 
   // Bonus dans chaque scénario (seulement si mise 1 perd)
   let bonus1 = 0, bonus2 = 0;
@@ -1971,10 +1981,14 @@ function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, a
 
   // Scénarios
   document.getElementById('r-scenarios').innerHTML = scenarios.map(s => {
-    const isPos = s.total >= 0;
-    const bg     = isPos ? 'rgba(0,201,107,0.06)' : 'rgba(255,77,77,0.06)';
-    const border = isPos ? 'rgba(0,201,107,0.2)'  : 'rgba(255,77,77,0.2)';
-    const color  = isPos ? 'var(--success)' : 'var(--danger)';
+    // netForDisplay permet de forcer la couleur selon le sens de l'opération
+    // (ex: pari qui gagne cash mais rate le bonus → afficher en orange)
+    const displayNet = s.netForDisplay !== undefined ? s.netForDisplay : s.total;
+    const isMiss = s.warningLevel === 'miss'; // bon cash mais opération ratée
+    const isPos  = isMiss ? false : displayNet >= 0;
+    const bg     = isMiss ? 'rgba(255,184,0,0.06)'   : isPos ? 'rgba(0,201,107,0.06)' : 'rgba(255,77,77,0.06)';
+    const border = isMiss ? 'rgba(255,184,0,0.25)'   : isPos ? 'rgba(0,201,107,0.2)'  : 'rgba(255,77,77,0.2)';
+    const color  = isMiss ? 'var(--warning)' : isPos ? 'var(--success)' : 'var(--danger)';
 
     let bonusHtml = '';
     if (s.bonus > 0) {
@@ -1992,10 +2006,14 @@ function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, a
     const totalHtml = s.bonus > 0
       ? `<div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:5px;border-top:1px solid ${border};"><span style="font-size:0.75rem;font-weight:700;">Total</span><span style="font-weight:800;font-size:1rem;color:${color};">${formatS(s.total)}</span></div>` : '';
 
+    const missTag = isMiss
+      ? ' <span style="font-size:0.68rem;background:rgba(255,184,0,0.15);color:var(--warning);padding:2px 7px;border-radius:999px;font-weight:700;margin-left:6px;">❌ Bonus raté</span>'
+      : '';
+
     return `<div class="r-scen" style="background:${bg};border:1px solid ${border};border-radius:var(--radius-sm);">
       <div class="r-scen-row">
         <div>
-          <div class="r-scen-label">${s.label}</div>
+          <div class="r-scen-label">${s.label}${missTag}</div>
           <div class="r-scen-detail">${s.detail}</div>
         </div>
         <div class="r-scen-net" style="color:${color};">${formatS(s.cash)}</div>
