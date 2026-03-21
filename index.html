@@ -407,13 +407,8 @@ body.light .hero-grid{opacity:0.15;}
   <div class="nav-links" id="navLinks">
     <a href="#dashboard">Dashboard</a>
     <a href="#scanner">🔥 Scanner</a>
-    <a href="#calculateur">Calculateur</a>
-    <a href="#valuemeter">Value Meter</a>
-    <a href="#tracker">Tracker</a>
-    <a href="#stats">Stats</a>
-    <a href="#journal">Journal</a>
-    <a href="#checklist">Checklist</a>
-    <a href="#minuteur">Timer</a>
+    <a href="#analyse">Analyse</a>
+    <a href="#suivi">Suivi</a>
     <a href="#bonus">Bonus ANJ</a>
   </div>
   <button class="mode-toggle" id="mode-btn" onclick="toggleMode()" title="Mode clair/sombre">🌙</button>
@@ -596,12 +591,20 @@ body.light .hero-grid{opacity:0.15;}
 </section>
 
 <!-- BONUS -->
-<section id="calculateur">
+<section id="analyse">
   <div class="section-inner">
-    <span class="section-tag">Outil #1</span>
-    <div class="section-title">Calculateur de mises</div>
-    <p class="section-sub">3 modes : pari qualificatif, convertisseur freebet, double chance.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="calc-grid">
+    <span class="section-tag">Outil #2</span>
+    <div class="section-title">Analyse</div>
+    <p class="section-sub">Calculateur de mises · Détecteur de valeur · Tout pour décider avant de parier</p>
+
+    <div class="tabs" style="margin-top:1.5rem;">
+      <button class="tab active" onclick="switchAnalyseTab('calc',this)">🧮 Calculateur de mises</button>
+      <button class="tab" onclick="switchAnalyseTab('value',this)">📊 Value Meter</button>
+    </div>
+
+    <!-- CALCULATEUR -->
+    <div class="tab-section active" id="at-calc">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="calc-grid">
       <div class="card">
         <div class="tabs">
           <button class="tab active" onclick="switchCalcTab('qualifying',this)">Qualificatif</button>
@@ -654,36 +657,39 @@ body.light .hero-grid{opacity:0.15;}
         </div>
       </div>
       <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Résultats</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;">
-          <div class="tstat"><div class="tstat-val acc" id="r-profit">—</div><div class="tstat-label">Profit estimé</div></div>
-          <div class="tstat"><div class="tstat-val" style="color:var(--warning);" id="r-roi">—</div><div class="tstat-label">ROI</div></div>
-          <div class="tstat"><div class="tstat-val" id="r-total">—</div><div class="tstat-label">Capital</div></div>
+        <div class="calc-title"><span class="calc-dot"></span>Résultats exacts</div>
+
+        <!-- Mises exactes — la partie la plus importante -->
+        <div style="background:rgba(255,107,26,0.08);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.7rem;">📌 Ce que tu dois miser EXACTEMENT</div>
+          <div id="mises-exactes" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
-        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;">
-          <div class="result-item"><span>Mise couverture 1</span><span class="result-val" style="color:var(--acc);" id="r-m2">—</span></div>
-          <div class="result-item" id="row-m3"><span>Mise couverture 2 (nul)</span><span class="result-val" style="color:var(--acc);" id="r-m3">—</span></div>
-        </div>
-        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.9rem 0 0.4rem;">Scénarios</div>
-        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;" id="scenarios"></div>
+
+        <!-- Résultat dans chaque scénario -->
+        <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Résultat selon ce qui se passe</div>
+        <div id="scenarios" style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;"></div>
+
+        <!-- Bilan net -->
+        <div id="bilan-net" style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;"></div>
+
+        <!-- Avertissement contextuel -->
+        <div id="calc-warning" style="display:none;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:1rem;font-size:0.82rem;line-height:1.6;"></div>
+
+        <!-- Analyse -->
         <div class="summary-box">
-          <div class="summary-box-title">Analyse</div>
+          <div class="summary-box-title" id="summary-title">Analyse</div>
           <div class="summary-box-text" id="summary-text">Entre tes cotes pour voir l'analyse.</div>
         </div>
+
         <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.9rem;font-size:0.83rem;padding:10px;" onclick="addFromCalc()">+ Enregistrer dans le tracker</button>
       </div>
     </div>
-    <style>#calc-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#calc-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
+    <style>#calc-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#calc-grid{grid-template-columns:1fr;}}</st
+    </div>
 
-<!-- SCANNER DE COTES IA -->
-<section id="valuemeter" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #2</span>
-    <div class="section-title">Value Meter — Détecteur de valeur</div>
-    <p class="section-sub">Entre la probabilité réelle d'un événement et la cote proposée. L'outil calcule si le pari a de la valeur mathématique positive.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="vm-grid">
+    <!-- VALUE METER -->
+    <div class="tab-section" id="at-value">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="vm-grid">
       <div class="card">
         <div class="calc-title"><span class="calc-dot"></span>Paramètres</div>
         <div class="field"><label>Cote proposée par le bookmaker</label><input type="number" id="vm-cote" value="2.50" step="0.05" oninput="calcValue()"></div>
@@ -717,16 +723,25 @@ body.light .hero-grid{opacity:0.15;}
         </div>
       </div>
     </div>
-    <style>#vm-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#vm-grid{grid-template-columns:1fr;}}</style>
+    <style>#vm-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#vm-grid{grid-template-columns:1fr;}}</st
+    </div>
   </div>
 </section>
 
-<!-- STATISTIQUES -->
-<section id="tracker">
+<section id="suivi" style="background:var(--dark2);">
   <div class="section-inner">
-    <span class="section-tag">Outil #3</span>
-    <div class="section-title">Tracker de profits</div>
-    <p class="section-sub">Chaque opération est sauvegardée automatiquement sur ton appareil. Suppression individuelle possible.</p>
+    <span class="section-tag">Outil #4</span>
+    <div class="section-title">Suivi & Analyse</div>
+    <p class="section-sub">Tracker de profits · Statistiques · Journal de stratégie</p>
+
+    <div class="tabs" style="margin-top:1.5rem;">
+      <button class="tab active" onclick="switchSuiviTab('tracker',this)">📈 Tracker</button>
+      <button class="tab" onclick="switchSuiviTab('stats',this)">📊 Statistiques</button>
+      <button class="tab" onclick="switchSuiviTab('journal',this)">📓 Journal</button>
+    </div>
+
+    <!-- TRACKER -->
+    <div class="tab-section active" id="sv-tracker">
 
     <div class="goal-bar" style="margin-top:1.5rem;">
       <div class="goal-header">
@@ -775,22 +790,11 @@ body.light .hero-grid{opacity:0.15;}
       <div class="tt-header"><span>Match</span><span>Bookmaker</span><span class="tt-hide">Type</span><span class="tt-hide">Date</span><span>Profit</span><span></span></div>
       <div id="trades-list"><div class="empty-state">Aucune opération — commence par exploiter les bonus !</div></div>
     </div>
-  </div>
-</section>
-
-<!-- SIMULATEUR -->
-<section id="stats" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #6</span>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
-      <div>
-        <div class="section-title">Tableau de bord analytique</div>
-        <p class="section-sub">Toutes tes performances en un coup d'œil — graphiques, tableaux, edge réel, santé des comptes.</p>
-      </div>
-      <button onclick="exportStatsCSV()" class="export-btn" style="align-self:flex-start;margin-top:0.5rem;">⬇ Export CSV complet</button>
     </div>
 
-    <!-- Onglets du tableau de bord -->
+    <!-- STATS -->
+    <div class="tab-section" id="sv-stats">
+
     <div class="tabs" style="margin-bottom:1.5rem;">
       <button class="tab active" onclick="switchStatsTab('vue',this)">📊 Vue générale</button>
       <button class="tab" onclick="switchStatsTab('mensuel',this)">📅 Par mois</button>
@@ -923,17 +927,10 @@ body.light .hero-grid{opacity:0.15;}
       <style>#edge-grid{grid-template-columns:1fr 1fr;}@media(max-width:700px){#edge-grid{grid-template-columns:1fr;}}</style>
     </div>
 
-  </div>
-</section>
+    </div>
 
-<!-- CHECKLIST PRÉ-PARI -->
-
-<!-- JOURNAL DE STRATÉGIE -->
-<section id="journal" style="background:var(--dark);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #5</span>
-    <div class="section-title">Journal de stratégie</div>
-    <p class="section-sub">Suis ton edge réel, ta discipline et ta progression semaine par semaine. Le seul moyen de savoir si ta stratégie fonctionne vraiment.</p>
+    <!-- JOURNAL -->
+    <div class="tab-section" id="sv-journal">
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="journal-grid">
 
@@ -992,97 +989,10 @@ body.light .hero-grid{opacity:0.15;}
       </div>
     </div>
     <style>#journal-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#journal-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
-<section id="checklist" style="background:var(--dark2);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #6</span>
-    <div class="section-title">Checklist pré-pari</div>
-    <p class="section-sub">Coche chaque point avant de placer tes mises. Zéro erreur coûteuse = profits garantis.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="cl-grid">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-          <div class="calc-title" style="margin-bottom:0;"><span class="calc-dot"></span>Checklist du jour</div>
-          <button class="export-btn" onclick="resetChecklist()">↺ Réinitialiser</button>
-        </div>
-        <div class="checklist-progress"><div class="checklist-fill" id="cl-fill" style="width:0%"></div></div>
-        <div id="cl-status" style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">0 / 0 points validés</div>
-        <div id="checklist-items"></div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Ajouter un item personnalisé</div>
-        <div class="field"><label>Item de checklist</label><input type="text" id="cl-new-item" placeholder="ex: Vérifier les blessures avant de miser"></div>
-        <button class="btn-primary" style="font-size:0.83rem;padding:9px 16px;" onclick="addCheckItem()">+ Ajouter</button>
-        <div class="divider"></div>
-        <div class="calc-title"><span class="calc-dot"></span>Règles d'or rappel</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Ne jamais miser plus que ce que le calculateur indique</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Toujours ouvrir les 2 bookmakers avant de commencer</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Vérifier le solde de chaque compte avant chaque opération</div>
-          <div style="padding:8px 10px;background:rgba(255,107,26,0.06);border-radius:var(--radius-sm);font-size:0.8rem;border-left:3px solid var(--acc);">Capturer une screenshot des mises placées (preuve)</div>
-        </div>
-      </div>
     </div>
-    <style>#cl-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#cl-grid{grid-template-columns:1fr;}}</style>
   </div>
 </section>
 
-<section id="minuteur" style="background:var(--dark);">
-  <div class="section-inner">
-    <span class="section-tag">Outil #7</span>
-    <div class="section-title">Minuteur anti-panique</div>
-    <p class="section-sub">Lance le timer dès que tu places le premier pari. Tu as X secondes pour placer la couverture et éviter toute erreur de précipitation.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;" id="timer-grid">
-      <div class="card" style="text-align:center;">
-        <div class="calc-title" style="justify-content:center;"><span class="calc-dot"></span>Timer de couverture</div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
-          <div class="timer-ring">
-            <svg width="160" height="160" id="timer-svg">
-              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--dark3)" stroke-width="10"/>
-              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round"
-                stroke-dasharray="439.8" stroke-dashoffset="0" id="timer-arc"
-                style="transform:rotate(-90deg);transform-origin:80px 80px;transition:stroke-dashoffset 1s linear,stroke 0.3s;"/>
-            </svg>
-            <div class="timer-text" id="timer-display">05:00</div>
-          </div>
-          <div style="font-size:0.82rem;color:var(--muted);" id="timer-status">Prêt — entre ta mise, puis démarre</div>
-          <div class="timer-controls">
-            <button class="timer-btn start" id="timer-start-btn" onclick="timerStart()">▶ Démarrer</button>
-            <button class="timer-btn pause" id="timer-pause-btn" onclick="timerPause()" style="display:none;">⏸ Pause</button>
-            <button class="timer-btn reset" onclick="timerReset()">↺ Reset</button>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="calc-title"><span class="calc-dot"></span>Paramètres du timer</div>
-        <div class="field"><label>Durée (minutes)</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
-            <button class="tab active" id="td-2" onclick="setTimerDuration(2,this)">2 min</button>
-            <button class="tab" id="td-3" onclick="setTimerDuration(3,this)">3 min</button>
-            <button class="tab" id="td-5" onclick="setTimerDuration(5,this)">5 min</button>
-            <button class="tab" id="td-10" onclick="setTimerDuration(10,this)">10 min</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="calc-title" style="margin-bottom:0.7rem;"><span class="calc-dot"></span>À vérifier avant de placer</div>
-        <div style="display:flex;flex-direction:column;gap:6px;font-size:0.83rem;">
-          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ J'ai vérifié les cotes dans le calculateur</div>
-          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ J'ai le bon bookmaker de couverture ouvert</div>
-          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ Mon solde est suffisant sur les 2 comptes</div>
-          <div style="padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">✅ Je connais les mises exactes (pas approximatives)</div>
-        </div>
-        <div class="summary-box" style="margin-top:0.9rem;">
-          <div class="summary-box-title">Conseil</div>
-          <div class="summary-box-text">Place toujours le pari principal EN DERNIER si les cotes sont stables. Pour les cotes volatiles, commence par la couverture.</div>
-        </div>
-      </div>
-    </div>
-    <style>#timer-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#timer-grid{grid-template-columns:1fr;}}</style>
-  </div>
-</section>
-
-<!-- VALUE METER -->
 <section id="bonus" style="background:var(--dark2);">
   <div class="section-inner">
     <span class="section-tag">Outil #8</span>
@@ -1197,7 +1107,7 @@ function showToast(msg,type='info'){
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open');}
 
 window.addEventListener('scroll',()=>{
-  const ids=['dashboard','scanner','calculateur','valuemeter','tracker','stats','journal','checklist','minuteur','bonus'];
+  const ids=['dashboard','scanner','analyse','suivi','bonus'];
   let cur='';
   ids.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-80)cur=id;});
   document.querySelectorAll('.nav-links a').forEach(a=>{a.classList.remove('active');if(a.getAttribute('href')==='#'+cur)a.classList.add('active');});
@@ -1217,69 +1127,286 @@ function switchGuideTab(id,btn){
 }
 
 // CALCULATEUR
-function setResults(m2,m3,cap,profit,roi,scenarios){
-  document.getElementById('r-m2').textContent=m2.toFixed(0)+'€';
-  document.getElementById('r-m3').textContent=m3>0?m3.toFixed(0)+'€':'—';
-  document.getElementById('row-m3').style.display=m3>0?'flex':'none';
-  document.getElementById('r-total').textContent=cap.toFixed(0)+'€';
-  document.getElementById('r-profit').textContent=(profit>=0?'+':'')+profit.toFixed(0)+'€';
-  document.getElementById('r-roi').textContent=roi.toFixed(1)+'%';
-  let html='';
-  scenarios.forEach(s=>{
-    const cls=s.v>=-10?'b-ok':'b-bad';
-    html+=`<div class="result-item"><span style="font-size:0.8rem">${s.l} <span style="color:var(--muted);font-size:0.7rem">${s.p}</span></span><span class="badge ${cls}">${s.v>=0?'+':''}${s.v.toFixed(0)}€</span></div>`;
+function fmt(n){ return n.toFixed(2).replace('.',',')+'€'; }
+function fmtSign(n){ return (n>=0?'+':'')+n.toFixed(2).replace('.',',')+'€'; }
+
+function setResults(data){
+  // data = { mises, scenarios, profit_garanti, cap, type, bk1, bk2, warning }
+
+  // ── Mises exactes ──
+  let misesHtml = '';
+  data.mises.forEach(m => {
+    misesHtml += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+        <div>
+          <span style="font-weight:700;font-size:0.95rem;">${m.bk}</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:8px;">${m.label}</span>
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.1rem;color:var(--acc);">${fmt(m.mise)}</span>
+      </div>`;
   });
-  document.getElementById('scenarios').innerHTML=html;
-  const minV=Math.min(...scenarios.map(s=>s.v));
-  document.getElementById('summary-text').textContent=minV>=-5?'✅ Excellent — risque quasi nul.':minV>=-20?'⚠️ Risque modéré — vérifie les cotes.':'❌ Cotes défavorables — cherche mieux.';
+  document.getElementById('mises-exactes').innerHTML = misesHtml;
+
+  // ── Scénarios — TOUS les résultats possibles ──
+  let scenHtml = '';
+  data.scenarios.forEach(s => {
+    const isGain = s.net >= 0;
+    const bg = isGain ? 'rgba(0,201,107,0.07)' : 'rgba(255,77,77,0.07)';
+    const border = isGain ? 'rgba(0,201,107,0.25)' : 'rgba(255,77,77,0.25)';
+    const color = isGain ? 'var(--success)' : 'var(--danger)';
+    scenHtml += `
+      <div style="padding:10px 12px;background:${bg};border:1px solid ${border};border-radius:var(--radius-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-weight:600;font-size:0.88rem;">${s.label}</span>
+            ${s.detail ? `<div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">${s.detail}</div>` : ''}
+          </div>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:${color};">${fmtSign(s.net)}</span>
+        </div>
+        ${s.warning ? `<div style="font-size:0.75rem;color:var(--warning);margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,184,0,0.2);">⚠️ ${s.warning}</div>` : ''}
+      </div>`;
+  });
+  document.getElementById('scenarios').innerHTML = scenHtml;
+
+  // ── Bilan net ──
+  const profitColor = data.profit_garanti >= 0 ? 'var(--success)' : 'var(--danger)';
+  const roi = data.cap > 0 ? (data.profit_garanti / data.cap * 100) : 0;
+  document.getElementById('bilan-net').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:${profitColor};">${fmtSign(data.profit_garanti)}</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Profit garanti</div>
+      </div>
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--warning);">${roi.toFixed(2)}%</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">ROI exact</div>
+      </div>
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;">${fmt(data.cap)}</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Capital engagé</div>
+      </div>
+    </div>`;
+
+  // ── Avertissement contextuel ──
+  const warnEl = document.getElementById('calc-warning');
+  if(data.warning){
+    warnEl.style.display = 'block';
+    warnEl.innerHTML = data.warning;
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // ── Analyse ──
+  const minNet = Math.min(...data.scenarios.map(s => s.net));
+  let title, text;
+  if(minNet >= -1){
+    title = '✅ Excellent — profit garanti dans tous les cas';
+    text = `Quoi qu'il arrive, tu gagnes minimum ${fmtSign(minNet)}. C'est du matched betting parfait.`;
+  } else if(minNet >= -10){
+    title = '✅ Bon — perte maximum maîtrisée';
+    text = `Dans le pire cas tu perds ${fmtSign(minNet)}. C'est le coût normal d'un pari qualificatif.`;
+  } else if(minNet >= -30){
+    title = '⚠️ Risque modéré — vérifie les cotes';
+    text = `Perte maximale possible : ${fmtSign(minNet)}. Cherche de meilleures cotes de couverture.`;
+  } else {
+    title = '❌ Cotes défavorables — ne pas jouer';
+    text = `Risque de perdre ${fmtSign(minNet)}. Ces cotes ne conviennent pas au matched betting.`;
+  }
+  document.getElementById('summary-title').textContent = title;
+  document.getElementById('summary-text').textContent = text;
+
+  // Stocker pour le tracker
+  currentCalcResult = {
+    match: data.bk1 + ' vs ' + data.bk2,
+    profit: parseFloat(data.profit_garanti.toFixed(2)),
+    bk: data.bk1,
+    type: data.type || 'Surebet'
+  };
 }
 
 function calculate(){
-  const mise=parseFloat(document.getElementById('mise').value)||100;
-  const c1=parseFloat(document.getElementById('cote1').value)||3.10;
-  const c2=parseFloat(document.getElementById('cote2').value)||2.10;
-  const c3=parseFloat(document.getElementById('cote3').value)||3.25;
-  const mkt=document.getElementById('mkt').value;
-  const bk1=document.getElementById('bk1').value;
-  const bk2=document.getElementById('bk2').value;
-  document.getElementById('cote3-field').style.display=mkt==='3way'?'block':'none';
-  let m2,m3=0,cap,scenarios,profit;
-  if(mkt==='3way'){
-    const d=c2*c3-c2-c3;if(d<=0){document.getElementById('summary-text').textContent='⚠️ Cotes invalides.';return;}
-    m2=(mise*c3)/d;m3=(mise*c2)/d;cap=mise+m2+m3;
-    const s1=(m2*c2)-mise-m3,s2=(m3*c3)-mise-m2,s3=(mise*c1)-mise-m2-m3;
-    profit=Math.min(s1,s2,s3);
-    scenarios=[{l:`Issue 1 (${bk2})`,v:s1,p:'~50%'},{l:`Nul (${bk2})`,v:s2,p:'~25%'},{l:`Ton pari ${bk1}`,v:s3,p:'~25%'}];
-  }else{
-    m2=(mise*c1)/c2;cap=mise+m2;
-    const s1=(m2*c2)-mise,s2=(mise*c1)-m2;
-    profit=Math.min(s1,s2);
-    scenarios=[{l:`Couverture (${bk2})`,v:s1,p:'~55%'},{l:`Pari ${bk1}`,v:s2,p:'~45%'}];
+  const mise = parseFloat(document.getElementById('mise').value) || 100;
+  const c1   = parseFloat(document.getElementById('cote1').value) || 3.10;
+  const c2   = parseFloat(document.getElementById('cote2').value) || 2.10;
+  const c3   = parseFloat(document.getElementById('cote3').value) || 3.25;
+  const mkt  = document.getElementById('mkt').value;
+  const bk1  = document.getElementById('bk1').value;
+  const bk2  = document.getElementById('bk2').value;
+  document.getElementById('cote3-field').style.display = mkt==='3way' ? 'block' : 'none';
+
+  if(mkt === '3way'){
+    // Marché 1X2 — 3 issues
+    const d = c2*c3 - c2 - c3;
+    if(d <= 0){ document.getElementById('summary-text').textContent='⚠️ Cotes invalides — le dénominateur est nul.'; return; }
+    const m2 = (mise * c3) / d;   // mise sur issue 2
+    const m3 = (mise * c2) / d;   // mise sur nul
+    const cap = mise + m2 + m3;
+
+    // Résultat net dans chaque cas (gains - toutes les mises)
+    const net_si_bk2_gagne   = (m2 * c2) - mise - m3;   // couverture 1 gagne
+    const net_si_nul          = (m3 * c3) - mise - m2;   // couverture 2 gagne
+    const net_si_bk1_gagne   = (mise * c1) - m2 - m3;    // ton pari gagne → PAS de bonus si "perdant remboursé"
+
+    const profitGaranti = Math.min(net_si_bk2_gagne, net_si_nul, net_si_bk1_gagne);
+    const marge = (1/c1) + (1/c2) + (1/c3);
+
+    setResults({
+      mises: [
+        { bk: bk1, label: 'Ton pari principal', mise },
+        { bk: bk2, label: 'Couverture issue adverse', mise: m2 },
+        { bk: bk2, label: 'Couverture nul', mise: m3 },
+      ],
+      scenarios: [
+        {
+          label: `✅ ${bk2} gagne (couverture 1)`,
+          detail: `Tu encaisses ${fmt(m2*c2)} − tu avais misé ${fmt(mise+m3)}`,
+          net: net_si_bk2_gagne,
+          warning: null
+        },
+        {
+          label: `✅ Match nul (couverture 2)`,
+          detail: `Tu encaisses ${fmt(m3*c3)} − tu avais misé ${fmt(mise+m2)}`,
+          net: net_si_nul,
+          warning: null
+        },
+        {
+          label: `${net_si_bk1_gagne >= 0 ? '✅' : '⚠️'} Ton pari ${bk1} GAGNE`,
+          detail: `Tu encaisses ${fmt(mise*c1)} − tu avais misé ${fmt(m2+m3)}`,
+          net: net_si_bk1_gagne,
+          warning: net_si_bk1_gagne >= 0 ? null : `Si ce bonus est "pari perdant remboursé", ton pari ${bk1} DOIT perdre pour déclencher le bonus. Si il gagne → pas de bonus → perte de ${fmt(-net_si_bk1_gagne)}.`
+        },
+      ],
+      profit_garanti: profitGaranti,
+      cap, bk1, bk2, type: 'Surebet',
+      warning: marge < 1.0
+        ? `🟢 Surebet détecté ! Marge totale = ${(marge*100).toFixed(2)}% < 100% → profit garanti dans TOUS les cas.`
+        : null
+    });
+
+  } else {
+    // Marché 2 issues
+    const m2  = (mise * c1) / c2;
+    const cap = mise + m2;
+    const net_si_couverture = (m2 * c2) - mise;    // couverture gagne
+    const net_si_bk1_gagne  = (mise * c1) - m2;    // ton pari gagne
+
+    const profitGaranti = Math.min(net_si_couverture, net_si_bk1_gagne);
+
+    setResults({
+      mises: [
+        { bk: bk1, label: 'Ton pari principal', mise },
+        { bk: bk2, label: 'Couverture', mise: m2 },
+      ],
+      scenarios: [
+        {
+          label: `✅ Couverture gagne (${bk2})`,
+          detail: `Tu encaisses ${fmt(m2*c2)} − tu avais misé ${fmt(mise)}`,
+          net: net_si_couverture,
+          warning: null
+        },
+        {
+          label: `${net_si_bk1_gagne >= 0 ? '✅' : '⚠️'} Ton pari ${bk1} GAGNE`,
+          detail: `Tu encaisses ${fmt(mise*c1)} − tu avais misé ${fmt(m2)}`,
+          net: net_si_bk1_gagne,
+          warning: net_si_bk1_gagne >= 0 ? null : `⚠️ ATTENTION : si ce bonus est "pari perdant remboursé", ton pari ${bk1} DOIT perdre pour déclencher le bonus. Si il gagne → pas de bonus → tu perds ${fmt(-net_si_bk1_gagne)} de couverture.`
+        },
+      ],
+      profit_garanti: profitGaranti,
+      cap, bk1, bk2, type: 'Pari qualificatif',
+      warning: null
+    });
   }
-  setResults(m2,m3,cap,profit,(profit/cap*100),scenarios);
-  currentCalcResult={match:bk1+' vs '+bk2,profit:parseFloat(profit.toFixed(2)),bk:bk1,type:'Surebet'};
 }
 
 function calcFreebet(){
-  const fb=parseFloat(document.getElementById('fb_val').value)||100;
-  const c1=parseFloat(document.getElementById('fb_c1').value)||4.50;
-  const c2=parseFloat(document.getElementById('fb_c2').value)||4.20;
-  const bk1=document.getElementById('fb_bk1').value;
-  const bk2=document.getElementById('fb_bk2').value;
-  const mise=(fb*(c1-1))/c2;
-  const pG=fb*(c1-1)-mise,pP=-mise,taux=pG/fb*100;
-  setResults(mise,0,mise,pG,taux,[{l:'Freebet gagne',v:pG,p:''},{l:`Freebet perd → ${bk2}`,v:pP,p:''}]);
-  currentCalcResult={match:'Freebet '+bk1,profit:parseFloat(pG.toFixed(2)),bk:bk1,type:'Freebet'};
+  const fb  = parseFloat(document.getElementById('fb_val').value) || 100;
+  const c1  = parseFloat(document.getElementById('fb_c1').value) || 4.50;
+  const c2  = parseFloat(document.getElementById('fb_c2').value) || 4.20;
+  const bk1 = document.getElementById('fb_bk1').value;
+  const bk2 = document.getElementById('fb_bk2').value;
+
+  // Avec un freebet : si tu gagnes tu encaisses (mise*cote - mise) = mise*(cote-1)
+  // La mise n'est PAS récupérée car c'est un freebet
+  const couverture = (fb * (c1 - 1)) / c2;   // mise exacte sur la couverture
+  const net_gagne  = fb * (c1 - 1) - couverture;  // freebet gagne → gain net
+  const net_perd   = -couverture;                   // freebet perd → perte couverture
+  const taux       = (net_gagne / fb * 100);
+
+  setResults({
+    mises: [
+      { bk: bk1, label: 'Freebet (mise non récupérée)', mise: fb },
+      { bk: bk2, label: 'Couverture cash', mise: couverture },
+    ],
+    scenarios: [
+      {
+        label: `✅ Freebet gagne (${bk1})`,
+        detail: `Tu encaisses ${fmt(fb*c1)} MAIS récupères seulement le gain net car c'est un freebet : ${fmt(fb*(c1-1))} − couverture ${fmt(couverture)}`,
+        net: net_gagne,
+        warning: null
+      },
+      {
+        label: `❌ Freebet perd`,
+        detail: `Ton freebet ne vaut rien, tu perds ta mise de couverture`,
+        net: net_perd,
+        warning: null
+      },
+    ],
+    profit_garanti: net_gagne, // le freebet est toujours joué dans le meilleur scénario
+    cap: couverture, // seule la couverture est du vrai argent
+    bk1, bk2, type: 'Freebet',
+    warning: taux < 50
+      ? `⚠️ Taux de conversion faible (${taux.toFixed(0)}%). Vise des cotes ≥ 4.50 pour atteindre 65%+.`
+      : taux >= 65
+      ? `🟢 Excellent taux de conversion : ${taux.toFixed(1)}% du freebet converti en cash réel.`
+      : `✅ Bon taux de conversion : ${taux.toFixed(1)}%.`
+  });
 }
 
 function calcDouble(){
-  const mise=parseFloat(document.getElementById('dc_mise').value)||100;
-  const c1=parseFloat(document.getElementById('dc_c1').value)||1.45;
-  const c2=parseFloat(document.getElementById('dc_c2').value)||1.55;
-  const bk1=document.getElementById('dc_bk1').value,bk2=document.getElementById('dc_bk2').value;
-  const m1=mise*c2/(c1+c2),m2=mise*c1/(c1+c2);
-  const g1=m1*c1-m2,g2=m2*c2-m1,gN=-mise;
-  setResults(m1,m2,mise,Math.min(g1,g2),(Math.min(g1,g2)/mise*100),[{l:`Dom/Nul (${bk1})`,v:g1,p:''},{l:`Nul/Ext (${bk2})`,v:g2,p:''},{l:'Résultat non couvert',v:gN,p:''}]);
+  const mise = parseFloat(document.getElementById('dc_mise').value) || 100;
+  const c1   = parseFloat(document.getElementById('dc_c1').value) || 1.45;
+  const c2   = parseFloat(document.getElementById('dc_c2').value) || 1.55;
+  const bk1  = document.getElementById('dc_bk1').value;
+  const bk2  = document.getElementById('dc_bk2').value;
+
+  // Répartition optimale sur les 2 double chances
+  const m1 = mise * c2 / (c1 + c2);  // mise sur 1X
+  const m2 = mise * c1 / (c1 + c2);  // mise sur X2
+
+  // Résultats selon les 3 issues possibles
+  const net_1X = m1*c1 - m2;  // domicile ou nul : 1X gagne
+  const net_X2 = m2*c2 - m1;  // nul ou extérieur : X2 gagne
+  const net_non_couvert = -mise; // le seul résultat non couvert (perte totale)
+
+  setResults({
+    mises: [
+      { bk: bk1, label: 'Double chance 1X (domicile ou nul)', mise: m1 },
+      { bk: bk2, label: 'Double chance X2 (nul ou extérieur)', mise: m2 },
+    ],
+    scenarios: [
+      {
+        label: `✅ Victoire domicile OU Nul → 1X gagne`,
+        detail: `Tu encaisses ${fmt(m1*c1)} − tu avais misé ${fmt(m2)} sur X2`,
+        net: net_1X,
+        warning: null
+      },
+      {
+        label: `✅ Nul OU Extérieur gagne → X2 gagne`,
+        detail: `Tu encaisses ${fmt(m2*c2)} − tu avais misé ${fmt(m1)} sur 1X`,
+        net: net_X2,
+        warning: null
+      },
+      {
+        label: `❌ Résultat non couvert`,
+        detail: `C'est le seul scénario où tu perds tout`,
+        net: net_non_couvert,
+        warning: `Identifie AVANT de miser quel est le résultat non couvert et accepte ce risque.`
+      },
+    ],
+    profit_garanti: Math.min(net_1X, net_X2),
+    cap: mise, bk1, bk2, type: 'Double chance',
+    warning: null
+  });
 }
 
 function addFromCalc(){
@@ -1648,7 +1775,7 @@ function calcValue() {
 
 // ===== STATS AVANCÉES V2 =====
 function switchStatsTab(id, btn) {
-  document.querySelectorAll('#stats .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#sv-stats .tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('#stats .tab-section').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('st-' + id).classList.add('active');
@@ -2853,6 +2980,28 @@ function renderJournal() {
     </div>`;
   });
   document.getElementById('journal-list').innerHTML = listHtml;
+}
+
+
+
+// ── Onglets section Analyse ──
+function switchAnalyseTab(id, btn) {
+  document.querySelectorAll('#analyse .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#analyse .tab-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('at-' + id).classList.add('active');
+  if (id === 'value') calcValue();
+  else calculate();
+}
+
+// ── Onglets section Suivi ──
+function switchSuiviTab(id, btn) {
+  document.querySelectorAll('#suivi .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#suivi .tab-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sv-' + id).classList.add('active');
+  if (id === 'stats') renderStats();
+  else if (id === 'journal') renderJournal();
 }
 
 
