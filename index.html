@@ -397,6 +397,13 @@ body.light{--dark:#f5f0eb;--dark2:#ede8e2;--dark3:#e0d8d0;--card:#fff;--text:#1a
 body.light nav{background:rgba(245,240,235,0.95);}
 body.light .hero-grid{opacity:0.15;}
 
+/* ===== FILTRES SCANNER ===== */
+.scan-filter-btn{padding:6px 13px;border-radius:999px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.78rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.scan-filter-btn:hover{border-color:var(--acc);color:var(--acc);}
+.scan-filter-btn.active{background:rgba(255,107,26,0.12);border-color:var(--acc);color:var(--acc);font-weight:700;}
+.scan-sort-btn{padding:5px 11px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.72rem;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.scan-sort-btn.active{background:rgba(255,107,26,0.1);border-color:var(--acc);color:var(--acc);font-weight:600;}
+.scan-sort-btn:hover{border-color:var(--acc);color:var(--acc);}
 /* ===== TRADER LAYOUT ===== */
 .dash-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:1rem;text-align:center;}
 .dash-val{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;}
@@ -522,7 +529,7 @@ body.light .hero-grid{opacity:0.15;}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
       <div>
         <div class="section-title">Scanner de cotes 🎯</div>
-        <p class="section-sub">Trouve la meilleure cote entre <strong style="color:var(--acc);">2.00 et 2.30</strong> pour ton pari qualificatif bonus — perte minimale garantie.</p>
+        <p class="section-sub">Trouve le meilleur pari qualificatif bonus — classé par <strong style="color:var(--acc);">perte réelle estimée</strong> · Zone idéale : perte ≤ 5€</p>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="scanner-status">
@@ -582,12 +589,28 @@ body.light .hero-grid{opacity:0.15;}
       <button class="comp-pill active" data-comp="all" onclick="selectComp('all',this)">Toutes compétitions</button>
     </div>
 
+    <!-- Filtres actifs -->
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:0.8rem;" id="scan-filters">
+      <button class="scan-filter-btn active" onclick="setScanFilter('all',this)">Tous</button>
+      <button class="scan-filter-btn" onclick="setScanFilter('ideal',this)">🟢 Idéale (≤ 5€)</button>
+      <button class="scan-filter-btn" onclick="setScanFilter('correct',this)">🟡 Correcte (≤ 10€)</button>
+      <button class="scan-filter-btn" onclick="setScanFilter('bad',this)">🔴 Mauvaise</button>
+      <button class="scan-filter-btn" onclick="setScanFilter('surebet',this)">✅ Surebets</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:0.72rem;color:var(--muted);">Trier :</span>
+        <button class="scan-sort-btn active" id="sort-perte" onclick="setScanSort('perte',this)">💸 Perte</button>
+        <button class="scan-sort-btn" id="sort-cote"  onclick="setScanSort('cote',this)">📈 Cote</button>
+        <button class="scan-sort-btn" id="sort-bk"    onclick="setScanSort('bk',this)">🎁 Bookmaker</button>
+        <button class="scan-sort-btn" id="sort-heure" onclick="setScanSort('heure',this)">⏰ Heure</button>
+      </div>
+    </div>
+
     <!-- Légende zones -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0.65rem 1rem;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);margin-bottom:1rem;font-size:0.72rem;">
       <span style="color:var(--muted);">Zones de cotes :</span>
-      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(0,201,107,0.12);color:var(--success);">🟢 2.00–2.30 Idéale</span>
-      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(255,184,0,0.12);color:var(--warning);">🟡 1.80–2.80 Correcte</span>
-      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Hors zone — à éviter</span>
+      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(0,201,107,0.12);color:var(--success);">🟢 Idéale — perte 0 à 5€</span>
+      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(255,184,0,0.12);color:var(--warning);">🟡 Correcte — perte 5 à 10€</span>
+      <span style="font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Mauvaise — perte > 10€</span>
     </div>
 
     <!-- Stats bar -->
@@ -2363,6 +2386,25 @@ function getSportKeys() {
   return ['soccer_france_ligue1','soccer_epl','soccer_uefa_champs_league','soccer_germany_bundesliga','soccer_spain_la_liga'];
 }
 
+// ── Filtre et tri du scanner ──────────────────────────
+
+let scanFilter = 'all';
+let scanSort   = 'perte';
+
+function setScanFilter(f, btn) {
+  scanFilter = f;
+  document.querySelectorAll('.scan-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderScanResults();
+}
+
+function setScanSort(s, btn) {
+  scanSort = s;
+  document.querySelectorAll('.scan-sort-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderScanResults();
+}
+
 function setSource(src) {
   localStorage.setItem('pm_source', src);
   const isCustom = src === 'custom';
@@ -2454,9 +2496,7 @@ function analyzeForBonus(match, targetBk) {
     const odds = bks[bk];
     Object.entries(odds).forEach(([issue, cote]) => {
       // Classer la zone
-      const zone = cote >= 2.0 && cote <= 2.3  ? 'ideal'
-                 : cote >= 1.8 && cote <= 2.8   ? 'correct'
-                 : 'bad';
+      const zone = 'pending'; // recalculé après perteQualif
 
       // Trouver la meilleure couverture sur les autres bookmakers
       // Pour couvrir l'issue principale, on a besoin de couvrir les issues adverses
@@ -2502,8 +2542,14 @@ function analyzeForBonus(match, targetBk) {
 
       if (perteQualif === undefined) return;
 
+      // Zone basée sur la PERTE RÉELLE (pas sur la cote)
+      const perte = perteQualif || 0;
+      const zoneByPerte = perte >= -5  ? 'ideal'    // perte 0→5€
+                        : perte >= -10 ? 'correct'  // perte 5→10€
+                        : 'bad';                    // perte > 10€
+
       opps.push({
-        bk, issue, cote, zone,
+        bk, issue, cote, zone: zoneByPerte,
         coverBk: bestCoverBk, coverOdd: bestCoverOdd,
         cover2Bk: bestCover2Bk, cover2Odd: bestCover2Odd,
         mkt, mCouv, mNul, cap, perteQualif,
@@ -2665,7 +2711,54 @@ function renderScanResults() {
     return;
   }
 
-  const html = '<div class="scanner-grid">' + scanData.map((opp, idx) => {
+  // ── Appliquer le filtre ──
+  let filtered = scanData.filter(opp => {
+    if (scanFilter === 'all')     return true;
+    if (scanFilter === 'ideal')   return opp.zone === 'ideal';
+    if (scanFilter === 'correct') return opp.zone === 'ideal' || opp.zone === 'correct';
+    if (scanFilter === 'bad')     return opp.zone === 'bad';
+    if (scanFilter === 'surebet') return analyzeSurebet(opp.match).isSB;
+    return true;
+  });
+
+  // ── Appliquer le tri ──
+  filtered = [...filtered].sort((a, b) => {
+    if (scanSort === 'perte') {
+      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
+      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
+      return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
+    }
+    if (scanSort === 'cote') {
+      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
+      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
+      return az !== bz ? az-bz : b.cote - a.cote;
+    }
+    if (scanSort === 'bk') {
+      if (a.bk < b.bk) return -1;
+      if (a.bk > b.bk) return  1;
+      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
+      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
+      return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
+    }
+    if (scanSort === 'heure') return (a.match.timestamp||0) - (b.match.timestamp||0);
+    return 0;
+  });
+
+  if (!filtered.length) {
+    document.getElementById('scanner-output').innerHTML = `
+      <div class="scanner-empty">
+        <div style="font-size:2rem;">🔎</div>
+        <div style="margin-top:0.5rem;">Aucune opportunité dans ce filtre.</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem;">Essaie "Tous" ou change de sport.</div>
+      </div>`;
+    return;
+  }
+
+  // Groupement visuel par bookmaker si tri actif
+  const groupByBk = scanSort === 'bk';
+  let lastBk = null;
+
+  const html = '<div class="scanner-grid">' + filtered.map((opp, idx) => {
     const m      = opp.match;
     const sb     = analyzeSurebet(m);
     const issueLabel = opp.issue === '1' ? m.equipe1
@@ -2680,7 +2773,21 @@ function renderScanResults() {
                    : opp.perteQualif >= -15 ? 'color:var(--warning);'
                    : 'color:var(--danger);';
 
-    return `
+    // Header de groupe bookmaker
+    let groupHeader = '';
+    if (groupByBk && opp.bk !== lastBk) {
+      lastBk = opp.bk;
+      const bkOpps = filtered.filter(o => o.bk === opp.bk);
+      const bkIdeal = bkOpps.filter(o => o.zone === 'ideal').length;
+      groupHeader = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0.5rem 0;margin-top:${idx>0?'0.8rem':'0'};">
+        <div style="height:1px;flex:1;background:var(--border2);"></div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;color:var(--acc);">🎁 ${opp.bk}</span>
+        <span style="font-size:0.72rem;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.1);color:var(--success);">${bkIdeal} idéale${bkIdeal>1?'s':''}</span>
+        <div style="height:1px;flex:1;background:var(--border2);"></div>
+      </div>`;
+    }
+
+    return groupHeader + `
     <div class="match-card ${opp.zone === 'ideal' ? 'has-value' : ''}">
       <div style="padding:1rem 1.1rem;">
 
@@ -2891,17 +2998,54 @@ function loadDemoScan() {
         }
       }
     },
+    {
+      bk:'PMU', issue:'2', cote:2.45, zone:'correct',
+      coverBk:'Netbet', coverOdd:1.72,
+      cover2Bk:'', cover2Odd:0,
+      mkt:'2way', mCouv:142.44, mNul:0, cap:242.44,
+      perteQualif: (142.44*1.72) - 142.44 - 100,
+      match:{
+        id:'demo4', equipe1:'Nice', equipe2:'Nantes',
+        competition:'Ligue 1', heure:'24/03 15:00', timestamp:Date.now()+172800000,
+        bookmakers:{
+          'PMU':         {'1':1.75,'X':3.55,'2':2.45},
+          'Netbet':      {'1':1.88,'X':3.40,'2':1.72},
+          'Parions Sport':{'1':1.80,'X':3.50,'2':1.90},
+        }
+      }
+    },
+    {
+      bk:'Parions Sport', issue:'1', cote:2.70, zone:'bad',
+      coverBk:'Winamax', coverOdd:1.55,
+      cover2Bk:'', cover2Odd:0,
+      mkt:'2way', mCouv:174.19, mNul:0, cap:274.19,
+      perteQualif: (174.19*1.55) - 174.19 - 100,
+      match:{
+        id:'demo5', equipe1:'Toulouse', equipe2:'Brest',
+        competition:'Ligue 1', heure:'24/03 19:00', timestamp:Date.now()+180000000,
+        bookmakers:{
+          'Parions Sport':{'1':2.70,'X':3.20,'2':1.55},
+          'Winamax':      {'1':1.55,'X':3.30,'2':2.60},
+        }
+      }
+    },
   ];
 
-  document.getElementById('ss-matchs').textContent   = '3';
-  document.getElementById('ss-ideaux').textContent   = '3';
-  document.getElementById('ss-corrects').textContent = '0';
+  // Recalculer les zones basées sur la vraie perte
+  scanData.forEach(o => {
+    const p = o.perteQualif || 0;
+    o.zone = p >= -5 ? 'ideal' : p >= -10 ? 'correct' : 'bad';
+  });
+
+  document.getElementById('ss-matchs').textContent   = '5';
+  document.getElementById('ss-ideaux').textContent   = scanData.filter(o=>o.zone==='ideal').length;
+  document.getElementById('ss-corrects').textContent = scanData.filter(o=>o.zone==='correct').length;
   document.getElementById('ss-surebets').textContent = '0';
   const bestP = Math.max(...scanData.map(o=>o.perteQualif));
   document.getElementById('ss-best-perte').textContent = bestP.toFixed(2).replace('.',',')+'€';
   document.getElementById('scan-summary').style.display = 'grid';
   document.getElementById('scan-dot').className = 'scanner-dot live';
-  document.getElementById('scan-status-text').textContent = '3 opportunités idéales — DÉMO';
+  document.getElementById('scan-status-text').textContent = scanData.filter(o=>o.zone==='ideal').length + ' idéales · ' + scanData.filter(o=>o.zone==='correct').length + ' correctes — DÉMO';
   document.getElementById('scan-last-update').textContent = 'Données de démonstration';
 
   renderScanResults();
