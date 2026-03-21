@@ -7,1202 +7,530 @@
   <title>PariMalin</title>
   <style>
     :root{
-      --bg:#f7f2ec;
-      --card:#ffffff;
-      --soft:#f3ebe3;
-      --line:#e5dbd0;
-      --text:#1f1a16;
-      --muted:#6a645f;
-      --accent:#ff6a13;
-      --accent2:#ff8f4c;
-      --good:#168a52;
-      --warn:#b87800;
-      --bad:#b83a2f;
-      --shadow:0 12px 28px rgba(30,20,10,.08);
-      --radius:18px;
-      --max:1320px;
+      --bg:#f7f2ec; --card:#ffffff; --soft:#f3ebe3; --line:#e5dbd0; --text:#1f1a16; --muted:#6a645f;
+      --accent:#ff6a13; --good:#168a52; --warn:#b87800; --bad:#b83a2f; --shadow:0 12px 28px rgba(30,20,10,.08);
+      --radius:18px; --max:1320px;
     }
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:linear-gradient(180deg,#fcfaf7 0%, var(--bg) 100%);
-    }
+    body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:linear-gradient(180deg,#fcfaf7 0%, var(--bg) 100%)}
     .wrap{max-width:var(--max);margin:0 auto;padding:0 18px}
-    .topbar{
-      position:sticky;top:0;z-index:30;
-      backdrop-filter:blur(10px);
-      background:rgba(252,250,247,.88);
-      border-bottom:1px solid var(--line);
-    }
-    .topbar-inner{
-      display:flex;justify-content:space-between;align-items:center;gap:16px;
-      padding:14px 0;flex-wrap:wrap;
-    }
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(252,250,247,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .topbar-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:42px;height:42px;border-radius:14px;
-      display:grid;place-items:center;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#fff;font-weight:900;
-      box-shadow:var(--shadow);
-    }
-    .brand h1{margin:0;font-size:18px}
-    .sub{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#ff934d);color:#fff;font-weight:900;box-shadow:var(--shadow)}
+    .brand h1{margin:0;font-size:18px}.sub{margin:2px 0 0;color:var(--muted);font-size:12px}
     .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .nav a{
-      text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;
-      background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:12px;
-    }
-    .hero{padding:24px 0 10px}
-    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-    }
-    .panel{padding:22px}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;border-radius:999px;
-      padding:8px 12px;font-size:13px;font-weight:800;
-    }
-    .good{background:rgba(22,138,82,.1);color:var(--good)}
-    .warn{background:rgba(184,120,0,.12);color:var(--warn)}
-    .bad{background:rgba(184,58,47,.1);color:var(--bad)}
-    .hxl{font-size:42px;line-height:1.02;letter-spacing:-.03em;margin:12px 0}
-    .lead{color:var(--muted);line-height:1.6;max-width:70ch}
-    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .stat{
-      padding:16px;border-radius:16px;background:var(--soft);border:1px solid var(--line);
-    }
-    .stat .k{font-size:12px;color:var(--muted);margin-bottom:8px}
-    .stat .v{font-size:30px;font-weight:900}
-    .section{padding:16px 0}
-    .section-head{
-      display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;
-      margin-bottom:12px;
-    }
-    h2{margin:0;font-size:28px;letter-spacing:-.02em}
-    .muted{color:var(--muted)}
-    .toolbar{
-      display:grid;grid-template-columns:1.2fr repeat(5,minmax(110px,1fr));gap:12px;
-    }
-    .toolbar-compact{
-      display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:12px;
-    }
+    .nav a{text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:12px}
+    .section{padding:18px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)} .panel{padding:22px}
+    h2{margin:0;font-size:28px;letter-spacing:-.02em}.muted{color:var(--muted)}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .toolbar{display:grid;grid-template-columns:1.2fr repeat(5,minmax(110px,1fr));gap:12px}
+    .toolbar-compact{display:grid;grid-template-columns:1.1fr 1fr 1fr auto auto;gap:12px}
     input,select,button,textarea{font:inherit}
-    input,select,textarea{
-      width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);
-      background:#fff;color:var(--text);
-    }
-    textarea{min-height:80px;resize:vertical}
-    button{
-      padding:12px 14px;border-radius:13px;border:1px solid var(--line);
-      background:#fff;color:var(--text);font-weight:800;cursor:pointer;
-    }
-    button.primary{background:var(--accent);color:#fff;border-color:transparent}
-    button.danger{background:#fff3f2;color:var(--bad);border-color:#f0c9c5}
-    button.ghost{color:var(--muted)}
-    button.sm{padding:9px 11px;font-size:13px}
-    .table-wrap{overflow:auto}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    .score{
-      font-weight:900;font-size:12px;border-radius:999px;padding:7px 10px;display:inline-block
-    }
-    .score.good{background:rgba(22,138,82,.12);color:var(--good)}
-    .score.warn{background:rgba(184,120,0,.12);color:var(--warn)}
-    .score.bad{background:rgba(184,58,47,.12);color:var(--bad)}
-    .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .metric{
-      border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px;
-    }
-    .metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .metric .v{font-size:28px;font-weight:900}
-    .soft{
-      background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px;
-    }
-    .rows{display:grid;gap:10px}
-    .row{display:flex;justify-content:space-between;gap:12px}
-    .row .name{color:var(--muted)}
-    .row .val{font-weight:800;text-align:right}
-    .top5{display:grid;gap:10px}
-    .top5-item{
-      display:flex;justify-content:space-between;gap:12px;align-items:center;
-      padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;
-    }
-    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    input,select,textarea{width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text)}
+    button{padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:800;cursor:pointer}
+    button.primary{background:var(--accent);color:#fff;border-color:transparent} button.ghost{color:var(--muted)} button.danger{background:#fff3f2;color:var(--bad);border-color:#f0c9c5} button.sm{padding:9px 11px;font-size:13px}
+    .soft{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
     .small{font-size:12px;color:var(--muted);line-height:1.5}
-    .bonus-toolbar{display:grid;grid-template-columns:1fr auto auto auto;gap:12px}
-    .bonus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .bonus-card{
-      border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;display:grid;gap:8px;
-    }
-    .bonus-card h3{margin:0;font-size:15px}
-    .pill{
-      display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800
-    }
-    .pill.todo{background:rgba(184,120,0,.12);color:var(--warn)}
-    .pill.done{background:rgba(22,138,82,.12);color:var(--good)}
-.pill.live{background:rgba(22,138,82,.12);color:var(--good)}
-    .pill.manual{background:rgba(184,120,0,.12);color:var(--warn)}
-    .pill.unavailable{background:rgba(184,58,47,.10);color:var(--bad)}
-    .empty{
-      padding:16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff;
-    }
-    .hidden{display:none !important}
-    .foot{padding:8px 0 34px;color:var(--muted);font-size:13px}
-    .api-note{margin-top:10px}
-    .positive{color:var(--good)!important}
-    .negative{color:var(--bad)!important}
-    @media (max-width:1100px){
-      .hero-grid,.mini-grid,.result-grid,.toolbar,.bonus-toolbar,.toolbar-compact{grid-template-columns:1fr}
-      .bonus-grid{grid-template-columns:repeat(2,1fr)}
-    }
-    @media (max-width:700px){
-      .stats{grid-template-columns:1fr}
-      .bonus-grid{grid-template-columns:1fr}
-      .hxl{font-size:34px}
-    }
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px}
+    .metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}.metric .v{font-size:28px;font-weight:900}
+    .table-wrap{overflow:auto} table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .score{font-weight:900;font-size:12px;border-radius:999px;padding:7px 10px;display:inline-block}
+    .score.good{background:rgba(22,138,82,.12);color:var(--good)} .score.warn{background:rgba(184,120,0,.12);color:var(--warn)} .score.bad{background:rgba(184,58,47,.12);color:var(--bad)}
+    .btns{display:flex;gap:8px;flex-wrap:wrap}.rows{display:grid;gap:10px}.row{display:flex;justify-content:space-between;gap:12px}.row .name{color:var(--muted)} .row .val{font-weight:800;text-align:right}
+    .bonus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.bonus-card{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;display:grid;gap:8px}
+    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}.pill.todo{background:rgba(184,120,0,.12);color:var(--warn)} .pill.done{background:rgba(22,138,82,.12);color:var(--good)}
+    .empty{padding:16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff}
+    .positive{color:var(--good)} .negative{color:var(--bad)}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media (max-width:1100px){.toolbar,.toolbar-compact,.stats,.grid-2,.bonus-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand">
-        <div class="logo">PM</div>
-        <div>
-          <h1>PariMalin</h1>
-          <div class="sub">Scanner central · calculateur rapide · suivi perso</div>
-        </div>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand"><div class="logo">PM</div><div><h1>PariMalin</h1><div class="sub">Scanner 7 books : Betclic, NetBet, Parions Sport, PMU, Unibet, Winamax, Betsson</div></div></div>
+    <nav class="nav"><a href="#scanner">Scanner</a><a href="#calculateur">Calculateur</a><a href="#tracker">Tracker</a><a href="#bonus">Bonus ANJ</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="scanner" class="section">
+    <div class="section-head"><div><h2>Scanner central</h2><div class="muted">API réelle uniquement. Pas de mode démo.</div></div></div>
+    <div class="card panel">
+      <div class="toolbar">
+        <input id="scanSearch" placeholder="Rechercher un match ou un book" />
+        <select id="scanSportFilter"><option value="">Tous sports</option></select>
+        <select id="scanBookFilter"><option value="">Tous books</option></select>
+        <select id="scanScoreFilter"><option value="">Tous scores</option><option value="EXCELLENT">Excellent</option><option value="OK">OK</option><option value="MAUVAIS">Mauvais</option></select>
+        <select id="scanSort"><option value="score">Tri score</option><option value="lossAsc">Perte croissante</option><option value="profitDesc">Profit décroissant</option></select>
+        <button class="ghost" id="clearScannerBtn">Vider</button>
       </div>
-      <nav class="nav">
-        <a href="#scanner">Scanner</a>
-        <a href="#calculateur">Calculateur</a>
-        <a href="#tracker">Tracker</a>
-        <a href="#bonus">Bonus ANJ</a>
-      </nav>
-    </div>
-  </header>
 
-  <main class="wrap">
-    <section class="hero">
-      <div class="hero-grid">
-        <div class="card panel">
-          <div class="badge warn">Mode opportunité rapide</div>
-          <div class="hxl">Voir, filtrer, jouer en moins de 10 secondes</div>
-          <div class="lead">
-            Tout est utilisable sur la page : scanner avec données démo ou The Odds API, cote externe,
-            calculateur connecté, tracker local et suivi des bonus ANJ en bas.
-          </div>
-        </div>
-        <div class="card panel">
-          <div class="stats">
-            <div class="stat"><div class="k">Opportunités visibles</div><div class="v" id="heroOpps">0</div></div>
-            <div class="stat"><div class="k">Bonus restants</div><div class="v" id="heroBonusLeft">16</div></div>
-            <div class="stat"><div class="k">Profit tracker</div><div class="v" id="heroTrackerProfit">0,00€</div></div>
-            <div class="stat"><div class="k">Bonus complétés</div><div class="v" id="heroBonusDone">0</div></div>
-          </div>
-        </div>
+      <div style="height:12px"></div>
+
+      <div class="toolbar-compact">
+        <input id="apiKey" type="password" placeholder="Clé The Odds API" />
+        <select id="apiSport">
+          <option value="soccer_france_ligue_one">soccer_france_ligue_one</option>
+          <option value="tennis_atp_us_open">tennis_atp_us_open</option>
+          <option value="tennis_wta_us_open">tennis_wta_us_open</option>
+          <option value="basketball_nba">basketball_nba</option>
+        </select>
+        <input id="apiRegions" value="fr,eu" />
+        <button class="primary" id="loadApiBtn">Charger API</button>
+        <button id="refreshApiBtn">Refresh</button>
       </div>
-    </section>
 
-    <section id="scanner" class="section">
-      <div class="section-head">
-        <div>
-          <h2>Scanner central</h2>
-          <div class="muted">Le scanner se limite aux 6 books FR disponibles via API + Betsson.</div>
-        </div>
-      </div>
-      <div class="card panel">
-        <div class="toolbar">
-          <input id="scanSearch" placeholder="Rechercher un match ou un bookmaker" />
-          <select id="scanSportFilter"><option value="">Tous sports</option></select>
-          <select id="scanBookFilter"><option value="">Tous books</option></select>
-          <select id="scanScoreFilter">
-            <option value="">Tous scores</option>
-            <option value="EXCELLENT">Excellent</option>
-            <option value="OK">OK</option>
-            <option value="MAUVAIS">Mauvais</option>
-          </select>
-          <select id="scanSort">
-            <option value="score">Tri score</option>
-            <option value="lossAsc">Perte croissante</option>
-            <option value="profitDesc">Profit décroissant</option>
-          </select>
-          <button class="primary" id="loadDemoBtn" style="display:none">Charger démo</button>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <div class="toolbar-compact">
-          <input id="apiKey" type="password" placeholder="Clé The Odds API (optionnel)" />
-          <select id="apiSport">
-            <option value="soccer_france_ligue_one">soccer_france_ligue_one</option>
-            <option value="basketball_nba">basketball_nba</option>
-            <option value="tennis_atp_french_open">tennis_atp_french_open</option>
-            <option value="tennis_atp_us_open">tennis_atp_us_open</option>
-          </select>
-          <input id="apiRegions" value="eu" placeholder="eu" />
-          <button id="loadApiBtn">Charger API</button>
-          <button class="ghost" id="clearScannerBtn">Vider</button>
-        </div>
-
-        <div class="small api-note" id="apiStatus">
-          Mode démo supprimé. Tu dois utiliser ta clé API. Avec une clé valide, le scanner charge The Odds API.
-        </div>
-
-        <div style="height:16px"></div>
-
-        <div class="soft">
-          <div class="section-head" style="margin-bottom:10px">
-            <div>
-              <strong>Couverture des 6 books FR + Betsson</strong>
-              <div class="small">Live API quand disponible, sinon saisie manuelle rapide.</div>
-            </div>
-          </div>
-          <div id="anjCoverageGrid" class="bonus-grid"></div>
-        </div>
-
-        <div style="height:16px"></div>
-
-        <div class="soft">
-          <div class="section-head" style="margin-bottom:10px">
-            <div>
-              <strong>Ajout manuel ANJ</strong>
-              <div class="small">Si un des 7 books n’apparaît pas sur le sport choisi, tu peux l’ajouter manuellement au scanner.</div>
-            </div>
-          </div>
-          <div class="toolbar-compact">
-            <select id="manualAnjBook"></select>
-            <input id="manualAnjEvent" placeholder="Match / événement" />
-            <input id="manualAnjOdds" type="number" step="0.01" placeholder="Cote" />
-            <button class="primary" id="addManualAnjBtn">Ajouter au scanner</button>
-            <button class="ghost" id="clearManualAnjBtn">Vider</button>
-          </div>
-        </div>
-
-        <div style="height:16px"></div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Match</th>
-                <th>Sport</th>
-                <th>Heure</th>
-                <th>Book principal</th>
-                <th>Meilleure cote</th>
-                <th>Couverture</th>
-                <th>Spread</th>
-                <th>Perte qualif</th>
-                <th>Profit bonus</th>
-                <th>Score</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="scannerTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="mini-grid">
-        <div class="card panel">
-          <div class="section-head">
-            <div>
-              <h2>Top 5 opportunités</h2>
-              <div class="muted">Triées automatiquement par score et perte qualif.</div>
-            </div>
-          </div>
-          <div class="top5" id="top5List"></div>
-        </div>
-
-        <div class="card panel">
-          <div class="section-head">
-            <div>
-              <h2>Mode cote externe</h2>
-              <div class="muted">Entrée rapide d’une cote non couverte par l’API.</div>
-            </div>
-          </div>
-          <div class="toolbar-compact">
-            <input id="extBook" placeholder="Bookmaker externe" value="Betsson" />
-            <input id="extEvent" placeholder="Match / événement" />
-            <input id="extOdds" type="number" step="0.01" placeholder="Cote externe" value="2.15" />
-            <button class="primary" id="findCoverBtn">Trouver couverture</button>
-            <button class="ghost" id="sendExternalToCalcBtn">Envoyer au calculateur</button>
-          </div>
-          <div style="height:16px"></div>
-          <div class="soft" id="externalResult">
-            <div class="small">Charge d’abord des opportunités ou utilise le mode démo, puis saisis une cote externe.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="calculateur" class="section">
-      <div class="section-head">
-        <div>
-          <h2>Calculateur prérempli</h2>
-          <div class="muted">Rempli automatiquement après clic sur “Jouer”.</div>
-        </div>
-      </div>
-      <div class="mini-grid">
-        <div class="card panel">
-          <div class="result-grid">
-            <div class="metric"><div class="k">Bookmaker principal</div><div class="v" style="font-size:22px" id="calcMainBook">—</div></div>
-            <div class="metric"><div class="k">Couverture</div><div class="v" style="font-size:22px" id="calcHedgeBook">—</div></div>
-            <div class="metric"><div class="k">Cote principale</div><div class="v" id="calcMainOdds">—</div></div>
-            <div class="metric"><div class="k">Cote couverture</div><div class="v" id="calcHedgeOdds">—</div></div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="result-grid">
-            <div class="metric">
-              <div class="k">Mise principale (€)</div>
-              <input id="calcStake" type="number" step="0.01" value="100" />
-            </div>
-            <div class="metric">
-              <div class="k">Conversion bonus (%)</div>
-              <input id="calcConversion" type="number" step="1" value="75" />
-            </div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="soft">
-            <div class="rows">
-              <div class="row"><div class="name">Mise couverture</div><div class="val" id="calcHedgeStake">—</div></div>
-              <div class="row"><div class="name">Capital engagé</div><div class="val" id="calcCapital">—</div></div>
-            </div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="btns">
-            <button class="primary sm" id="copyCalcSummaryBtn">Copier résumé</button>
-            <button class="sm" id="sendCalcToTrackerBtn">Envoyer au tracker</button>
-          </div>
-        </div>
-
-        <div class="card panel">
-          <div class="soft">
-            <strong>Scénario A — le pari principal gagne</strong>
-            <div class="rows" style="margin-top:10px">
-              <div class="row"><div class="name">Cash immédiat</div><div class="val" id="calcWinCash">—</div></div>
-              <div class="row"><div class="name">Bonus</div><div class="val">0€</div></div>
-            </div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="soft">
-            <strong>Scénario B — le pari principal perd</strong>
-            <div class="rows" style="margin-top:10px">
-              <div class="row"><div class="name">Cash immédiat</div><div class="val" id="calcLoseCash">—</div></div>
-              <div class="row"><div class="name">Valeur bonus estimée</div><div class="val" id="calcBonusValue">—</div></div>
-              <div class="row"><div class="name">Profit total estimé</div><div class="val" id="calcTotalProfit">—</div></div>
-            </div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <div class="soft">
-            <div class="small" id="calcSummaryText">
-              Choisis une opportunité dans le scanner ou via le mode cote externe.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="tracker" class="section">
-      <div class="section-head">
-        <div>
-          <h2>Tracker + suivi rapide</h2>
-          <div class="muted">Le suivi reste simple, mais mieux connecté au scanner.</div>
-        </div>
-      </div>
-      <div class="card panel">
-        <div class="result-grid">
-          <div class="metric"><div class="k">Paris enregistrés</div><div class="v" id="trackerCount">0</div></div>
-          <div class="metric"><div class="k">Profit total</div><div class="v" id="trackerProfit">0,00€</div></div>
-          <div class="metric"><div class="k">Bonus valorisés</div><div class="v" id="trackerBonus">0,00€</div></div>
-          <div class="metric"><div class="k">Profit moyen</div><div class="v" id="trackerAverage">0,00€</div></div>
-        </div>
-
-        <div style="height:16px"></div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Événement</th>
-                <th>Book principal</th>
-                <th>Mise</th>
-                <th>Cash perdant</th>
-                <th>Bonus estimé</th>
-                <th>Profit estimé</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="trackerTableBody"></tbody>
-          </table>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <div class="btns">
-          <button class="danger sm" id="clearTrackerBtn">Vider le tracker</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="bonus" class="section">
-      <div class="section-head">
-        <div>
-          <h2>Suivi des bonus ANJ</h2>
-          <div class="muted">Section secondaire de suivi : bonus restants, bonus complétés, et masquage des books déjà traités.</div>
-        </div>
-      </div>
-      <div class="card panel" style="padding:16px">
-        <div class="result-grid" style="margin-bottom:14px">
-          <div class="metric"><div class="k">Bonus restants</div><div class="v" id="bonusSummaryLeft">16</div></div>
-          <div class="metric"><div class="k">Bonus complétés</div><div class="v" id="bonusSummaryDone">0</div></div>
-        </div>
-
-        <div class="bonus-toolbar">
-          <input id="bonusSearch" placeholder="Rechercher un bookmaker" />
-          <button class="ghost" id="showAllBonusesBtn">Tout afficher</button>
-          <button class="ghost" id="toggleBonusSectionBtn">Masquer la section</button>
-          <button class="danger" id="resetBonusesBtn">Réinitialiser</button>
-        </div>
-
-        <div style="height:14px"></div>
-
-        <div id="bonusGrid" class="bonus-grid"></div>
-      </div>
-    </section>
-
-    <div class="foot">Version fonctionnelle locale · tracker et bonus sauvegardés dans le navigateur</div>
-  </main>
-
-  <script>
-    const STORAGE = {
-      scanner: "parimalin_scanner_v1",
-      tracker: "parimalin_tracker_v1",
-      bonuses: "parimalin_bonus_anj_v2",
-      ui: "parimalin_ui_v1"
-    };
-
-    const ANJ_ALL_BOOKS = [
-      "Betclic","Betsson","NetBet","Parions Sport","PMU","Unibet","Winamax"
-    ];
-    const API_FR_BOOKS = [
-      "Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
-    ];
-    const API_EU_BOOKS = [
-      "Betsson","Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
-    ];
-    function normalizeBook(name){
-      return String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
-    }
-    const API_FR_NORMALIZED = API_FR_BOOKS.map(normalizeBook);
-    const API_EU_NORMALIZED = API_EU_BOOKS.map(normalizeBook);
-    const ANJ_ALL_NORMALIZED = ANJ_ALL_BOOKS.map(normalizeBook);
-
-
-    const defaultBonuses = [
-      { name: "Betclic", site: "betclic.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Betsson", site: "betsson.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Bwin", site: "bwin.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Circusbet", site: "circusbet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "DAZN Bet", site: "daznbet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Feelingbet", site: "feelingbet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Genybet", site: "genybet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "NetBet", site: "netbet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Olybet", site: "olybet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Parions Sport", site: "enligne.parionssport.fdj.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "PMU", site: "pmu.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "PokerStars Sports", site: "pokerstarssports.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Unibet", site: "unibet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "VBet", site: "vbet.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "Winamax", site: "winamax.fr", offer: "Bonus bienvenue", done: false, hidden: false },
-      { name: "YESorNO", site: "yesorno-jeu.fr", offer: "Bonus bienvenue", done: false, hidden: false }
-    ];
-
-    const demoRows = [];
-
-    let scannerRows = loadData(STORAGE.scanner, []);
-    let trackerRows = loadData(STORAGE.tracker, []);
-    let bonuses = loadData(STORAGE.bonuses, clone(defaultBonuses));
-    let currentCalc = null;
-    let currentExternal = null;
-
-    function clone(v){ return JSON.parse(JSON.stringify(v)); }
-    function loadData(key, fallback){
-      try{
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      }catch(e){ return fallback; }
-    }
-    function saveData(key, value){
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-    function getUiState(){
-      return loadData(STORAGE.ui, {
-        apiKey: "",
-        apiSport: "soccer_france_ligue_one",
-        apiRegions: "eu",
-        scanSearch: "",
-        scanSportFilter: "",
-        scanBookFilter: "",
-        scanScoreFilter: "",
-        scanSort: "score",
-        extBook: "Betsson",
-        extEvent: "",
-        extOdds: "2.15",
-        calcStake: "100",
-        calcConversion: "75",
-        bonusSectionHidden: false
-      });
-    }
-    function saveUiState(partial){
-      const current = getUiState();
-      const next = { ...current, ...partial };
-      saveData(STORAGE.ui, next);
-      return next;
-    }
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;").replaceAll("'","&#39;");
-    }
-    function euro(n){
-      n = Number(n||0);
-      return n.toLocaleString("fr-FR",{minimumFractionDigits:2, maximumFractionDigits:2}) + "€";
-    }
-    function signedEuro(n){
-      n = Number(n||0);
-      return (n > 0 ? "+" : "") + euro(n);
-    }
-    function scoreBadge(score){
-      const cls = score === "EXCELLENT" ? "good" : score === "OK" ? "warn" : "bad";
-      return `<span class="score ${cls}">${score}</span>`;
-    }
-    function normalize(s){
-      return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
-    }
-    function computeRowMetrics(row, stake = 100, conversion = 75){
-      const mainOdds = Number(row.mainOdds||0);
-      const hedgeOdds = Number(row.hedgeOdds||0);
-      const hedgeStake = hedgeOdds > 1 ? (stake * mainOdds) / hedgeOdds : 0;
-      const capital = stake + hedgeStake;
-      const cashWin = stake * mainOdds - capital;
-      const cashLose = hedgeStake * hedgeOdds - capital;
-      const bonusValue = stake * (conversion/100);
-      const totalProfit = cashLose + bonusValue;
-      const spread = Math.max(0, mainOdds - hedgeOdds);
-      let score = "MAUVAIS";
-      if (Math.abs(cashLose) < 5) score = "EXCELLENT";
-      else if (Math.abs(cashLose) <= 10) score = "OK";
-      return { hedgeStake, capital, cashWin, cashLose, bonusValue, totalProfit, spread, score };
-    }
-
-    function renderScannerFilters(){
-      const sports = [...new Set(scannerRows.map(r => r.sport).filter(Boolean))].sort();
-      const books = [...new Set(scannerRows.flatMap(r => [r.mainBook, r.hedgeBook]).filter(Boolean))].sort();
-      const sportSel = document.getElementById("scanSportFilter");
-      const bookSel = document.getElementById("scanBookFilter");
-      const currentSport = sportSel.value;
-      const currentBook = bookSel.value;
-      sportSel.innerHTML = `<option value="">Tous sports</option>` + sports.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
-      bookSel.innerHTML = `<option value="">Tous books</option>` + books.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");
-      sportSel.value = currentSport;
-      bookSel.value = currentBook;
-    }
-
-    function getFilteredScannerRows(){
-      const q = normalize(document.getElementById("scanSearch").value);
-      const sport = document.getElementById("scanSportFilter").value;
-      const book = document.getElementById("scanBookFilter").value;
-      const score = document.getElementById("scanScoreFilter").value;
-      const sort = document.getElementById("scanSort").value;
-
-      let rows = scannerRows.map(row => ({...row, metrics: computeRowMetrics(row)})).filter(r => {
-        const hitQ = !q || normalize(r.event).includes(q) || normalize(r.mainBook).includes(q) || normalize(r.hedgeBook).includes(q);
-        const hitSport = !sport || r.sport === sport;
-        const hitBook = !book || r.mainBook === book || r.hedgeBook === book;
-        const hitScore = !score || r.metrics.score === score;
-        return hitQ && hitSport && hitBook && hitScore;
-      });
-
-      rows.sort((a,b) => {
-        if(sort === "lossAsc") return Math.abs(a.metrics.cashLose) - Math.abs(b.metrics.cashLose);
-        if(sort === "profitDesc") return b.metrics.totalProfit - a.metrics.totalProfit;
-        const rank = {"EXCELLENT":0,"OK":1,"MAUVAIS":2};
-        return rank[a.metrics.score] - rank[b.metrics.score] || Math.abs(a.metrics.cashLose) - Math.abs(b.metrics.cashLose);
-      });
-      return rows;
-    }
-
-    function renderScanner(){
-      renderScannerFilters();
-      const rows = getFilteredScannerRows();
-      const body = document.getElementById("scannerTableBody");
-      document.getElementById("heroOpps").textContent = String(rows.length);
-
-      if(!rows.length){
-        body.innerHTML = `<tr><td colspan="11"><div class="empty">Aucune opportunité affichée.</div></td></tr>`;
-      } else {
-        body.innerHTML = rows.map((r, idx) => `
-          <tr>
-            <td>${escapeHtml(r.event)}</td>
-            <td>${escapeHtml(r.sport)}</td>
-            <td>${escapeHtml(r.time)}</td>
-            <td>${escapeHtml(r.mainBook)}</td>
-            <td>${Number(r.mainOdds).toFixed(2)}</td>
-            <td>${escapeHtml(r.hedgeBook)} ${Number(r.hedgeOdds).toFixed(2)}</td>
-            <td>${r.metrics.spread.toFixed(2)}</td>
-            <td class="${Math.abs(r.metrics.cashLose) < 5 ? 'positive' : Math.abs(r.metrics.cashLose) <=10 ? '' : 'negative'}">${euro(Math.abs(r.metrics.cashLose))}</td>
-            <td class="positive">${signedEuro(r.metrics.totalProfit)}</td>
-            <td>${scoreBadge(r.metrics.score)}</td>
-            <td>
-              <div class="btns">
-                <button class="sm" onclick="playScannerRow(${idx})">Jouer</button>
-                <button class="sm" onclick="analyzeScannerRow(${idx})">Analyser</button>
-                <button class="sm" onclick="trackScannerRow(${idx})">Tracker</button>
-              </div>
-            </td>
-          </tr>
-        `).join("");
-      }
-
-      renderTop5(rows.slice(0,5));
-      saveData(STORAGE.scanner, scannerRows);
-      renderAnjCoverage();
-    }
-
-    function renderTop5(rows){
-      const el = document.getElementById("top5List");
-      if(!rows.length){
-        el.innerHTML = `<div class="empty">Aucune opportunité.</div>`;
-        return;
-      }
-      el.innerHTML = rows.map(r => `
-        <div class="top5-item">
-          <div>
-            <strong>${escapeHtml(r.event)}</strong><br>
-            <span class="small">${escapeHtml(r.mainBook)} ${Number(r.mainOdds).toFixed(2)} · couverture ${escapeHtml(r.hedgeBook)} ${Number(r.hedgeOdds).toFixed(2)}</span>
-          </div>
-          ${scoreBadge(r.metrics.score)}
-        </div>
-      `).join("");
-    }
-
-    function setCalcFromRow(row){
-      currentCalc = {...row, stake: Number(document.getElementById("calcStake").value || 100)};
-      updateCalculator();
-      location.hash = "#calculateur";
-    }
-
-    function updateCalculator(){
-      if(!currentCalc){
-        return;
-      }
-      const stake = Math.max(0, Number(document.getElementById("calcStake").value || 0));
-      const conversion = Math.max(0, Math.min(100, Number(document.getElementById("calcConversion").value || 0)));
-      const metrics = computeRowMetrics(currentCalc, stake, conversion);
-
-      document.getElementById("calcMainBook").textContent = currentCalc.mainBook || "—";
-      document.getElementById("calcHedgeBook").textContent = currentCalc.hedgeBook || "—";
-      document.getElementById("calcMainOdds").textContent = Number(currentCalc.mainOdds || 0).toFixed(2);
-      document.getElementById("calcHedgeOdds").textContent = Number(currentCalc.hedgeOdds || 0).toFixed(2);
-      document.getElementById("calcHedgeStake").textContent = euro(metrics.hedgeStake);
-      document.getElementById("calcCapital").textContent = euro(metrics.capital);
-      document.getElementById("calcWinCash").textContent = signedEuro(metrics.cashWin);
-      document.getElementById("calcLoseCash").textContent = signedEuro(metrics.cashLose);
-      document.getElementById("calcBonusValue").textContent = euro(metrics.bonusValue);
-      document.getElementById("calcTotalProfit").textContent = signedEuro(metrics.totalProfit);
-      document.getElementById("calcTotalProfit").className = metrics.totalProfit >= 0 ? "val positive" : "val negative";
-
-      document.getElementById("calcSummaryText").innerHTML =
-        `Tu engages <strong>${euro(metrics.capital)}</strong>. Si le pari principal gagne, ton cash immédiat est <strong>${signedEuro(metrics.cashWin)}</strong>. 
-         S’il perd, ton cash immédiat est <strong>${signedEuro(metrics.cashLose)}</strong>. Avec une conversion bonus de <strong>${conversion}%</strong>,
-         la valeur estimée du bonus est <strong>${euro(metrics.bonusValue)}</strong> et le profit total estimé devient <strong>${signedEuro(metrics.totalProfit)}</strong>.`;
-      currentCalc.metrics = metrics;
-    }
-
-    function renderTracker(){
-      const body = document.getElementById("trackerTableBody");
-      const count = trackerRows.length;
-      const totalProfit = trackerRows.reduce((s,x)=>s + Number(x.totalProfit||0),0);
-      const totalBonus = trackerRows.reduce((s,x)=>s + Number(x.bonusValue||0),0);
-      const avg = count ? totalProfit / count : 0;
-
-      document.getElementById("trackerCount").textContent = String(count);
-      document.getElementById("trackerProfit").textContent = signedEuro(totalProfit);
-      document.getElementById("trackerBonus").textContent = euro(totalBonus);
-      document.getElementById("trackerAverage").textContent = signedEuro(avg);
-      document.getElementById("heroTrackerProfit").textContent = signedEuro(totalProfit);
-
-      if(!count){
-        body.innerHTML = `<tr><td colspan="8"><div class="empty">Aucune entrée dans le tracker.</div></td></tr>`;
-      } else {
-        body.innerHTML = trackerRows.map((r, idx) => `
-          <tr>
-            <td>${escapeHtml(r.date)}</td>
-            <td>${escapeHtml(r.event)}</td>
-            <td>${escapeHtml(r.mainBook)}</td>
-            <td>${euro(r.stake)}</td>
-            <td>${signedEuro(r.cashLose)}</td>
-            <td>${euro(r.bonusValue)}</td>
-            <td>${signedEuro(r.totalProfit)}</td>
-            <td><button class="danger sm" onclick="deleteTrackerRow(${idx})">Suppr.</button></td>
-          </tr>
-        `).join("");
-      }
-      saveData(STORAGE.tracker, trackerRows);
-    }
-
-    function addCurrentCalcToTracker(){
-      if(!currentCalc || !currentCalc.metrics) return;
-      trackerRows.unshift({
-        date: new Date().toLocaleDateString("fr-FR"),
-        event: currentCalc.event,
-        mainBook: currentCalc.mainBook,
-        stake: Number(document.getElementById("calcStake").value || 100),
-        cashLose: currentCalc.metrics.cashLose,
-        bonusValue: currentCalc.metrics.bonusValue,
-        totalProfit: currentCalc.metrics.totalProfit
-      });
-      renderTracker();
-      location.hash = "#tracker";
-    }
-
-    function renderBonuses(){
-      const q = normalize(document.getElementById("bonusSearch").value);
-      const filtered = bonuses.filter(b => !b.hidden && (!q || normalize(b.name).includes(q) || normalize(b.site).includes(q)));
-      const left = bonuses.filter(b => !b.hidden && !b.done).length;
-      const done = bonuses.filter(b => !b.hidden && b.done).length;
-      document.getElementById("heroBonusLeft").textContent = String(left);
-      document.getElementById("heroBonusDone").textContent = String(done);
-      document.getElementById("bonusSummaryLeft").textContent = String(left);
-      document.getElementById("bonusSummaryDone").textContent = String(done);
-
-      const grid = document.getElementById("bonusGrid");
-      if(!filtered.length){
-        grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Aucun bonus affiché.</div>`;
-      } else {
-        grid.innerHTML = filtered.map(b => {
-          const idx = bonuses.findIndex(x => x.name === b.name && x.site === b.site);
-          return `
-            <div class="bonus-card">
-              <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
-                <div>
-                  <h3>${escapeHtml(b.name)}</h3>
-                  <div class="small">${escapeHtml(b.site)}</div>
-                </div>
-                <span class="pill ${b.done ? "done" : "todo"}">${b.done ? "Fait" : "À faire"}</span>
-              </div>
-              <div class="small">${escapeHtml(b.offer)}</div>
-              <div class="btns">
-                <button class="sm" onclick="toggleBonusDone(${idx})">${b.done ? "Remettre à faire" : "Marquer fait"}</button>
-                <button class="danger sm" onclick="hideBonus(${idx})">Supprimer de la vue</button>
-              </div>
-            </div>
-          `;
-        }).join("");
-      }
-      saveData(STORAGE.bonuses, bonuses);
-    }
-
-    function findExternalCover(){
-      const extBook = document.getElementById("extBook").value.trim() || "Book externe";
-      const extEvent = document.getElementById("extEvent").value.trim();
-      const extOdds = Number(document.getElementById("extOdds").value || 0);
-      const resultBox = document.getElementById("externalResult");
-
-      if(!extEvent || !extOdds || extOdds <= 1){
-        resultBox.innerHTML = `<div class="small">Saisis un événement et une cote externe valide.</div>`;
-        currentExternal = null;
-        return;
-      }
-
-      const match = scannerRows.find(r => normalize(r.event).includes(normalize(extEvent)) || normalize(extEvent).includes(normalize(r.event)));
-      if(!match){
-        resultBox.innerHTML = `<div class="small">Aucune couverture trouvée pour cet événement dans le scanner actuel.</div>`;
-        currentExternal = null;
-        return;
-      }
-
-      currentExternal = {
-        event: match.event,
-        sport: match.sport,
-        time: match.time,
-        mainBook: extBook,
-        mainOdds: extOdds,
-        hedgeBook: match.hedgeBook,
-        hedgeOdds: match.hedgeOdds
-      };
-
-      const metrics = computeRowMetrics(currentExternal, Number(document.getElementById("calcStake").value || 100), Number(document.getElementById("calcConversion").value || 75));
-
-      resultBox.innerHTML = `
+      <div style="height:12px"></div>
+      <div class="soft">
         <div class="rows">
-          <div class="row"><div class="name">Meilleure couverture trouvée</div><div class="val">${escapeHtml(match.hedgeBook)} @ ${Number(match.hedgeOdds).toFixed(2)}</div></div>
-          <div class="row"><div class="name">Mise couverture</div><div class="val">${euro(metrics.hedgeStake)}</div></div>
-          <div class="row"><div class="name">Perte qualif estimée</div><div class="val ${Math.abs(metrics.cashLose) < 5 ? 'positive' : Math.abs(metrics.cashLose) <= 10 ? '' : 'negative'}">${euro(Math.abs(metrics.cashLose))}</div></div>
+          <div class="row"><div class="name">Books visés</div><div class="val">Betclic · NetBet · Parions Sport · PMU · Unibet · Winamax · Betsson</div></div>
+          <div class="row"><div class="name">Statut</div><div class="val" id="apiStatus">Ajoute ta clé API puis clique sur Charger API.</div></div>
         </div>
-      `;
-    }
+      </div>
 
-    async function loadApiRows(){
-      const apiKey = document.getElementById("apiKey").value.trim();
-      const sport = document.getElementById("apiSport").value.trim();
-      const status = document.getElementById("apiStatus");
-      if(!apiKey){
-        status.textContent = "Ajoute une clé The Odds API valide pour charger les cotes.";
-        return;
-      }
+      <div style="height:16px"></div>
 
-      document.getElementById("apiRegions").value = "fr,eu";
-      saveUiState({ apiRegions: "fr,eu" });
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Match</th><th>Sport</th><th>Heure</th><th>Book principal</th><th>Meilleure cote</th><th>Couverture</th><th>Spread</th><th>Perte qualif</th><th>Profit bonus</th><th>Score</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scannerTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-      async function fetchRegion(region){
-        const params = new URLSearchParams({
-          apiKey,
-          regions: region,
-          markets: "h2h",
-          oddsFormat: "decimal"
-        });
-        const url = `https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sport)}/odds/?${params.toString()}`;
-        const res = await fetch(url);
-        if(!res.ok) throw new Error(`${region.toUpperCase()} HTTP ${res.status}`);
-        const data = await res.json();
-        return { region, data, res };
-      }
+  <section class="section grid-2">
+    <div class="card panel">
+      <div class="section-head"><div><h2>Mode cote externe</h2><div class="muted">Pour saisir une cote manuelle Betsson ou autre parmi les 7 books.</div></div></div>
+      <div class="toolbar-compact">
+        <select id="extBook"></select>
+        <input id="extEvent" placeholder="Match / événement" />
+        <input id="extOdds" type="number" step="0.01" placeholder="Cote" />
+        <button class="primary" id="findCoverBtn">Trouver couverture</button>
+        <button id="sendExternalToCalcBtn">Envoyer au calculateur</button>
+      </div>
+      <div style="height:12px"></div>
+      <div class="soft" id="externalResult"><div class="small">Le résultat de couverture s’affichera ici.</div></div>
+    </div>
 
-      try{
-        status.textContent = "Chargement API FR + EU…";
-        const [frPack, euPack] = await Promise.all([fetchRegion("fr"), fetchRegion("eu")]);
-        const rows = [];
-        const seen = new Set();
+    <div class="card panel">
+      <div class="section-head"><div><h2>Stats rapides</h2><div class="muted">Suivi de ton état global.</div></div></div>
+      <div class="stats">
+        <div class="metric"><div class="k">Lignes scanner</div><div class="v" id="heroOpps">0</div></div>
+        <div class="metric"><div class="k">Paris tracker</div><div class="v" id="trackerCount">0</div></div>
+        <div class="metric"><div class="k">Profit tracker</div><div class="v" id="trackerProfit">0,00€</div></div>
+        <div class="metric"><div class="k">Bonus restants</div><div class="v" id="bonusSummaryLeft">7</div></div>
+      </div>
+    </div>
+  </section>
 
-        function extractRows(pack){
-          const normalizedAllowed = pack.region === "fr" ? API_FR_NORMALIZED : API_EU_NORMALIZED;
-          (Array.isArray(pack.data) ? pack.data : []).forEach(ev => {
-            const offers = [];
-            (ev.bookmakers || [])
-              .filter(bm => normalizedAllowed.includes(normalizeBook(bm.title || bm.key)))
-              .forEach(bm => {
-                (bm.markets || []).forEach(market => {
-                  if(market.key !== "h2h") return;
-                  (market.outcomes || []).forEach(outcome => {
-                    offers.push({
-                      bookmaker: bm.title || bm.key,
-                      outcome: outcome.name,
-                      price: Number(outcome.price || 0),
-                      region: pack.region
-                    });
-                  });
-                });
-              });
+  <section id="calculateur" class="section">
+    <div class="section-head"><div><h2>Calculateur</h2><div class="muted">Prérempli par le scanner.</div></div></div>
+    <div class="grid-2">
+      <div class="card panel">
+        <div class="grid-2">
+          <div class="metric"><div class="k">Book principal</div><div class="v" style="font-size:22px" id="calcMainBook">—</div></div>
+          <div class="metric"><div class="k">Couverture</div><div class="v" style="font-size:22px" id="calcHedgeBook">—</div></div>
+          <div class="metric"><div class="k">Cote principale</div><div class="v" id="calcMainOdds">—</div></div>
+          <div class="metric"><div class="k">Cote couverture</div><div class="v" id="calcHedgeOdds">—</div></div>
+          <div class="metric"><div class="k">Mise principale (€)</div><input id="calcStake" type="number" step="0.01" value="100" /></div>
+          <div class="metric"><div class="k">Conversion bonus (%)</div><input id="calcConversion" type="number" step="1" value="75" /></div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="soft">
+          <div class="rows">
+            <div class="row"><div class="name">Mise couverture</div><div class="val" id="calcHedgeStake">—</div></div>
+            <div class="row"><div class="name">Capital engagé</div><div class="val" id="calcCapital">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="soft">
+          <strong>Scénario A — principal gagne</strong>
+          <div class="rows" style="margin-top:10px">
+            <div class="row"><div class="name">Cash immédiat</div><div class="val" id="calcWinCash">—</div></div>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="soft">
+          <strong>Scénario B — principal perd</strong>
+          <div class="rows" style="margin-top:10px">
+            <div class="row"><div class="name">Cash immédiat</div><div class="val" id="calcLoseCash">—</div></div>
+            <div class="row"><div class="name">Valeur bonus</div><div class="val" id="calcBonusValue">—</div></div>
+            <div class="row"><div class="name">Profit total estimé</div><div class="val" id="calcTotalProfit">—</div></div>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="soft"><div class="small" id="calcSummaryText">Choisis une opportunité.</div></div>
+        <div style="height:12px"></div>
+        <div class="btns"><button class="primary sm" id="sendCalcToTrackerBtn">Envoyer au tracker</button><button class="sm" id="copyCalcSummaryBtn">Copier résumé</button></div>
+      </div>
+    </div>
+  </section>
 
-            if(offers.length < 2) return;
+  <section id="tracker" class="section">
+    <div class="section-head"><div><h2>Tracker</h2></div></div>
+    <div class="card panel">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Événement</th><th>Book principal</th><th>Mise</th><th>Cash perdant</th><th>Bonus</th><th>Profit</th><th></th></tr></thead>
+          <tbody id="trackerTableBody"></tbody>
+        </table>
+      </div>
+      <div style="height:12px"></div>
+      <div class="btns"><button class="danger sm" id="clearTrackerBtn">Vider le tracker</button></div>
+    </div>
+  </section>
 
-            const byOutcome = {};
-            offers.forEach(o => {
-              if(!byOutcome[o.outcome]) byOutcome[o.outcome] = [];
-              byOutcome[o.outcome].push(o);
-            });
+  <section id="bonus" class="section">
+    <div class="section-head"><div><h2>Suivi des bonus ANJ</h2></div></div>
+    <div class="card panel">
+      <div class="bonus-grid" id="bonusGrid"></div>
+    </div>
+  </section>
+</main>
 
-            Object.entries(byOutcome).forEach(([outcome, list]) => {
-              list.sort((a,b)=>b.price-a.price);
-              const best = list[0];
-              const opposite = offers
-                .filter(x => x.outcome !== outcome && x.bookmaker !== best.bookmaker)
-                .sort((a,b)=>b.price-a.price)[0];
+<script>
+const STORAGE = {
+  scanner: "parimalin_scanner_7_v1",
+  tracker: "parimalin_tracker_7_v1",
+  bonuses: "parimalin_bonuses_7_v1",
+  ui: "parimalin_ui_7_v1"
+};
 
-              if(best && opposite && best.price > 1 && opposite.price > 1){
-                const eventName = `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim();
-                const key = [eventName, outcome, best.bookmaker, opposite.bookmaker].join("|");
-                if(seen.has(key)) return;
-                seen.add(key);
-                rows.push({
-                  event: eventName,
-                  sport: sport,
-                  time: ev.commence_time ? new Date(ev.commence_time).toLocaleString("fr-FR") : "—",
-                  mainBook: best.bookmaker,
-                  mainOdds: best.price,
-                  hedgeBook: opposite.bookmaker,
-                  hedgeOdds: opposite.price,
-                  source: "api",
-                  apiRegion: pack.region
-                });
-              }
+const BOOKS_ALLOWED = [
+  "Betclic","Betsson","NetBet","Parions Sport","PMU","Unibet","Winamax"
+];
+const API_FR_BOOKS = [
+  "Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
+];
+const API_EU_BOOKS = [
+  "Betsson","Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
+];
+
+function normalizeBook(name){
+  return String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
+}
+const API_FR_NORMALIZED = API_FR_BOOKS.map(normalizeBook);
+const API_EU_NORMALIZED = API_EU_BOOKS.map(normalizeBook);
+
+function clone(v){ return JSON.parse(JSON.stringify(v)); }
+function loadData(key, fallback){ try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch(e){ return fallback; } }
+function saveData(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function euro(n){ n=Number(n||0); return n.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+"€"; }
+function signedEuro(n){ n=Number(n||0); return (n>0?"+":"")+euro(n); }
+function normalize(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim(); }
+function escapeHtml(str){ return String(str??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;"); }
+
+function getUiState(){
+  return loadData(STORAGE.ui,{
+    apiKey:"", apiSport:"soccer_france_ligue_one", apiRegions:"fr,eu", scanSearch:"", scanSportFilter:"",
+    scanBookFilter:"", scanScoreFilter:"", scanSort:"score", extBook:"Betsson", extEvent:"", extOdds:"",
+    calcStake:"100", calcConversion:"75"
+  });
+}
+function saveUiState(partial){ const current = getUiState(); saveData(STORAGE.ui, {...current, ...partial}); }
+
+let scannerRows = loadData(STORAGE.scanner, []);
+let trackerRows = loadData(STORAGE.tracker, []);
+let bonuses = loadData(STORAGE.bonuses, BOOKS_ALLOWED.map(name => ({name, done:false})));
+let currentCalc = null;
+let currentExternal = null;
+
+function applyUiState(){
+  const ui = getUiState();
+  ["apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
+    const el=document.getElementById(id); if(el && ui[id]!==undefined) el.value = ui[id];
+  });
+}
+function wirePersistentInputs(){
+  ["apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.addEventListener(el.tagName==="SELECT"?"change":"input", ()=> saveUiState({[id]:el.value}));
+  });
+}
+
+function computeMetrics(row, stake=100, conversion=75){
+  const mainOdds = Number(row.mainOdds||0);
+  const hedgeOdds = Number(row.hedgeOdds||0);
+  const hedgeStake = hedgeOdds > 1 ? (stake * mainOdds) / hedgeOdds : 0;
+  const capital = stake + hedgeStake;
+  const cashWin = stake*mainOdds - capital;
+  const cashLose = hedgeStake*hedgeOdds - capital;
+  const bonusValue = stake*(conversion/100);
+  const totalProfit = cashLose + bonusValue;
+  let score = "MAUVAIS";
+  if(Math.abs(cashLose) < 5) score = "EXCELLENT";
+  else if(Math.abs(cashLose) <= 10) score = "OK";
+  return {hedgeStake, capital, cashWin, cashLose, bonusValue, totalProfit, spread:Math.max(0, mainOdds-hedgeOdds), score};
+}
+function scoreBadge(score){
+  const cls = score==="EXCELLENT"?"good":score==="OK"?"warn":"bad";
+  return `<span class="score ${cls}">${score}</span>`;
+}
+
+function renderBonusGrid(){
+  const left = bonuses.filter(b => !b.done).length;
+  document.getElementById("bonusSummaryLeft").textContent = String(left);
+  const grid = document.getElementById("bonusGrid");
+  grid.innerHTML = bonuses.map((b,idx)=>`
+    <div class="bonus-card">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
+        <h3 style="margin:0">${escapeHtml(b.name)}</h3>
+        <span class="pill ${b.done?'done':'todo'}">${b.done?'Fait':'À faire'}</span>
+      </div>
+      <div class="btns"><button class="sm" onclick="toggleBonus(${idx})">${b.done?'Remettre à faire':'Marquer fait'}</button></div>
+    </div>
+  `).join("");
+  saveData(STORAGE.bonuses, bonuses);
+}
+window.toggleBonus = function(idx){ bonuses[idx].done = !bonuses[idx].done; renderBonusGrid(); };
+
+function renderTracker(){
+  document.getElementById("trackerCount").textContent = String(trackerRows.length);
+  const totalProfit = trackerRows.reduce((s,x)=>s+Number(x.totalProfit||0),0);
+  document.getElementById("trackerProfit").textContent = signedEuro(totalProfit);
+  const body = document.getElementById("trackerTableBody");
+  if(!trackerRows.length){
+    body.innerHTML = `<tr><td colspan="8"><div class="empty">Aucune entrée dans le tracker.</div></td></tr>`;
+  } else {
+    body.innerHTML = trackerRows.map((r,idx)=>`
+      <tr>
+        <td>${escapeHtml(r.date)}</td><td>${escapeHtml(r.event)}</td><td>${escapeHtml(r.mainBook)}</td>
+        <td>${euro(r.stake)}</td><td>${signedEuro(r.cashLose)}</td><td>${euro(r.bonusValue)}</td><td>${signedEuro(r.totalProfit)}</td>
+        <td><button class="danger sm" onclick="deleteTracker(${idx})">Suppr.</button></td>
+      </tr>
+    `).join("");
+  }
+  saveData(STORAGE.tracker, trackerRows);
+}
+window.deleteTracker = function(idx){ trackerRows.splice(idx,1); renderTracker(); };
+
+function renderScannerFilters(){
+  const sports = [...new Set(scannerRows.map(r=>r.sport).filter(Boolean))].sort();
+  const books = [...new Set(scannerRows.flatMap(r=>[r.mainBook,r.hedgeBook]).filter(Boolean))].sort();
+  const sportSel = document.getElementById("scanSportFilter");
+  const bookSel = document.getElementById("scanBookFilter");
+  const currentSport = sportSel.value;
+  const currentBook = bookSel.value;
+  sportSel.innerHTML = `<option value="">Tous sports</option>` + sports.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+  bookSel.innerHTML = `<option value="">Tous books</option>` + books.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");
+  sportSel.value = currentSport;
+  bookSel.value = currentBook;
+}
+
+function getFilteredScannerRows(){
+  const q = normalize(document.getElementById("scanSearch").value);
+  const sport = document.getElementById("scanSportFilter").value;
+  const book = document.getElementById("scanBookFilter").value;
+  const score = document.getElementById("scanScoreFilter").value;
+  const sort = document.getElementById("scanSort").value;
+
+  let rows = scannerRows.map(r=>({...r, metrics:computeMetrics(r, Number(document.getElementById("calcStake").value||100), Number(document.getElementById("calcConversion").value||75))})).filter(r=>{
+    const okQ = !q || normalize(r.event).includes(q) || normalize(r.mainBook).includes(q) || normalize(r.hedgeBook).includes(q);
+    const okSport = !sport || r.sport===sport;
+    const okBook = !book || r.mainBook===book || r.hedgeBook===book;
+    const okScore = !score || r.metrics.score===score;
+    return okQ && okSport && okBook && okScore;
+  });
+
+  rows.sort((a,b)=>{
+    if(sort==="lossAsc") return Math.abs(a.metrics.cashLose)-Math.abs(b.metrics.cashLose);
+    if(sort==="profitDesc") return b.metrics.totalProfit-a.metrics.totalProfit;
+    const rank = {EXCELLENT:0, OK:1, MAUVAIS:2};
+    return rank[a.metrics.score]-rank[b.metrics.score] || Math.abs(a.metrics.cashLose)-Math.abs(b.metrics.cashLose);
+  });
+  return rows;
+}
+
+function renderScanner(){
+  renderScannerFilters();
+  const rows = getFilteredScannerRows();
+  document.getElementById("heroOpps").textContent = String(rows.length);
+  const body = document.getElementById("scannerTableBody");
+  if(!rows.length){
+    body.innerHTML = `<tr><td colspan="11"><div class="empty">Aucune opportunité affichée.</div></td></tr>`;
+  } else {
+    body.innerHTML = rows.map((r,idx)=>`
+      <tr>
+        <td>${escapeHtml(r.event)}</td><td>${escapeHtml(r.sport)}</td><td>${escapeHtml(r.time)}</td>
+        <td>${escapeHtml(r.mainBook)}</td><td>${Number(r.mainOdds).toFixed(2)}</td>
+        <td>${escapeHtml(r.hedgeBook)} ${Number(r.hedgeOdds).toFixed(2)}</td><td>${r.metrics.spread.toFixed(2)}</td>
+        <td class="${Math.abs(r.metrics.cashLose)<5?'positive':Math.abs(r.metrics.cashLose)<=10?'':'negative'}">${euro(Math.abs(r.metrics.cashLose))}</td>
+        <td class="positive">${signedEuro(r.metrics.totalProfit)}</td><td>${scoreBadge(r.metrics.score)}</td>
+        <td><div class="btns"><button class="sm" onclick="playRow(${idx})">Jouer</button><button class="sm" onclick="trackRow(${idx})">Tracker</button></div></td>
+      </tr>
+    `).join("");
+  }
+  saveData(STORAGE.scanner, scannerRows);
+}
+window.playRow = function(idx){ const rows=getFilteredScannerRows(); if(rows[idx]){ currentCalc = {...rows[idx]}; updateCalc(); location.hash="#calculateur"; } };
+window.trackRow = function(idx){ const rows=getFilteredScannerRows(); if(rows[idx]){ currentCalc = {...rows[idx]}; updateCalc(); addCurrentToTracker(); } };
+
+function updateCalc(){
+  if(!currentCalc) return;
+  const stake = Number(document.getElementById("calcStake").value||100);
+  const conv = Number(document.getElementById("calcConversion").value||75);
+  currentCalc.metrics = computeMetrics(currentCalc, stake, conv);
+  document.getElementById("calcMainBook").textContent = currentCalc.mainBook;
+  document.getElementById("calcHedgeBook").textContent = currentCalc.hedgeBook;
+  document.getElementById("calcMainOdds").textContent = Number(currentCalc.mainOdds).toFixed(2);
+  document.getElementById("calcHedgeOdds").textContent = Number(currentCalc.hedgeOdds).toFixed(2);
+  document.getElementById("calcHedgeStake").textContent = euro(currentCalc.metrics.hedgeStake);
+  document.getElementById("calcCapital").textContent = euro(currentCalc.metrics.capital);
+  document.getElementById("calcWinCash").textContent = signedEuro(currentCalc.metrics.cashWin);
+  document.getElementById("calcLoseCash").textContent = signedEuro(currentCalc.metrics.cashLose);
+  document.getElementById("calcBonusValue").textContent = euro(currentCalc.metrics.bonusValue);
+  document.getElementById("calcTotalProfit").textContent = signedEuro(currentCalc.metrics.totalProfit);
+  document.getElementById("calcSummaryText").innerHTML = `Événement : <strong>${escapeHtml(currentCalc.event)}</strong> · mise couverture <strong>${euro(currentCalc.metrics.hedgeStake)}</strong> · cash perdant <strong>${signedEuro(currentCalc.metrics.cashLose)}</strong> · profit total estimé <strong>${signedEuro(currentCalc.metrics.totalProfit)}</strong>.`;
+}
+function addCurrentToTracker(){
+  if(!currentCalc || !currentCalc.metrics) return;
+  trackerRows.unshift({
+    date:new Date().toLocaleDateString("fr-FR"),
+    event:currentCalc.event, mainBook:currentCalc.mainBook,
+    stake:Number(document.getElementById("calcStake").value||100),
+    cashLose:currentCalc.metrics.cashLose, bonusValue:currentCalc.metrics.bonusValue, totalProfit:currentCalc.metrics.totalProfit
+  });
+  renderTracker();
+}
+function copyCalcSummary(){
+  if(!currentCalc || !currentCalc.metrics) return;
+  const txt = `${currentCalc.event}\n${currentCalc.mainBook} @ ${Number(currentCalc.mainOdds).toFixed(2)}\n${currentCalc.hedgeBook} @ ${Number(currentCalc.hedgeOdds).toFixed(2)}\nMise couverture: ${euro(currentCalc.metrics.hedgeStake)}\nCash perdant: ${signedEuro(currentCalc.metrics.cashLose)}\nProfit estimé: ${signedEuro(currentCalc.metrics.totalProfit)}`;
+  navigator.clipboard.writeText(txt);
+  document.getElementById("calcSummaryText").textContent = "Résumé copié.";
+}
+
+function initExternalBooks(){
+  const sel = document.getElementById("extBook");
+  sel.innerHTML = BOOKS_ALLOWED.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");
+}
+function findExternalCover(){
+  const extBook = document.getElementById("extBook").value;
+  const extEvent = document.getElementById("extEvent").value.trim();
+  const extOdds = Number(document.getElementById("extOdds").value||0);
+  const box = document.getElementById("externalResult");
+  if(!extBook || !extEvent || !(extOdds>1)){ box.innerHTML = `<div class="small">Saisis un book, un événement et une cote valide.</div>`; currentExternal=null; return; }
+  const match = scannerRows.find(r => normalize(r.event).includes(normalize(extEvent)) || normalize(extEvent).includes(normalize(r.event)));
+  if(!match){ box.innerHTML = `<div class="small">Aucune couverture trouvée dans le scanner actuel pour cet événement.</div>`; currentExternal=null; return; }
+  currentExternal = { event:match.event, sport:match.sport, time:match.time, mainBook:extBook, mainOdds:extOdds, hedgeBook:match.hedgeBook, hedgeOdds:match.hedgeOdds };
+  const m = computeMetrics(currentExternal, Number(document.getElementById("calcStake").value||100), Number(document.getElementById("calcConversion").value||75));
+  box.innerHTML = `<div class="rows"><div class="row"><div class="name">Couverture trouvée</div><div class="val">${escapeHtml(match.hedgeBook)} @ ${Number(match.hedgeOdds).toFixed(2)}</div></div><div class="row"><div class="name">Mise couverture</div><div class="val">${euro(m.hedgeStake)}</div></div><div class="row"><div class="name">Perte qualif</div><div class="val">${euro(Math.abs(m.cashLose))}</div></div></div>`;
+}
+
+async function loadApiRows(){
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const sport = document.getElementById("apiSport").value.trim();
+  const status = document.getElementById("apiStatus");
+  if(!apiKey){ status.textContent = "Ajoute une clé The Odds API valide."; return; }
+
+  async function fetchRegion(region){
+    const params = new URLSearchParams({ apiKey, regions:region, markets:"h2h", oddsFormat:"decimal" });
+    const url = `https://api.the-odds-api.com/v4/sports/${encodeURIComponent(sport)}/odds/?${params.toString()}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`${region.toUpperCase()} HTTP ${res.status}`);
+    const data = await res.json();
+    return {region, data, res};
+  }
+
+  try{
+    status.textContent = "Chargement FR + EU…";
+    const [frPack, euPack] = await Promise.all([fetchRegion("fr"), fetchRegion("eu")]);
+    const rows = [];
+    const seen = new Set();
+
+    function extractRows(pack){
+      const allowed = pack.region==="fr" ? API_FR_NORMALIZED : API_EU_NORMALIZED;
+      (Array.isArray(pack.data)?pack.data:[]).forEach(ev=>{
+        const offers = [];
+        (ev.bookmakers || [])
+          .filter(bm => allowed.includes(normalizeBook(bm.title || bm.key)))
+          .forEach(bm => {
+            (bm.markets || []).forEach(market => {
+              if(market.key !== "h2h") return;
+              (market.outcomes || []).forEach(outcome => offers.push({
+                bookmaker: bm.title || bm.key,
+                outcome: outcome.name,
+                price: Number(outcome.price || 0)
+              }));
             });
           });
-        }
 
-        extractRows(frPack);
-        extractRows(euPack);
+        if(offers.length < 2) return;
 
-        scannerRows = rows;
-        const frRemaining = frPack.res.headers.get("x-requests-remaining");
-        const euRemaining = euPack.res.headers.get("x-requests-remaining");
-        status.innerHTML = rows.length
-          ? `API chargée : <strong>${rows.length}</strong> lignes construites · set limité à <strong>Betclic, NetBet, Parions Sport, PMU, Unibet, Winamax, Betsson</strong> · FR restants : <strong>${escapeHtml(frRemaining || "—")}</strong> · EU restants : <strong>${escapeHtml(euRemaining || "—")}</strong>.`
-          : `API chargée mais <strong>0 ligne exploitable</strong>. Causes probables : sport sans cotes actives, books absents sur ce sport, ou marché h2h vide.`;
-        renderScanner();
-        renderAnjCoverage();
-      } catch(err){
-        status.textContent = `Erreur API : ${err.message}`;
-      }
-    }
+        const byOutcome = {};
+        offers.forEach(o => { if(!byOutcome[o.outcome]) byOutcome[o.outcome] = []; byOutcome[o.outcome].push(o); });
 
-    function copyCalcSummary(){
-      if(!currentCalc || !currentCalc.metrics) return;
-      const text = `PariMalin
-Événement : ${currentCalc.event}
-Book principal : ${currentCalc.mainBook} @ ${Number(currentCalc.mainOdds).toFixed(2)}
-Couverture : ${currentCalc.hedgeBook} @ ${Number(currentCalc.hedgeOdds).toFixed(2)}
-Mise principale : ${euro(Number(document.getElementById("calcStake").value || 100))}
-Mise couverture : ${euro(currentCalc.metrics.hedgeStake)}
-Cash si gagnant : ${signedEuro(currentCalc.metrics.cashWin)}
-Cash si perdant : ${signedEuro(currentCalc.metrics.cashLose)}
-Bonus estimé : ${euro(currentCalc.metrics.bonusValue)}
-Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById("calcSummaryText").innerHTML = `<strong>Résumé copié dans le presse-papiers.</strong>`;
+        Object.entries(byOutcome).forEach(([outcome, list])=>{
+          list.sort((a,b)=>b.price-a.price);
+          const best = list[0];
+          const opposite = offers.filter(x => x.outcome !== outcome && x.bookmaker !== best.bookmaker).sort((a,b)=>b.price-a.price)[0];
+          if(best && opposite && best.price > 1 && opposite.price > 1){
+            const event = `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim();
+            const key = [event, outcome, best.bookmaker, opposite.bookmaker].join("|");
+            if(seen.has(key)) return;
+            seen.add(key);
+            rows.push({
+              event,
+              sport,
+              time: ev.commence_time ? new Date(ev.commence_time).toLocaleString("fr-FR") : "—",
+              mainBook: best.bookmaker,
+              mainOdds: best.price,
+              hedgeBook: opposite.bookmaker,
+              hedgeOdds: opposite.price
+            });
+          }
+        });
       });
     }
 
-    function loadDemo(){
-      scannerRows = clone(demoRows);
-      document.getElementById("apiStatus").textContent = "Mode démo chargé.";
-      renderScanner();
-      document.getElementById("extEvent").value = scannerRows[0]?.event || "";
-    }
+    extractRows(frPack);
+    extractRows(euPack);
+    scannerRows = rows;
+    saveData(STORAGE.scanner, scannerRows);
+    const frRemaining = frPack.res.headers.get("x-requests-remaining");
+    const euRemaining = euPack.res.headers.get("x-requests-remaining");
+    status.innerHTML = rows.length
+      ? `API chargée : <strong>${rows.length}</strong> lignes · books limités aux 7 autorisés dans ton scanner · FR restants : <strong>${escapeHtml(frRemaining || "—")}</strong> · EU restants : <strong>${escapeHtml(euRemaining || "—")}</strong>.`
+      : `API chargée mais <strong>0 ligne exploitable</strong> pour ce sport avec les 7 books ciblés.`;
+    renderScanner();
+  }catch(err){
+    status.textContent = `Erreur API : ${err.message}`;
+  }
+}
 
-    
-    function applyUiState(){
-      const ui = getUiState();
-      const map = {
-        apiKey: "apiKey",
-        apiSport: "apiSport",
-        apiRegions: "apiRegions",
-        scanSearch: "scanSearch",
-        scanSportFilter: "scanSportFilter",
-        scanBookFilter: "scanBookFilter",
-        scanScoreFilter: "scanScoreFilter",
-        scanSort: "scanSort",
-        extBook: "extBook",
-        extEvent: "extEvent",
-        extOdds: "extOdds",
-        calcStake: "calcStake",
-        calcConversion: "calcConversion"
-      };
-      Object.entries(map).forEach(([key, id]) => {
-        const el = document.getElementById(id);
-        if(el && ui[key] !== undefined && ui[key] !== null) el.value = ui[key];
-      });
+// Events
+["scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort"].forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener("input", renderScanner);
+  el.addEventListener("change", renderScanner);
+});
+document.getElementById("loadApiBtn").addEventListener("click", loadApiRows);
+document.getElementById("refreshApiBtn").addEventListener("click", loadApiRows);
+document.getElementById("clearScannerBtn").addEventListener("click", ()=>{ scannerRows=[]; saveData(STORAGE.scanner, scannerRows); renderScanner(); document.getElementById("apiStatus").textContent = "Scanner vidé."; });
+document.getElementById("findCoverBtn").addEventListener("click", findExternalCover);
+document.getElementById("sendExternalToCalcBtn").addEventListener("click", ()=>{ if(currentExternal){ currentCalc = {...currentExternal}; updateCalc(); location.hash="#calculateur"; }});
+document.getElementById("calcStake").addEventListener("input", ()=>{ if(currentCalc) updateCalc(); if(currentExternal) findExternalCover(); });
+document.getElementById("calcConversion").addEventListener("input", ()=>{ if(currentCalc) updateCalc(); if(currentExternal) findExternalCover(); });
+document.getElementById("sendCalcToTrackerBtn").addEventListener("click", addCurrentToTracker);
+document.getElementById("copyCalcSummaryBtn").addEventListener("click", copyCalcSummary);
+document.getElementById("clearTrackerBtn").addEventListener("click", ()=>{ trackerRows=[]; renderTracker(); });
 
-      const grid = document.getElementById("bonusGrid");
-      const btn = document.getElementById("toggleBonusSectionBtn");
-      if(ui.bonusSectionHidden){
-        grid.classList.add("hidden");
-        btn.textContent = "Afficher la section";
-      } else {
-        grid.classList.remove("hidden");
-        btn.textContent = "Masquer la section";
-      }
-    }
-
-    function wirePersistentInputs(){
-      [
-        "apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter",
-        "scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"
-      ].forEach(id => {
-        const el = document.getElementById(id);
-        if(!el) return;
-        const evt = el.tagName === "SELECT" ? "change" : "input";
-        el.addEventListener(evt, () => saveUiState({ [id]: el.value }));
-      });
-    }
-
-    
-    function getBooksSeenInScanner(){
-      const set = new Set();
-      scannerRows.forEach(r => {
-        if(r.mainBook) set.add(normalizeBook(r.mainBook));
-        if(r.hedgeBook) set.add(normalizeBook(r.hedgeBook));
-      });
-      return set;
-    }
-
-    function renderAnjCoverage(){
-      const seen = getBooksSeenInScanner();
-      const grid = document.getElementById("anjCoverageGrid");
-      const apiPossible = new Set([...API_FR_BOOKS, ...API_EU_BOOKS].map(normalizeBook));
-
-      grid.innerHTML = ANJ_ALL_BOOKS.map(name => {
-        const n = normalizeBook(name);
-        let label = '<span class="pill unavailable">Absent API</span>';
-        if(seen.has(n)) label = '<span class="pill live">Visible scanner</span>';
-        else if(apiPossible.has(n)) label = '<span class="pill manual">Possible via API/manuel</span>';
-        else label = '<span class="pill unavailable">Manuel seulement</span>';
-
-        return `
-          <div class="bonus-card">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
-              <div>
-                <h3>${escapeHtml(name)}</h3>
-                <div class="small">${seen.has(n) ? "Présent dans les lignes actuelles" : apiPossible.has(n) ? "Peut apparaître selon le sport / la compétition" : "À ajouter manuellement dans le scanner"}</div>
-              </div>
-              ${label}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function initManualAnjSelect(){
-      const sel = document.getElementById("manualAnjBook");
-      sel.innerHTML = ANJ_ALL_BOOKS.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
-    }
-
-    function addManualAnjRow(){
-      const book = document.getElementById("manualAnjBook").value;
-      const event = document.getElementById("manualAnjEvent").value.trim();
-      const odds = Number(document.getElementById("manualAnjOdds").value || 0);
-      if(!book || !event || !(odds > 1)){
-        document.getElementById("apiStatus").textContent = "Pour l’ajout manuel, saisis un bookmaker, un événement et une cote valide.";
-        return;
-      }
-
-      const hedgeSource = scannerRows.find(r => normalize(r.event).includes(normalize(event)) || normalize(event).includes(normalize(r.event)));
-      const hedgeBook = hedgeSource ? hedgeSource.hedgeBook : "Couverture à compléter";
-      const hedgeOdds = hedgeSource ? hedgeSource.hedgeOdds : Math.max(1.01, odds - 0.15);
-
-      scannerRows.unshift({
-        event,
-        sport: hedgeSource ? hedgeSource.sport : "Manuel",
-        time: hedgeSource ? hedgeSource.time : "—",
-        mainBook: book,
-        mainOdds: odds,
-        hedgeBook,
-        hedgeOdds,
-        source: "manual"
-      });
-
-      document.getElementById("manualAnjEvent").value = "";
-      document.getElementById("manualAnjOdds").value = "";
-      renderScanner();
-      renderAnjCoverage();
-      document.getElementById("apiStatus").textContent = `${book} ajouté manuellement au scanner.`;
-    }
-
-
-    // Exposed functions
-    window.playScannerRow = function(idx){
-      const rows = getFilteredScannerRows();
-      if(rows[idx]) setCalcFromRow(rows[idx]);
-    };
-    window.analyzeScannerRow = function(idx){
-      const rows = getFilteredScannerRows();
-      if(!rows[idx]) return;
-      const r = rows[idx];
-      const m = r.metrics;
-      document.getElementById("calcSummaryText").innerHTML =
-        `Analyse rapide : <strong>${escapeHtml(r.event)}</strong> · perte qualif <strong>${euro(Math.abs(m.cashLose))}</strong> · profit bonus estimé <strong>${signedEuro(m.totalProfit)}</strong> · score <strong>${r.metrics.score}</strong>.`;
-      setCalcFromRow(r);
-    };
-    window.trackScannerRow = function(idx){
-      const rows = getFilteredScannerRows();
-      if(!rows[idx]) return;
-      setCalcFromRow(rows[idx]);
-      addCurrentCalcToTracker();
-    };
-    window.deleteTrackerRow = function(idx){
-      trackerRows.splice(idx,1);
-      renderTracker();
-    };
-    window.toggleBonusDone = function(index){
-      bonuses[index].done = !bonuses[index].done;
-      renderBonuses();
-    };
-    window.hideBonus = function(index){
-      bonuses[index].hidden = true;
-      renderBonuses();
-    };
-
-    // Event listeners
-    ["scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort"].forEach(id => {
-      document.getElementById(id).addEventListener("input", renderScanner);
-      document.getElementById(id).addEventListener("change", renderScanner);
-    });
-    document.getElementById("loadDemoBtn").addEventListener("click", loadDemo);
-    document.getElementById("addManualAnjBtn").addEventListener("click", addManualAnjRow);
-    document.getElementById("clearManualAnjBtn").addEventListener("click", () => { document.getElementById("manualAnjEvent").value = ""; document.getElementById("manualAnjOdds").value = ""; });
-    document.getElementById("loadApiBtn").addEventListener("click", loadApiRows);
-    document.getElementById("clearScannerBtn").addEventListener("click", () => {
-      scannerRows = [];
-      renderScanner();
-      document.getElementById("apiStatus").textContent = "Scanner vidé.";
-    });
-    document.getElementById("findCoverBtn").addEventListener("click", findExternalCover);
-    document.getElementById("sendExternalToCalcBtn").addEventListener("click", () => {
-      if(currentExternal){
-        setCalcFromRow(currentExternal);
-      }
-    });
-    document.getElementById("calcStake").addEventListener("input", () => {
-      updateCalculator();
-      if(currentExternal) findExternalCover();
-    });
-    document.getElementById("calcConversion").addEventListener("input", updateCalculator);
-    document.getElementById("copyCalcSummaryBtn").addEventListener("click", copyCalcSummary);
-    document.getElementById("sendCalcToTrackerBtn").addEventListener("click", addCurrentCalcToTracker);
-    document.getElementById("clearTrackerBtn").addEventListener("click", () => {
-      trackerRows = [];
-      renderTracker();
-    });
-
-    document.getElementById("bonusSearch").addEventListener("input", renderBonuses);
-    document.getElementById("showAllBonusesBtn").addEventListener("click", () => {
-      bonuses.forEach(b => b.hidden = false);
-      renderBonuses();
-    });
-    document.getElementById("resetBonusesBtn").addEventListener("click", () => {
-      bonuses = clone(defaultBonuses);
-      renderBonuses();
-    });
-    document.getElementById("toggleBonusSectionBtn").addEventListener("click", () => {
-      const grid = document.getElementById("bonusGrid");
-      const hidden = grid.classList.contains("hidden");
-      grid.classList.toggle("hidden");
-      document.getElementById("toggleBonusSectionBtn").textContent = hidden ? "Masquer la section" : "Afficher la section";
-      saveUiState({ bonusSectionHidden: !hidden });
-    });
-
-    // Init
-    renderBonuses();
-    renderTracker();
-    renderAnjCoverage();
-    if(scannerRows.length){
-      renderScanner();
-    } else {
-      // demo disabled
-    }
-  </script>
+// Init
+applyUiState();
+wirePersistentInputs();
+initExternalBooks();
+renderBonusGrid();
+renderTracker();
+renderScanner();
+</script>
 </body>
 </html>
