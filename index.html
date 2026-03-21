@@ -2504,7 +2504,7 @@ let scanFilter    = 'all';
 let scanSport     = 'all';
 let scanComp      = 'all';
 let scanSort      = 'profit';
-let scanView      = 'table'; // 'table' | 'cards'
+let scanView      = 'cards'; // 'table' | 'cards'
 let scanLoading   = false;
 let scanLastSaved = null;  // dernière opportunité sauvegardée
 
@@ -3042,32 +3042,35 @@ function renderTable(matches) {
     });
 
     // Perte qualificative estimée (mise 100€)
+    // Formule correcte : net = retour - toutes les mises engagées
     const mise = 100;
     let perteQualif = null;
     if (bestOdd > 1 && coverOdd > 1) {
       const mCouv = (mise * bestOdd) / coverOdd;
-      const netSiPerd = (mCouv * coverOdd) - mise; // couverture gagne
-      perteQualif = netSiPerd; // sera négatif
+      // Net si couverture gagne = retour couv - mise couv - mise principale
+      const netSiPerd = (mCouv * coverOdd) - mCouv - mise;
+      perteQualif = netSiPerd; // ~0 si cotes proches, négatif sinon
     }
 
-    // Profit bonus estimé (freebet 100€ @ 75% conv)
+    // Profit bonus estimé (freebet 100€ @ 75% conv) + perte qualif
     const profitBonus = mise * 0.75 + (perteQualif || 0);
 
-    // Score visuel
+    // Score : ne basé QUE sur cotes entre 2.00-2.30 pour qualif
+    // Les cotes très hautes (6.80) ne sont pas adaptées au pari qualificatif bonus
     let scoreLabel, scoreCls, scoreRow;
     if (sb.isSurebet) {
       scoreLabel = 'SUREBET'; scoreCls = 'score-excellent'; scoreRow = 'row-excellent';
-    } else if (perteQualif !== null && perteQualif >= -8 && bestOdd >= 2.0) {
+    } else if (bestOdd >= 2.0 && bestOdd <= 2.5 && perteQualif !== null && perteQualif >= -10) {
       scoreLabel = 'EXCELLENT'; scoreCls = 'score-excellent'; scoreRow = 'row-excellent';
-    } else if (perteQualif !== null && perteQualif >= -12 && bestOdd >= 1.8) {
+    } else if (bestOdd >= 1.8 && bestOdd <= 3.0 && perteQualif !== null && perteQualif >= -15) {
       scoreLabel = 'OK'; scoreCls = 'score-ok'; scoreRow = 'row-ok';
     } else {
-      scoreLabel = 'MAUVAIS'; scoreCls = 'score-bad'; scoreRow = 'row-bad';
+      scoreLabel = 'HORS ZONE'; scoreCls = 'score-bad'; scoreRow = 'row-bad';
     }
 
     // Classe perte
     const perteCls = perteQualif === null ? '' :
-      perteQualif >= -8 ? 'perte-low' : perteQualif >= -13 ? 'perte-mid' : 'perte-high';
+      perteQualif >= -10 ? 'perte-low' : perteQualif >= -20 ? 'perte-mid' : 'perte-high';
 
     return { m, sb, vb, score, bestOdd, bestBk, bestIssue, coverOdd, coverBk,
              perteQualif, profitBonus, scoreLabel, scoreCls, scoreRow, perteCls };
@@ -3097,11 +3100,19 @@ function renderTable(matches) {
                      : bestIssue === '2' ? m.equipe2
                      : bestIssue === 'X' ? 'Nul' : bestIssue;
 
-    const perteStr = perteQualif !== null
-      ? `<span class="${perteCls}">${perteQualif.toFixed(2).replace('.',',')}€</span>` : '—';
+    // N'afficher perte/profit que si la cote est dans la zone qualif (2.00-3.00)
+    const inQualifZone = bestOdd >= 1.8 && bestOdd <= 3.5 && !sb.isSurebet;
+    const perteStr = sb.isSurebet
+      ? `<span class="perte-low">0€ garanti</span>`
+      : inQualifZone && perteQualif !== null
+        ? `<span class="${perteCls}">${perteQualif.toFixed(2).replace('.',',')}€</span>`
+        : `<span style="color:var(--muted);font-size:0.75rem;">hors zone</span>`;
 
-    const profitStr = perteQualif !== null
-      ? `<span class="profit-val">+${profitBonus.toFixed(0)}€</span>` : '—';
+    const profitStr = sb.isSurebet
+      ? `<span class="profit-val">+${(Math.min(...Object.values(m.bookmakers).flatMap(o=>Object.values(o)).filter(v=>v>1)) * 0 + sb.profit).toFixed(1)}%</span>`
+      : inQualifZone && perteQualif !== null
+        ? `<span class="profit-val">~+${profitBonus.toFixed(0)}€</span>`
+        : `<span style="color:var(--muted);font-size:0.75rem;">—</span>`;
 
     const sbTag = r.sb.isSurebet
       ? `<span style="font-size:0.65rem;color:var(--success);font-weight:700;"> · Surebet +${r.sb.profit.toFixed(1)}%</span>` : '';
