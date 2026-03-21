@@ -25,7 +25,7 @@
     h2{margin:0;font-size:28px;letter-spacing:-.02em}.muted{color:var(--muted)}
     .section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
     .toolbar{display:grid;grid-template-columns:1.2fr repeat(5,minmax(110px,1fr));gap:12px}
-    .toolbar-compact{display:grid;grid-template-columns:1.1fr 1fr 1fr auto auto;gap:12px}
+    .toolbar-compact{display:grid;grid-template-columns:1fr 1.2fr 1fr auto auto auto;gap:12px}
     input,select,button,textarea{font:inherit}
     input,select,textarea{width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text)}
     button{padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:800;cursor:pointer}
@@ -73,13 +73,14 @@
 
       <div class="toolbar-compact">
         <input id="apiKey" type="password" placeholder="Clé The Odds API" />
+        <select id="apiGroup">
+          <option value="">Tous groupes</option>
+        </select>
         <select id="apiSport">
-          <option value="soccer_france_ligue_one">soccer_france_ligue_one</option>
-          <option value="tennis_atp_us_open">tennis_atp_us_open</option>
-          <option value="tennis_wta_us_open">tennis_wta_us_open</option>
-          <option value="basketball_nba">basketball_nba</option>
+          <option value="">Charge les sports</option>
         </select>
         <input id="apiRegions" value="fr,eu" />
+        <button id="loadSportsBtn">Charger sports</button>
         <button class="primary" id="loadApiBtn">Charger API</button>
         <button id="refreshApiBtn">Refresh</button>
       </div>
@@ -88,7 +89,7 @@
       <div class="soft">
         <div class="rows">
           <div class="row"><div class="name">Books visés</div><div class="val">Betclic · NetBet · Parions Sport · PMU · Unibet · Winamax · Betsson</div></div>
-          <div class="row"><div class="name">Statut</div><div class="val" id="apiStatus">Ajoute ta clé API puis clique sur Charger API.</div></div>
+          <div class="row"><div class="name">Statut</div><div class="val" id="apiStatus">Ajoute ta clé API, clique sur Charger sports pour récupérer toutes les compétitions disponibles, puis sur Charger API.</div></div>
         </div>
       </div>
 
@@ -128,6 +129,7 @@
         <div class="metric"><div class="k">Paris tracker</div><div class="v" id="trackerCount">0</div></div>
         <div class="metric"><div class="k">Profit tracker</div><div class="v" id="trackerProfit">0,00€</div></div>
         <div class="metric"><div class="k">Bonus restants</div><div class="v" id="bonusSummaryLeft">7</div></div>
+        <div class="metric"><div class="k">Bonus faits</div><div class="v" id="bonusSummaryDone">0</div></div>
       </div>
     </div>
   </section>
@@ -232,7 +234,7 @@ function escapeHtml(str){ return String(str??"").replaceAll("&","&amp;").replace
 
 function getUiState(){
   return loadData(STORAGE.ui,{
-    apiKey:"", apiSport:"soccer_france_ligue_one", apiRegions:"fr,eu", scanSearch:"", scanSportFilter:"",
+    apiKey:"", apiGroup:"", apiSport:"", apiRegions:"fr,eu", scanSearch:"", scanSportFilter:"",
     scanBookFilter:"", scanScoreFilter:"", scanSort:"score", extBook:"Betsson", extEvent:"", extOdds:"",
     calcStake:"100", calcConversion:"75"
   });
@@ -242,20 +244,49 @@ function saveUiState(partial){ const current = getUiState(); saveData(STORAGE.ui
 let scannerRows = loadData(STORAGE.scanner, []);
 let trackerRows = loadData(STORAGE.tracker, []);
 let bonuses = loadData(STORAGE.bonuses, BOOKS_ALLOWED.map(name => ({name, done:false})));
+let sportsCatalog = loadData("parimalin_sports_catalog_v1", []);
 let currentCalc = null;
 let currentExternal = null;
 
 function applyUiState(){
   const ui = getUiState();
-  ["apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
+  ["apiKey","apiGroup","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
     const el=document.getElementById(id); if(el && ui[id]!==undefined) el.value = ui[id];
   });
 }
 function wirePersistentInputs(){
-  ["apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
+  ["apiKey","apiGroup","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     el.addEventListener(el.tagName==="SELECT"?"change":"input", ()=> saveUiState({[id]:el.value}));
   });
+}
+
+
+function populateSportsUI(){
+  const groupSel = document.getElementById("apiGroup");
+  const sportSel = document.getElementById("apiSport");
+  const ui = getUiState();
+
+  const groups = [...new Set((sportsCatalog || []).map(s => s.group || "Autres"))].sort((a,b)=>a.localeCompare(b,"fr"));
+  groupSel.innerHTML = `<option value="">Tous groupes</option>` + groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join("");
+  if(groups.includes(ui.apiGroup)) groupSel.value = ui.apiGroup;
+
+  const activeGroup = groupSel.value;
+  const filteredSports = (sportsCatalog || []).filter(s => !activeGroup || (s.group || "Autres") === activeGroup);
+  sportSel.innerHTML = filteredSports.length
+    ? filteredSports.map(s => {
+        const label = `${s.group ? s.group + " · " : ""}${s.title || s.description || s.key}`;
+        return `<option value="${escapeHtml(s.key)}">${escapeHtml(label)}</option>`;
+      }).join("")
+    : `<option value="">Aucun sport</option>`;
+
+  const desired = ui.apiSport;
+  if(filteredSports.some(s => s.key === desired)){
+    sportSel.value = desired;
+  } else if(filteredSports.length){
+    sportSel.value = filteredSports[0].key;
+    saveUiState({ apiSport: sportSel.value });
+  }
 }
 
 function computeMetrics(row, stake=100, conversion=75){
@@ -279,7 +310,10 @@ function scoreBadge(score){
 
 function renderBonusGrid(){
   const left = bonuses.filter(b => !b.done).length;
+  const done = bonuses.filter(b => b.done).length;
   document.getElementById("bonusSummaryLeft").textContent = String(left);
+  const doneEl = document.getElementById("bonusSummaryDone");
+  if(doneEl) doneEl.textContent = String(done);
   const grid = document.getElementById("bonusGrid");
   grid.innerHTML = bonuses.map((b,idx)=>`
     <div class="bonus-card">
@@ -431,6 +465,7 @@ async function loadApiRows(){
   const sport = document.getElementById("apiSport").value.trim();
   const status = document.getElementById("apiStatus");
   if(!apiKey){ status.textContent = "Ajoute une clé The Odds API valide."; return; }
+  if(!sport){ status.textContent = "Charge d’abord les sports puis choisis une compétition."; return; }
 
   async function fetchRegion(region){
     const params = new URLSearchParams({ apiKey, regions:region, markets:"h2h", oddsFormat:"decimal" });
@@ -507,12 +542,47 @@ async function loadApiRows(){
   }
 }
 
+
+
+async function loadSportsList(){
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const status = document.getElementById("apiStatus");
+  if(!apiKey){
+    status.textContent = "Ajoute une clé The Odds API valide avant de charger les sports.";
+    return;
+  }
+  try{
+    status.textContent = "Chargement des sports…";
+    const url = `https://api.the-odds-api.com/v4/sports/?apiKey=${encodeURIComponent(apiKey)}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`SPORTS HTTP ${res.status}`);
+    const data = await res.json();
+    sportsCatalog = (Array.isArray(data) ? data : [])
+      .filter(s => s && s.active)
+      .sort((a,b) => {
+        const ga = String(a.group || "");
+        const gb = String(b.group || "");
+        if(ga !== gb) return ga.localeCompare(gb, "fr");
+        return String(a.title || a.key || "").localeCompare(String(b.title || b.key || ""), "fr");
+      });
+    saveData("parimalin_sports_catalog_v1", sportsCatalog);
+    populateSportsUI();
+    status.textContent = `Sports chargés : ${sportsCatalog.length}. Choisis un groupe puis une compétition, puis clique sur Charger API.`;
+  } catch(err){
+    status.textContent = `Erreur chargement sports : ${err.message}`;
+  }
+}
+
+
 // Events
 ["scanSearch","scanSportFilter","scanBookFilter","scanScoreFilter","scanSort"].forEach(id=>{
   const el = document.getElementById(id);
   el.addEventListener("input", renderScanner);
   el.addEventListener("change", renderScanner);
 });
+document.getElementById("loadSportsBtn").addEventListener("click", loadSportsList);
+document.getElementById("apiGroup").addEventListener("change", () => { saveUiState({ apiGroup: document.getElementById("apiGroup").value }); populateSportsUI(); });
+document.getElementById("apiSport").addEventListener("change", () => saveUiState({ apiSport: document.getElementById("apiSport").value }));
 document.getElementById("loadApiBtn").addEventListener("click", loadApiRows);
 document.getElementById("refreshApiBtn").addEventListener("click", loadApiRows);
 document.getElementById("clearScannerBtn").addEventListener("click", ()=>{ scannerRows=[]; saveData(STORAGE.scanner, scannerRows); renderScanner(); document.getElementById("apiStatus").textContent = "Scanner vidé."; });
@@ -528,9 +598,15 @@ document.getElementById("clearTrackerBtn").addEventListener("click", ()=>{ track
 applyUiState();
 wirePersistentInputs();
 initExternalBooks();
+if(sportsCatalog.length){
+  populateSportsUI();
+}
 renderBonusGrid();
 renderTracker();
 renderScanner();
+if(document.getElementById("apiKey").value.trim() && !sportsCatalog.length){
+  loadSportsList();
+}
 </script>
 </body>
 </html>
