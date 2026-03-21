@@ -232,7 +232,7 @@
             <option value="lossAsc">Perte croissante</option>
             <option value="profitDesc">Profit décroissant</option>
           </select>
-          <button class="primary" id="loadDemoBtn">Charger démo</button>
+          <button class="primary" id="loadDemoBtn" style="display:none">Charger démo</button>
         </div>
 
         <div style="height:12px"></div>
@@ -251,7 +251,7 @@
         </div>
 
         <div class="small api-note" id="apiStatus">
-          Sans clé API, utilise le mode démo. Avec une clé valide, le scanner charge The Odds API.
+          Mode démo supprimé. Tu dois utiliser ta clé API. Avec une clé valide, le scanner charge The Odds API.
         </div>
 
         <div style="height:16px"></div>
@@ -466,7 +466,8 @@
     const STORAGE = {
       scanner: "parimalin_scanner_v1",
       tracker: "parimalin_tracker_v1",
-      bonuses: "parimalin_bonus_anj_v2"
+      bonuses: "parimalin_bonus_anj_v2",
+      ui: "parimalin_ui_v1"
     };
 
     const ANJ_BOOKS = [
@@ -498,14 +499,7 @@
       { name: "YESorNO", site: "yesorno-jeu.fr", offer: "Bonus bienvenue", done: false, hidden: false }
     ];
 
-    const demoRows = [
-      { event:"Marseille vs Lille", sport:"Football", time:"20:45", mainBook:"Betsson", mainOdds:2.15, hedgeBook:"Winamax", hedgeOdds:1.86 },
-      { event:"PSG vs Monaco", sport:"Football", time:"21:00", mainBook:"Bwin", mainOdds:2.08, hedgeBook:"Unibet", hedgeOdds:1.82 },
-      { event:"Lyon vs Rennes", sport:"Football", time:"17:00", mainBook:"Circusbet", mainOdds:1.98, hedgeBook:"PMU", hedgeOdds:1.75 },
-      { event:"Nantes vs Nice", sport:"Football", time:"15:00", mainBook:"Olybet", mainOdds:1.82, hedgeBook:"NetBet", hedgeOdds:1.72 },
-      { event:"Hurkacz vs Bellucci", sport:"Tennis", time:"14:30", mainBook:"Betsson", mainOdds:1.90, hedgeBook:"Winamax", hedgeOdds:2.05 },
-      { event:"Lakers vs Suns", sport:"Basket", time:"02:30", mainBook:"Betclic", mainOdds:2.05, hedgeBook:"Unibet", hedgeOdds:1.88 }
-    ];
+    const demoRows = [];
 
     let scannerRows = loadData(STORAGE.scanner, []);
     let trackerRows = loadData(STORAGE.tracker, []);
@@ -522,6 +516,30 @@
     }
     function saveData(key, value){
       localStorage.setItem(key, JSON.stringify(value));
+    }
+    function getUiState(){
+      return loadData(STORAGE.ui, {
+        apiKey: "",
+        apiSport: "soccer_france_ligue_one",
+        apiRegions: "eu",
+        scanSearch: "",
+        scanSportFilter: "",
+        scanBookFilter: "",
+        scanScoreFilter: "",
+        scanSort: "score",
+        extBook: "Betsson",
+        extEvent: "",
+        extOdds: "2.15",
+        calcStake: "100",
+        calcConversion: "75",
+        bonusSectionHidden: false
+      });
+    }
+    function saveUiState(partial){
+      const current = getUiState();
+      const next = { ...current, ...partial };
+      saveData(STORAGE.ui, next);
+      return next;
     }
     function escapeHtml(str){
       return String(str ?? "")
@@ -913,6 +931,52 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
       document.getElementById("extEvent").value = scannerRows[0]?.event || "";
     }
 
+    
+    function applyUiState(){
+      const ui = getUiState();
+      const map = {
+        apiKey: "apiKey",
+        apiSport: "apiSport",
+        apiRegions: "apiRegions",
+        scanSearch: "scanSearch",
+        scanSportFilter: "scanSportFilter",
+        scanBookFilter: "scanBookFilter",
+        scanScoreFilter: "scanScoreFilter",
+        scanSort: "scanSort",
+        extBook: "extBook",
+        extEvent: "extEvent",
+        extOdds: "extOdds",
+        calcStake: "calcStake",
+        calcConversion: "calcConversion"
+      };
+      Object.entries(map).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if(el && ui[key] !== undefined && ui[key] !== null) el.value = ui[key];
+      });
+
+      const grid = document.getElementById("bonusGrid");
+      const btn = document.getElementById("toggleBonusSectionBtn");
+      if(ui.bonusSectionHidden){
+        grid.classList.add("hidden");
+        btn.textContent = "Afficher la section";
+      } else {
+        grid.classList.remove("hidden");
+        btn.textContent = "Masquer la section";
+      }
+    }
+
+    function wirePersistentInputs(){
+      [
+        "apiKey","apiSport","apiRegions","scanSearch","scanSportFilter","scanBookFilter",
+        "scanScoreFilter","scanSort","extBook","extEvent","extOdds","calcStake","calcConversion"
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        const evt = el.tagName === "SELECT" ? "change" : "input";
+        el.addEventListener(evt, () => saveUiState({ [id]: el.value }));
+      });
+    }
+
     // Exposed functions
     window.playScannerRow = function(idx){
       const rows = getFilteredScannerRows();
@@ -990,6 +1054,7 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
       const hidden = grid.classList.contains("hidden");
       grid.classList.toggle("hidden");
       document.getElementById("toggleBonusSectionBtn").textContent = hidden ? "Masquer la section" : "Afficher la section";
+      saveUiState({ bonusSectionHidden: !hidden });
     });
 
     // Init
@@ -998,7 +1063,7 @@ Profit total estimé : ${signedEuro(currentCalc.metrics.totalProfit)}`;
     if(scannerRows.length){
       renderScanner();
     } else {
-      loadDemo();
+      // demo disabled
     }
   </script>
 </body>
