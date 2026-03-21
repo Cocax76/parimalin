@@ -4,81 +4,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aperçu PariMalin Trader + Bonus ANJ</title>
+  <title>PariMalin</title>
   <style>
     :root{
-      --bg:#f7f2ec;--card:#ffffff;--soft:#f3ebe3;--line:#e5dbd0;--text:#1f1a16;--muted:#6a645f;
-      --accent:#ff6a13;--good:#168a52;--warn:#b87800;--bad:#b83a2f;--shadow:0 12px 28px rgba(30,20,10,.08);
-      --radius:18px;--max:1280px;
+      --bg:#f7f2ec;
+      --card:#ffffff;
+      --soft:#f3ebe3;
+      --line:#e5dbd0;
+      --text:#1f1a16;
+      --muted:#6a645f;
+      --accent:#ff6a13;
+      --good:#168a52;
+      --warn:#b87800;
+      --bad:#b83a2f;
+      --shadow:0 12px 28px rgba(30,20,10,.08);
+      --radius:18px;
+      --max:1280px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:linear-gradient(180deg,#fcfaf7 0%, var(--bg) 100%)}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#fcfaf7 0%, var(--bg) 100%);
+    }
     .wrap{max-width:var(--max);margin:0 auto;padding:0 18px}
-    .topbar{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(252,250,247,.88);border-bottom:1px solid var(--line)}
-    .topbar-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;flex-wrap:wrap}
+    .topbar{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:blur(10px);
+      background:rgba(252,250,247,.88);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      display:flex;justify-content:space-between;align-items:center;gap:16px;
+      padding:14px 0;flex-wrap:wrap;
+    }
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#ff944f);color:#fff;font-weight:900;box-shadow:var(--shadow)}
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--accent),#ff944f);
+      color:#fff;font-weight:900;
+      box-shadow:var(--shadow);
+    }
     .brand h1{margin:0;font-size:18px}
     .sub{margin:2px 0 0;color:var(--muted);font-size:12px}
     .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .nav a{text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:12px}
-    .hero{padding:26px 0 10px}
+    .nav a{
+      text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;
+      background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:12px;
+    }
+    .hero{padding:24px 0 10px}
     .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
     .panel{padding:22px}
-    .badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800}
-    .good{background:rgba(22,138,82,.1);color:var(--good)} .warn{background:rgba(184,120,0,.12);color:var(--warn)} .bad{background:rgba(184,58,47,.1);color:var(--bad)}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;border-radius:999px;
+      padding:8px 12px;font-size:13px;font-weight:800;
+    }
+    .good{background:rgba(22,138,82,.1);color:var(--good)}
+    .warn{background:rgba(184,120,0,.12);color:var(--warn)}
+    .bad{background:rgba(184,58,47,.1);color:var(--bad)}
     .hxl{font-size:42px;line-height:1.02;letter-spacing:-.03em;margin:12px 0}
     .lead{color:var(--muted);line-height:1.6;max-width:66ch}
     .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .stat{padding:16px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}
-    .stat .k{font-size:12px;color:var(--muted);margin-bottom:8px}.stat .v{font-size:30px;font-weight:900}
+    .stat{
+      padding:16px;border-radius:16px;background:var(--soft);border:1px solid var(--line);
+    }
+    .stat .k{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .stat .v{font-size:30px;font-weight:900}
     .section{padding:16px 0}
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-    h2{margin:0;font-size:28px;letter-spacing:-.02em}.muted{color:var(--muted)}
-    .toolbar{display:grid;grid-template-columns:1.2fr repeat(4, minmax(120px, 1fr));gap:12px}
-    input,select,button{font:inherit}
-    input,select{width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text)}
-    button{padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:800;cursor:pointer}
-    button.primary{background:var(--accent);color:white;border-color:transparent}
+    .section-head{
+      display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    h2{margin:0;font-size:28px;letter-spacing:-.02em}
+    .muted{color:var(--muted)}
+    .toolbar{
+      display:grid;grid-template-columns:1.3fr repeat(4,minmax(120px,1fr));gap:12px;
+    }
+    input,select,button,textarea{font:inherit}
+    input,select,textarea{
+      width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);
+      background:#fff;color:var(--text);
+    }
+    textarea{min-height:80px;resize:vertical}
+    button{
+      padding:12px 14px;border-radius:13px;border:1px solid var(--line);
+      background:#fff;color:var(--text);font-weight:800;cursor:pointer;
+    }
+    button.primary{background:var(--accent);color:#fff;border-color:transparent}
     button.danger{background:#fff3f2;color:var(--bad);border-color:#f0c9c5}
     button.ghost{color:var(--muted)}
     .table-wrap{overflow:auto}
     table{width:100%;border-collapse:collapse;font-size:14px}
     th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
     th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    .score{font-weight:900;font-size:12px;border-radius:999px;padding:7px 10px;display:inline-block}
-    .score.good{background:rgba(22,138,82,.12);color:var(--good)}.score.warn{background:rgba(184,120,0,.12);color:var(--warn)}.score.bad{background:rgba(184,58,47,.12);color:var(--bad)}
-    .stack{display:grid;gap:16px}
+    .score{
+      font-weight:900;font-size:12px;border-radius:999px;padding:7px 10px;display:inline-block
+    }
+    .score.good{background:rgba(22,138,82,.12);color:var(--good)}
+    .score.warn{background:rgba(184,120,0,.12);color:var(--warn)}
+    .score.bad{background:rgba(184,58,47,.12);color:var(--bad)}
     .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     .result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .metric{border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px}
-    .metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}.metric .v{font-size:28px;font-weight:900}
-    .soft{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px}
+    .metric{
+      border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px;
+    }
+    .metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .metric .v{font-size:28px;font-weight:900}
+    .soft{
+      background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:15px;
+    }
     .rows{display:grid;gap:10px}
-    .row{display:flex;justify-content:space-between;gap:12px}.row .name{color:var(--muted)}.row .val{font-weight:800;text-align:right}
+    .row{display:flex;justify-content:space-between;gap:12px}
+    .row .name{color:var(--muted)}
+    .row .val{font-weight:800;text-align:right}
     .top5{display:grid;gap:10px}
-    .top5-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}
-    .btns{display:flex;gap:8px;flex-wrap:wrap}.btns button{padding:9px 11px;font-size:13px}
+    .top5-item{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;
+    }
+    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    .btns button{padding:9px 11px;font-size:13px}
     .small{font-size:12px;color:var(--muted);line-height:1.5}
-    .bonus-toolbar{display:grid;grid-template-columns:1fr auto auto;gap:12px}
-    .compact-toolbar{grid-template-columns:1fr auto auto auto}
-    .bonus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .bonus-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff;display:grid;gap:10px}
-    .bonus-card h3{margin:0;font-size:16px}
-    .compact-panel{padding:16px}
-    .compact-metric{padding:12px}
-    .compact-metric .v{font-size:22px}
-    .bonus-summary{grid-template-columns:repeat(2,1fr)}
-    .bonus-card.compact{padding:12px;border-radius:14px;gap:8px}
-    .bonus-card.compact h3{font-size:15px}
-    .bonus-card.compact .small{font-size:11px}
-    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+    .bonus-toolbar{display:grid;grid-template-columns:1fr auto auto auto;gap:12px}
+    .bonus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .bonus-card{
+      border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;display:grid;gap:8px;
+    }
+    .bonus-card h3{margin:0;font-size:15px}
+    .pill{
+      display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800
+    }
     .pill.todo{background:rgba(184,120,0,.12);color:var(--warn)}
     .pill.done{background:rgba(22,138,82,.12);color:var(--good)}
-    .empty{padding:16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff}
-    @media (max-width: 1100px){.hero-grid,.mini-grid,.result-grid,.toolbar,.bonus-toolbar{grid-template-columns:1fr}.bonus-grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width: 700px){.stats{grid-template-columns:1fr}.hxl{font-size:34px}.bonus-grid{grid-template-columns:1fr}}
+    .empty{
+      padding:16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:#fff;
+    }
+    .hidden{display:none !important}
+    .foot{padding:8px 0 34px;color:var(--muted);font-size:13px}
+    @media (max-width:1100px){
+      .hero-grid,.mini-grid,.result-grid,.toolbar,.bonus-toolbar{grid-template-columns:1fr}
+      .bonus-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:700px){
+      .stats{grid-template-columns:1fr}
+      .bonus-grid{grid-template-columns:1fr}
+      .hxl{font-size:34px}
+    }
   </style>
 </head>
 <body>
@@ -88,7 +168,7 @@
         <div class="logo">PM</div>
         <div>
           <h1>PariMalin</h1>
-          <div class="sub">Aperçu “version trader” + suivi des bonus ANJ</div>
+          <div class="sub">Scanner central · calculateur rapide · suivi perso</div>
         </div>
       </div>
       <nav class="nav">
@@ -105,25 +185,29 @@
       <div class="hero-grid">
         <div class="card panel">
           <div class="badge warn">Mode opportunité rapide</div>
-          <div class="hxl">Voir, filtrer, jouer et suivre tous tes bonus FR</div>
-          <div class="lead">Cet aperçu ajoute un vrai bloc “bonus ANJ” : tu peux suivre tous les bonus de bienvenue, marquer ceux faits, et les supprimer de la vue une fois terminés.</div>
+          <div class="hxl">Voir, filtrer, jouer en moins de 10 secondes</div>
+          <div class="lead">
+            Version intégrable de la maquette trader : scanner central, top opportunités,
+            cote externe, calculateur prérempli, tracker, et suivi compact des bonus ANJ en bas de page.
+          </div>
         </div>
         <div class="card panel">
           <div class="stats">
             <div class="stat"><div class="k">Opportunités chargées</div><div class="v">24</div></div>
             <div class="stat"><div class="k">Bonus restants</div><div class="v" id="heroBonusLeft">16</div></div>
             <div class="stat"><div class="k">Perte qualif moyenne</div><div class="v">5,80€</div></div>
-            <div class="stat"><div class="k">Bonus déjà faits</div><div class="v" id="heroBonusDone">0</div></div>
+            <div class="stat"><div class="k">Bonus complétés</div><div class="v" id="heroBonusDone">0</div></div>
           </div>
         </div>
       </div>
     </section>
 
-    
-
     <section id="scanner" class="section">
       <div class="section-head">
-        <div><h2>Scanner central</h2><div class="muted">Le tableau principal devient le centre du site.</div></div>
+        <div>
+          <h2>Scanner central</h2>
+          <div class="muted">Le tableau principal devient le centre du site.</div>
+        </div>
       </div>
       <div class="card panel">
         <div class="toolbar">
@@ -133,17 +217,79 @@
           <select><option>Tous scores</option><option>Excellent</option><option>OK</option></select>
           <button class="primary">Refresh</button>
         </div>
+
         <div style="height:16px"></div>
+
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Match</th><th>Sport</th><th>Heure</th><th>Book principal</th><th>Meilleure cote</th><th>Couverture</th><th>Spread</th><th>Perte qualif</th><th>Profit bonus</th><th>Score</th><th>Actions</th></tr>
+              <tr>
+                <th>Match</th>
+                <th>Sport</th>
+                <th>Heure</th>
+                <th>Book principal</th>
+                <th>Meilleure cote</th>
+                <th>Couverture</th>
+                <th>Spread</th>
+                <th>Perte qualif</th>
+                <th>Profit bonus</th>
+                <th>Score</th>
+                <th>Actions</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>Marseille vs Lille</td><td>Football</td><td>20:45</td><td>Betsson</td><td>2.15</td><td>Winamax 1.86</td><td>0.29</td><td style="color:var(--good);font-weight:800">4,90€</td><td style="color:var(--good);font-weight:800">+76€</td><td><span class="score good">EXCELLENT</span></td><td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td></tr>
-              <tr><td>PSG vs Monaco</td><td>Football</td><td>21:00</td><td>Bwin</td><td>2.08</td><td>Unibet 1.82</td><td>0.26</td><td style="color:var(--warn);font-weight:800">6,40€</td><td style="color:var(--good);font-weight:800">+72€</td><td><span class="score warn">OK</span></td><td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td></tr>
-              <tr><td>Lyon vs Rennes</td><td>Football</td><td>17:00</td><td>Circusbet</td><td>1.98</td><td>PMU 1.75</td><td>0.23</td><td style="color:var(--warn);font-weight:800">9,80€</td><td style="color:var(--good);font-weight:800">+66€</td><td><span class="score warn">OK</span></td><td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td></tr>
-              <tr><td>Nantes vs Nice</td><td>Football</td><td>15:00</td><td>Olybet</td><td>1.82</td><td>NetBet 1.72</td><td>0.10</td><td style="color:var(--bad);font-weight:800">13,50€</td><td style="color:var(--warn);font-weight:800">+55€</td><td><span class="score bad">MAUVAIS</span></td><td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td></tr>
+              <tr>
+                <td>Marseille vs Lille</td>
+                <td>Football</td>
+                <td>20:45</td>
+                <td>Betsson</td>
+                <td>2.15</td>
+                <td>Winamax 1.86</td>
+                <td>0.29</td>
+                <td style="color:var(--good);font-weight:800">4,90€</td>
+                <td style="color:var(--good);font-weight:800">+76€</td>
+                <td><span class="score good">EXCELLENT</span></td>
+                <td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td>
+              </tr>
+              <tr>
+                <td>PSG vs Monaco</td>
+                <td>Football</td>
+                <td>21:00</td>
+                <td>Bwin</td>
+                <td>2.08</td>
+                <td>Unibet 1.82</td>
+                <td>0.26</td>
+                <td style="color:var(--warn);font-weight:800">6,40€</td>
+                <td style="color:var(--good);font-weight:800">+72€</td>
+                <td><span class="score warn">OK</span></td>
+                <td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td>
+              </tr>
+              <tr>
+                <td>Lyon vs Rennes</td>
+                <td>Football</td>
+                <td>17:00</td>
+                <td>Circusbet</td>
+                <td>1.98</td>
+                <td>PMU 1.75</td>
+                <td>0.23</td>
+                <td style="color:var(--warn);font-weight:800">9,80€</td>
+                <td style="color:var(--good);font-weight:800">+66€</td>
+                <td><span class="score warn">OK</span></td>
+                <td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td>
+              </tr>
+              <tr>
+                <td>Nantes vs Nice</td>
+                <td>Football</td>
+                <td>15:00</td>
+                <td>Olybet</td>
+                <td>1.82</td>
+                <td>NetBet 1.72</td>
+                <td>0.10</td>
+                <td style="color:var(--bad);font-weight:800">13,50€</td>
+                <td style="color:var(--warn);font-weight:800">+55€</td>
+                <td><span class="score bad">MAUVAIS</span></td>
+                <td><div class="btns"><button>Jouer</button><button>Analyser</button><button>Tracker</button></div></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -153,16 +299,35 @@
     <section class="section">
       <div class="mini-grid">
         <div class="card panel">
-          <div class="section-head"><div><h2>Top 5 opportunités</h2><div class="muted">Triées automatiquement par score et perte qualif.</div></div></div>
+          <div class="section-head">
+            <div>
+              <h2>Top 5 opportunités</h2>
+              <div class="muted">Triées automatiquement par score et perte qualif.</div>
+            </div>
+          </div>
           <div class="top5">
-            <div class="top5-item"><div><strong>Marseille vs Lille</strong><br><span class="small">Betsson 2.15 · couverture Winamax 1.86</span></div><span class="score good">EXCELLENT</span></div>
-            <div class="top5-item"><div><strong>PSG vs Monaco</strong><br><span class="small">Bwin 2.08 · couverture Unibet 1.82</span></div><span class="score warn">OK</span></div>
-            <div class="top5-item"><div><strong>Lyon vs Rennes</strong><br><span class="small">Circusbet 1.98 · couverture PMU 1.75</span></div><span class="score warn">OK</span></div>
+            <div class="top5-item">
+              <div><strong>Marseille vs Lille</strong><br><span class="small">Betsson 2.15 · couverture Winamax 1.86</span></div>
+              <span class="score good">EXCELLENT</span>
+            </div>
+            <div class="top5-item">
+              <div><strong>PSG vs Monaco</strong><br><span class="small">Bwin 2.08 · couverture Unibet 1.82</span></div>
+              <span class="score warn">OK</span>
+            </div>
+            <div class="top5-item">
+              <div><strong>Lyon vs Rennes</strong><br><span class="small">Circusbet 1.98 · couverture PMU 1.75</span></div>
+              <span class="score warn">OK</span>
+            </div>
           </div>
         </div>
 
         <div class="card panel">
-          <div class="section-head"><div><h2>Mode cote externe</h2><div class="muted">Entrée rapide d’une cote non couverte par l’API.</div></div></div>
+          <div class="section-head">
+            <div>
+              <h2>Mode cote externe</h2>
+              <div class="muted">Entrée rapide d’une cote non couverte par l’API.</div>
+            </div>
+          </div>
           <div class="toolbar" style="grid-template-columns:1fr 1fr 1fr auto">
             <input value="Betsson" />
             <input value="Marseille vs Lille" />
@@ -182,15 +347,21 @@
     </section>
 
     <section id="calculateur" class="section">
-      <div class="section-head"><div><h2>Calculateur prérempli</h2><div class="muted">Rempli automatiquement après clic sur “Jouer”.</div></div></div>
+      <div class="section-head">
+        <div>
+          <h2>Calculateur prérempli</h2>
+          <div class="muted">Rempli automatiquement après clic sur “Jouer”.</div>
+        </div>
+      </div>
       <div class="mini-grid">
-        <div class="card panel stack">
+        <div class="card panel">
           <div class="result-grid">
             <div class="metric"><div class="k">Bookmaker principal</div><div class="v" style="font-size:22px">Betsson</div></div>
             <div class="metric"><div class="k">Couverture</div><div class="v" style="font-size:22px">Winamax</div></div>
             <div class="metric"><div class="k">Cote principale</div><div class="v">2.15</div></div>
             <div class="metric"><div class="k">Cote couverture</div><div class="v">1.86</div></div>
           </div>
+          <div style="height:12px"></div>
           <div class="soft">
             <div class="rows">
               <div class="row"><div class="name">Mise principale</div><div class="val">100,00€</div></div>
@@ -199,15 +370,35 @@
             </div>
           </div>
         </div>
-        <div class="card panel stack">
-          <div class="soft"><strong>Scénario A — le pari principal gagne</strong><div class="rows" style="margin-top:10px"><div class="row"><div class="name">Cash immédiat</div><div class="val">-0,59€</div></div><div class="row"><div class="name">Bonus</div><div class="val">0€</div></div></div></div>
-          <div class="soft"><strong>Scénario B — le pari principal perd</strong><div class="rows" style="margin-top:10px"><div class="row"><div class="name">Cash immédiat</div><div class="val">-0,59€</div></div><div class="row"><div class="name">Valeur bonus estimée</div><div class="val" style="color:var(--good)">75,00€</div></div><div class="row"><div class="name">Profit total estimé</div><div class="val" style="color:var(--good)">+74,41€</div></div></div></div>
+
+        <div class="card panel">
+          <div class="soft">
+            <strong>Scénario A — le pari principal gagne</strong>
+            <div class="rows" style="margin-top:10px">
+              <div class="row"><div class="name">Cash immédiat</div><div class="val">-0,59€</div></div>
+              <div class="row"><div class="name">Bonus</div><div class="val">0€</div></div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="soft">
+            <strong>Scénario B — le pari principal perd</strong>
+            <div class="rows" style="margin-top:10px">
+              <div class="row"><div class="name">Cash immédiat</div><div class="val">-0,59€</div></div>
+              <div class="row"><div class="name">Valeur bonus estimée</div><div class="val" style="color:var(--good)">75,00€</div></div>
+              <div class="row"><div class="name">Profit total estimé</div><div class="val" style="color:var(--good)">+74,41€</div></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section id="tracker" class="section">
-      <div class="section-head"><div><h2>Tracker + suivi rapide</h2><div class="muted">Le suivi reste simple, mais mieux connecté au scanner.</div></div></div>
+      <div class="section-head">
+        <div>
+          <h2>Tracker + suivi rapide</h2>
+          <div class="muted">Le suivi reste simple, mais mieux connecté au scanner.</div>
+        </div>
+      </div>
       <div class="card panel">
         <div class="result-grid">
           <div class="metric"><div class="k">Paris enregistrés</div><div class="v">18</div></div>
@@ -217,33 +408,39 @@
         </div>
       </div>
     </section>
-  <section id="bonus" class="section">
+
+    <section id="bonus" class="section">
       <div class="section-head">
         <div>
           <h2>Suivi des bonus ANJ</h2>
-          <div class="muted">Liste personnelle des bonus de bienvenue des books autorisés en France. Tu peux marquer “fait” ou supprimer de la vue.</div>
+          <div class="muted">Section secondaire de suivi : bonus restants, bonus complétés, et masquage des books déjà traités.</div>
         </div>
       </div>
-      <div class="card panel compact-panel">
-        <div class="result-grid bonus-summary" style="margin-bottom:14px">
-          <div class="metric compact-metric"><div class="k">Bonus restants</div><div class="v" id="bonusSummaryLeft">16</div></div>
-          <div class="metric compact-metric"><div class="k">Bonus complétés</div><div class="v" id="bonusSummaryDone">0</div></div>
+      <div class="card panel" style="padding:16px">
+        <div class="result-grid" style="margin-bottom:14px">
+          <div class="metric"><div class="k">Bonus restants</div><div class="v" id="bonusSummaryLeft">16</div></div>
+          <div class="metric"><div class="k">Bonus complétés</div><div class="v" id="bonusSummaryDone">0</div></div>
         </div>
-        <div class="bonus-toolbar compact-toolbar">
+
+        <div class="bonus-toolbar">
           <input id="bonusSearch" placeholder="Rechercher un bookmaker" />
           <button class="ghost" id="showAllBonusesBtn">Tout afficher</button>
           <button class="ghost" id="toggleBonusSectionBtn">Masquer la section</button>
-          <button class="danger" id="resetBonusesBtn">Réinitialiser la liste</button>
+          <button class="danger" id="resetBonusesBtn">Réinitialiser</button>
         </div>
-        <div style="height:16px"></div>
-        <div class="bonus-grid" id="bonusGrid"></div>
+
+        <div style="height:14px"></div>
+
+        <div id="bonusGrid" class="bonus-grid"></div>
       </div>
     </section>
 
+    <div class="foot">Version intégrable · bonus ANJ en bas de page · sauvegarde locale navigateur</div>
   </main>
 
   <script>
-    const BONUS_KEY = "parimalin_bonus_anj_v1";
+    const BONUS_KEY = "parimalin_bonus_anj_v2";
+
     const defaultBonuses = [
       { name: "Betclic", site: "betclic.fr", offer: "Bonus bienvenue", done: false, hidden: false },
       { name: "Betsson", site: "betsson.fr", offer: "Bonus bienvenue", done: false, hidden: false },
@@ -263,19 +460,24 @@
       { name: "YESorNO", site: "yesorno-jeu.fr", offer: "Bonus bienvenue", done: false, hidden: false }
     ];
 
-    function loadBonuses() {
+    function clone(obj){
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadBonuses(){
       try {
-        return JSON.parse(localStorage.getItem(BONUS_KEY)) || structuredClone(defaultBonuses);
-      } catch {
-        return structuredClone(defaultBonuses);
+        const raw = localStorage.getItem(BONUS_KEY);
+        return raw ? JSON.parse(raw) : clone(defaultBonuses);
+      } catch (e) {
+        return clone(defaultBonuses);
       }
     }
 
-    function saveBonuses() {
+    function saveBonuses(){
       localStorage.setItem(BONUS_KEY, JSON.stringify(bonuses));
     }
 
-    function escapeHtml(str) {
+    function escapeHtml(str){
       return String(str ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -285,38 +487,42 @@
     }
 
     let bonuses = loadBonuses();
+
     const bonusGrid = document.getElementById("bonusGrid");
     const bonusSearch = document.getElementById("bonusSearch");
     const heroBonusLeft = document.getElementById("heroBonusLeft");
     const heroBonusDone = document.getElementById("heroBonusDone");
     const bonusSummaryLeft = document.getElementById("bonusSummaryLeft");
     const bonusSummaryDone = document.getElementById("bonusSummaryDone");
+    const toggleBonusSectionBtn = document.getElementById("toggleBonusSectionBtn");
 
-    function updateBonusCounters() {
+    function updateBonusCounters(){
       const visible = bonuses.filter(b => !b.hidden);
       const done = visible.filter(b => b.done).length;
       const left = visible.filter(b => !b.done).length;
       heroBonusLeft.textContent = String(left);
       heroBonusDone.textContent = String(done);
-      if (bonusSummaryLeft) bonusSummaryLeft.textContent = String(left);
-      if (bonusSummaryDone) bonusSummaryDone.textContent = String(done);
+      bonusSummaryLeft.textContent = String(left);
+      bonusSummaryDone.textContent = String(done);
     }
 
-    function renderBonuses() {
+    function renderBonuses(){
       const q = bonusSearch.value.trim().toLowerCase();
-      const filtered = bonuses.filter(b => !b.hidden && (!q || b.name.toLowerCase().includes(q) || b.site.toLowerCase().includes(q)));
+      const filtered = bonuses.filter(
+        b => !b.hidden && (!q || b.name.toLowerCase().includes(q) || b.site.toLowerCase().includes(q))
+      );
 
       updateBonusCounters();
 
-      if (!filtered.length) {
+      if (!filtered.length){
         bonusGrid.innerHTML = '<div class="empty" style="grid-column:1/-1">Aucun bonus affiché.</div>';
         return;
       }
 
-      bonusGrid.innerHTML = filtered.map((b, i) => {
+      bonusGrid.innerHTML = filtered.map(b => {
         const idx = bonuses.findIndex(x => x.name === b.name && x.site === b.site);
         return `
-          <div class="bonus-card compact">
+          <div class="bonus-card">
             <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
               <div>
                 <h3>${escapeHtml(b.name)}</h3>
@@ -334,25 +540,25 @@
       }).join("");
     }
 
-    function toggleBonusDone(index) {
+    function toggleBonusDone(index){
       bonuses[index].done = !bonuses[index].done;
       saveBonuses();
       renderBonuses();
     }
 
-    function hideBonus(index) {
+    function hideBonus(index){
       bonuses[index].hidden = true;
       saveBonuses();
       renderBonuses();
     }
 
-    function resetBonuses() {
-      bonuses = structuredClone(defaultBonuses);
+    function resetBonuses(){
+      bonuses = clone(defaultBonuses);
       saveBonuses();
       renderBonuses();
     }
 
-    function showAllBonuses() {
+    function showAllBonuses(){
       bonuses.forEach(b => b.hidden = false);
       saveBonuses();
       renderBonuses();
@@ -363,12 +569,10 @@
 
     document.getElementById("resetBonusesBtn").addEventListener("click", resetBonuses);
     document.getElementById("showAllBonusesBtn").addEventListener("click", showAllBonuses);
-    document.getElementById("toggleBonusSectionBtn").addEventListener("click", () => {
-      const grid = document.getElementById("bonusGrid");
-      const btn = document.getElementById("toggleBonusSectionBtn");
-      const hidden = grid.style.display === "none";
-      grid.style.display = hidden ? "grid" : "none";
-      btn.textContent = hidden ? "Masquer la section" : "Afficher la section";
+    toggleBonusSectionBtn.addEventListener("click", () => {
+      const isHidden = bonusGrid.classList.contains("hidden");
+      bonusGrid.classList.toggle("hidden");
+      toggleBonusSectionBtn.textContent = isHidden ? "Masquer la section" : "Afficher la section";
     });
     bonusSearch.addEventListener("input", renderBonuses);
 
