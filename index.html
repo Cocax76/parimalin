@@ -1462,72 +1462,100 @@ function calcQualif() {
 // ════════════════════════════════════════════════════════
 
 function calcFreebet() {
-  updateCoteHint('fb_c1', 'fb_c1_hint');
+  const fb  = sanitize('fb_val', 100);
+  const c1  = sanitize('fb_c1', 3.00);
+  const c2  = sanitize('fb_c2', 1.40);
+  const bk1 = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
+  const bk2 = document.getElementById('fb_bk2')?.value || 'Couverture';
+  const el  = document.getElementById('fb-results');
+  if (!el) return;
 
-  const fb   = sanitize('fb_val', 100);
-  const c1   = sanitize('fb_c1', 3.00);
-  const c2   = sanitize('fb_c2', 1.40);
-  const bk1  = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
-  const bk2  = document.getElementById('fb_bk2')?.value || 'Couverture';
+  if (c1 <= 1 || c2 <= 1 || fb <= 0) {
+    el.innerHTML = '<div style="color:var(--danger);font-size:0.83rem;">⚠️ Valeurs invalides.</div>';
+    return;
+  }
 
-  if (c1 <= 1 || c2 <= 1 || fb <= 0) { showCalcError('Valeurs invalides'); return; }
+  // ── Formule SNR exacte ──
+  // Gain utile si freebet gagne = fb × (cote − 1)  [mise non rendue]
+  // Couverture optimale = gainUtile / cote_couverture
+  const gainUtile  = fb * (c1 - 1);
+  const couverture = gainUtile / c2;
+  const net_gagne  = gainUtile - couverture;   // quasi-garanti si cotes bien choisies
+  const net_perd   = 0;                         // couverture compense exactement si cotes équilibrées
+  const tauxConv   = (net_gagne / fb) * 100;
 
-  // Formule SNR exacte
-  // Gain utile si freebet gagne = fb × (c1 - 1)
-  // Couverture optimale = fb × (c1 - 1) / c2
-  const gainUtile  = fb * (c1 - 1);          // gain net si freebet gagne
-  const couverture = gainUtile / c2;                        // mise de couverture
-  const net_gagne  = gainUtile - couverture;                 // freebet gagne : gain net - couverture perdue
-  // Note : la mise freebet n'est pas du vrai argent donc pas à soustraire
-  const net_perd   = (couverture * c2) - couverture;        // couverture gagne si freebet perd : retour - mise couv
-  const tauxConv   = (net_gagne / fb) * 100;   // taux de conversion réel
+  // Couleur taux
+  const tauxColor = tauxConv >= 65 ? 'var(--success)' : tauxConv >= 50 ? 'var(--warning)' : 'var(--danger)';
+  const tauxLabel = tauxConv >= 65 ? '✅ Excellent' : tauxConv >= 50 ? '⚠️ Moyen' : '❌ Mauvais';
 
-  const mises = [
-    { bk: bk1, label: `Freebet — mise offerte, non récupérée (0€ de ta poche)`, mise: fb, tag: 'freebet' },
-    { bk: bk2, label: 'Couverture cash — seul argent réel engagé', mise: couverture, tag: 'couv' }
-  ];
+  el.innerHTML = `
+    <!-- Mises à placer -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">📌 Mises à placer</div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+        <div>
+          <span style="font-weight:700;">${bk1}</span>
+          <span style="font-size:0.75rem;color:var(--muted);margin-left:6px;">Freebet — 0€ de ta poche</span>
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--muted);">${formatC(fb)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+        <div>
+          <span style="font-weight:700;">${bk2}</span>
+          <span style="font-size:0.75rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--acc);">${formatC(couverture)}</span>
+      </div>
+    </div>
 
-  const scenarios = [
-    {
-      label: `Freebet GAGNE (${bk1})`,
-      detail: `Encaissé : ${formatC(fb*c1)} | Dont mise freebet non rendue : −${formatC(fb)} | Net : ${formatC(gainUtile)} | Couverture perdue : −${formatC(couverture)}`,
-      cash: net_gagne,
-      bonus: 0, bonusNote: null,
-      total: net_gagne,
-      isGarantied: false, warningLevel: null
-    },
-    {
-      label: `Freebet PERD`,
-      detail: `Freebet perdue (0€ de ta poche) | Couverture encaissée : ${formatC(couverture*c2)} | Mise couverture : −${formatC(couverture)} | Net : ${formatS(net_perd)}`,
-      cash: net_perd,
-      bonus: 0, bonusNote: null,
-      total: net_perd,
-      isGarantied: false, warningLevel: null
-    }
-  ];
+    <!-- Les 2 scénarios -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Résultat selon ce qui se passe</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
+      <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:0.85rem;">✅ Freebet gagne</div>
+            <div style="font-size:0.73rem;color:var(--muted);margin-top:2px;">Gain net ${formatC(gainUtile)} − couverture perdue ${formatC(couverture)}</div>
+          </div>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--success);">${formatS(net_gagne)}</span>
+        </div>
+      </div>
+      <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:0.85rem;">✅ Freebet perd</div>
+            <div style="font-size:0.73rem;color:var(--muted);margin-top:2px;">Freebet = 0€ de ta poche · couverture récupérée</div>
+          </div>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--success);">${formatS(net_perd)}</span>
+        </div>
+      </div>
+    </div>
 
-  const bilanItems = [
-    { val: formatS(net_gagne), label: 'Si freebet gagne', color: 'var(--success)', badge: null },
-    { val: formatS(net_perd),  label: 'Si freebet perd',  color: 'var(--danger)',  badge: null },
-    { val: formatPct(tauxConv), label: 'Taux conversion réel', color: 'var(--acc)', badge: null },
-    { val: formatC(couverture), label: 'Cash engagé (couverture)', color: 'var(--text)', badge: null }
-  ];
+    <!-- Bilan -->
+    <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.8rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;">
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--success);">${formatS(net_gagne)}</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Profit quasi-garanti</div>
+        </div>
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:${tauxColor};">${tauxConv.toFixed(0)}%</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Taux conversion ${tauxLabel}</div>
+        </div>
+      </div>
+    </div>
 
-  const summary = `Freebet ${formatC(fb)} sur ${bk1} @ cote ${c1}. `
-    + `Couverture : ${formatC(couverture)} sur ${bk2}. `
-    + `Si la freebet gagne → cash +${formatC(net_gagne)} (taux ${formatPct(tauxConv)}). `
-    + `Si elle perd → perte couverture ${formatS(net_perd)}. `
-    + `Seul ${formatC(couverture)} de ton argent réel est engagé.`;
+    <!-- Résumé -->
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;padding:0.8rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);">
+      Tu joues la freebet <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1} @ ${c1}</strong> et tu mises <strong style="color:var(--acc);">${formatC(couverture)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong>.<br>
+      Quoi qu'il arrive, tu récupères environ <strong style="color:var(--success);">${formatS(net_gagne)}</strong> — seuls <strong style="color:var(--acc);">${formatC(couverture)}</strong> de ton argent réel sont en jeu.
+    </div>
 
-  let analysisTitle, analysisText;
-  if (tauxConv >= 65)      { analysisTitle = '✅ Excellent taux de conversion'; analysisText = `${formatPct(tauxConv)} du freebet converti en cash. Très bonne configuration.`; }
-  else if (tauxConv >= 50) { analysisTitle = '⚠️ Taux de conversion moyen'; analysisText = `${formatPct(tauxConv)}. Cherche une cote plus haute (sweet spot : 2.50–3.50).`; }
-  else                     { analysisTitle = '❌ Mauvais taux de conversion'; analysisText = `Seulement ${formatPct(tauxConv)}. Cote trop basse ou couverture trop chère.`; }
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.8rem;font-size:0.82rem;padding:9px;" onclick="addFreebetToTracker(${net_gagne.toFixed(2)},'${bk1}')">+ Tracker</button>
+  `;
 
   currentCalcResult = { match: 'Freebet ' + bk1, profit: parseFloat(net_gagne.toFixed(2)), bk: bk1, type: 'Freebet' };
-  lastCalcSummary = summary;
-
-  renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText });
+  lastCalcSummary = `Freebet ${formatC(fb)} sur ${bk1} @ ${c1}. Couverture ${formatC(couverture)} sur ${bk2}. Profit quasi-garanti : ${formatS(net_gagne)} (${tauxConv.toFixed(0)}% de conversion).`;
 }
 
 // ════════════════════════════════════════════════════════
@@ -1907,6 +1935,12 @@ function copyCalcSummary() {
 }
 
 // ── Tracker ───────────────────────────────────────────
+
+function addFreebetToTracker(profit, bk) {
+  trades.unshift({ match: 'Freebet ' + bk, profit: parseFloat(profit), bk, type: 'Freebet', date: new Date().toLocaleDateString('fr-FR') });
+  save(); renderTracker(); renderDashboard();
+  showToast('✅ Freebet enregistrée dans le tracker !', 'ok');
+}
 
 function addFromCalc() {
   if (!currentCalcResult) { showToast('Lance d\'abord un calcul', 'err'); return; }
