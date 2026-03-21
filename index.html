@@ -245,7 +245,7 @@
             <option value="tennis_atp_french_open">tennis_atp_french_open</option>
             <option value="tennis_atp_us_open">tennis_atp_us_open</option>
           </select>
-          <input id="apiRegions" value="fr" placeholder="fr" />
+          <input id="apiRegions" value="eu" placeholder="eu" />
           <button id="loadApiBtn">Charger API</button>
           <button class="ghost" id="clearScannerBtn">Vider</button>
         </div>
@@ -468,6 +468,16 @@
       tracker: "parimalin_tracker_v1",
       bonuses: "parimalin_bonus_anj_v2"
     };
+
+    const ANJ_BOOKS = [
+      "Betclic","Betsson","Bwin","Circusbet","DAZN Bet","Feelingbet","Genybet","NetBet",
+      "Olybet","Parions Sport","PMU","PokerStars Sports","Unibet","VBet","Winamax","YESorNO"
+    ];
+    function normalizeBook(name){
+      return String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
+    }
+    const ANJ_NORMALIZED = ANJ_BOOKS.map(normalizeBook);
+
 
     const defaultBonuses = [
       { name: "Betclic", site: "betclic.fr", offer: "Bonus bienvenue", done: false, hidden: false },
@@ -799,7 +809,8 @@
     async function loadApiRows(){
       const apiKey = document.getElementById("apiKey").value.trim();
       const sport = document.getElementById("apiSport").value.trim();
-      const regions = document.getElementById("apiRegions").value.trim() || "fr";
+      const regions = "eu";
+      document.getElementById("apiRegions").value = "eu";
       const status = document.getElementById("apiStatus");
       if(!apiKey){
         status.textContent = "Ajoute une clé The Odds API valide pour charger les cotes.";
@@ -818,32 +829,46 @@
         if(!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const rows = [];
+        const seen = new Set();
+
         (Array.isArray(data) ? data : []).forEach(ev => {
           const offers = [];
-          (ev.bookmakers || []).forEach(bm => {
-            (bm.markets || []).forEach(market => {
-              if(market.key !== "h2h") return;
-              (market.outcomes || []).forEach(outcome => {
-                offers.push({
-                  bookmaker: bm.title || bm.key,
-                  outcome: outcome.name,
-                  price: Number(outcome.price || 0)
+          (ev.bookmakers || [])
+            .filter(bm => ANJ_NORMALIZED.includes(normalizeBook(bm.title || bm.key)))
+            .forEach(bm => {
+              (bm.markets || []).forEach(market => {
+                if(market.key !== "h2h") return;
+                (market.outcomes || []).forEach(outcome => {
+                  offers.push({
+                    bookmaker: bm.title || bm.key,
+                    outcome: outcome.name,
+                    price: Number(outcome.price || 0)
+                  });
                 });
               });
             });
-          });
+
+          if(offers.length < 2) return;
+
           const byOutcome = {};
           offers.forEach(o => {
             if(!byOutcome[o.outcome]) byOutcome[o.outcome] = [];
             byOutcome[o.outcome].push(o);
           });
+
           Object.entries(byOutcome).forEach(([outcome, list]) => {
             list.sort((a,b)=>b.price-a.price);
             const best = list[0];
-            const opposite = offers.filter(x => x.outcome !== outcome).sort((a,b)=>b.price-a.price)[0];
+            const opposite = offers
+              .filter(x => x.outcome !== outcome && x.bookmaker !== best.bookmaker)
+              .sort((a,b)=>b.price-a.price)[0];
             if(best && opposite && best.price > 1 && opposite.price > 1){
+              const eventName = `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim();
+              const key = [eventName, outcome, best.bookmaker, opposite.bookmaker].join("|");
+              if(seen.has(key)) return;
+              seen.add(key);
               rows.push({
-                event: `${ev.home_team || ""} vs ${ev.away_team || ""}`.trim(),
+                event: eventName,
                 sport: sport,
                 time: ev.commence_time ? new Date(ev.commence_time).toLocaleString("fr-FR") : "—",
                 mainBook: best.bookmaker,
@@ -854,8 +879,10 @@
             }
           });
         });
+
         scannerRows = rows;
-        status.textContent = `API chargée : ${rows.length} lignes construites.`;
+        const remaining = res.headers.get("x-requests-remaining");
+        status.textContent = `API chargée : ${rows.length} lignes construites · filtre ANJ actif${remaining ? ` · requêtes restantes : ${remaining}` : ""}.`;
         renderScanner();
       } catch(err){
         status.textContent = `Erreur API : ${err.message}`;
