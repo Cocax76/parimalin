@@ -503,14 +503,21 @@
       ui: "parimalin_ui_v1"
     };
 
-    const ANJ_BOOKS = [
-      "Betclic","Betsson","Bwin","Circusbet","DAZN Bet","Feelingbet","Genybet","NetBet",
-      "Olybet","Parions Sport","PMU","PokerStars Sports","Unibet","VBet","Winamax","YESorNO"
+    const ANJ_ALL_BOOKS = [
+      "Betclic","Betsson","NetBet","Parions Sport","PMU","Unibet","Winamax"
+    ];
+    const API_FR_BOOKS = [
+      "Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
+    ];
+    const API_EU_BOOKS = [
+      "Betsson","Betclic (FR)","NetBet (FR)","Parions Sport (FR)","PMU (FR)","Unibet (FR)","Winamax (FR)"
     ];
     function normalizeBook(name){
       return String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
     }
-    const ANJ_NORMALIZED = ANJ_BOOKS.map(normalizeBook);
+    const API_FR_NORMALIZED = API_FR_BOOKS.map(normalizeBook);
+    const API_EU_NORMALIZED = API_EU_BOOKS.map(normalizeBook);
+    const ANJ_ALL_NORMALIZED = ANJ_ALL_BOOKS.map(normalizeBook);
 
 
     const defaultBonuses = [
