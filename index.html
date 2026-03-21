@@ -612,20 +612,30 @@ body.light .hero-grid{opacity:0.15;}
           <button class="tab" onclick="switchCalcTab('double',this)">Double chance</button>
         </div>
         <div class="tab-section active" id="ct-qualifying">
-          <div class="calc-title"><span class="calc-dot"></span>Pari principal</div>
+
+          <!-- Règle d'or -->
+          <div style="background:rgba(0,201,107,0.07);border:1px solid rgba(0,201,107,0.25);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.82rem;">
+            <strong style="color:var(--success);">✅ Règle d'or pari qualificatif</strong><br>
+            <span style="color:var(--muted);">Vise une cote entre <strong style="color:var(--text);">2.00 et 2.30</strong> sur ton bookmaker bonus. Plus les 2 cotes sont proches de 2.00, moins tu perds. Une cote haute (3.50+) ne t'aide PAS à perdre — elle t'oblige juste à bloquer plus d'argent en couverture.</span>
+          </div>
+
+          <div class="calc-title"><span class="calc-dot"></span>Pari principal (sur le bookmaker du bonus)</div>
           <div class="field-row">
             <div class="field"><label>Bookmaker principal</label><select id="bk1" onchange="calculate()"></select></div>
             <div class="field"><label>Mise (€)</label><input type="number" id="mise" value="100" min="1" oninput="calculate()"></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>Cote choisie</label><input type="number" id="cote1" value="3.10" step="0.05" oninput="calculate()"></div>
+            <div class="field">
+              <label>Cote choisie <span id="cote1-hint" style="font-size:0.72rem;font-weight:700;"></span></label>
+              <input type="number" id="cote1" value="2.10" step="0.05" oninput="calculate();checkCote1()">
+            </div>
             <div class="field"><label>Marché</label><select id="mkt" onchange="calculate()"><option value="3way">1X2 (3 issues)</option><option value="2way">2 issues</option></select></div>
           </div>
           <div class="divider"></div>
-          <div class="calc-title"><span class="calc-dot"></span>Couverture</div>
+          <div class="calc-title"><span class="calc-dot"></span>Couverture (sur un autre bookmaker ANJ)</div>
           <div class="field-row">
             <div class="field"><label>Bookmaker couverture</label><select id="bk2" onchange="calculate()"></select></div>
-            <div class="field"><label>Cote adverse 1</label><input type="number" id="cote2" value="2.10" step="0.05" oninput="calculate()"></div>
+            <div class="field"><label>Cote adverse 1</label><input type="number" id="cote2" value="1.85" step="0.05" oninput="calculate()"></div>
           </div>
           <div class="field" id="cote3-field"><label>Cote nul (couverture 2)</label><input type="number" id="cote3" value="3.25" step="0.05" oninput="calculate()"></div>
         </div>
@@ -640,7 +650,10 @@ body.light .hero-grid{opacity:0.15;}
             <div class="field"><label>Cote couverture</label><input type="number" id="fb_c2" value="4.20" step="0.05" oninput="calcFreebet()"></div>
           </div>
           <div class="field"><label>Bookmaker couverture</label><select id="fb_bk2"></select></div>
-          <div class="summary-box" style="margin-top:0.5rem;"><div class="summary-box-text" style="font-size:0.78rem;">💡 Vise des cotes ≥ 4.50 pour maximiser le taux de conversion de ton freebet.</div></div>
+          <div style="background:rgba(0,201,107,0.07);border:1px solid rgba(0,201,107,0.25);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.8rem;font-size:0.82rem;">
+            <strong style="color:var(--success);">✅ Règle d'or freebet</strong><br>
+            <span style="color:var(--muted);">Vise une cote entre <strong style="color:var(--text);">2.50 et 3.50</strong> sur le bookmaker du freebet. C'est le sweet spot : taux de conversion élevé sans prendre trop de risque. Au-delà de 4.00 la couverture devient trop chère et la variance augmente.</span>
+          </div>
         </div>
         <div class="tab-section" id="ct-double">
           <div class="calc-title"><span class="calc-dot"></span>Double chance</div>
@@ -1168,18 +1181,51 @@ function setResults(data){
   });
   document.getElementById('scenarios').innerHTML = scenHtml;
 
-  // ── Bilan net ──
-  const profitColor = data.profit_garanti >= 0 ? 'var(--success)' : 'var(--danger)';
-  const roi = data.cap > 0 ? (data.profit_garanti / data.cap * 100) : 0;
+  // ── Bilan net — honnête selon le type ──
+  const minNet = Math.min(...data.scenarios.map(s => s.net));
+  const maxNet = Math.max(...data.scenarios.map(s => s.net));
+  const allPositive = data.scenarios.every(s => s.net >= 0);
+  const isSurebet = allPositive && minNet >= 0;
+  const isFreebet = data.type === 'Freebet';
+  const isQualif  = data.type === 'Pari qualificatif' || data.type === 'Double chance';
+
+  // Label honnête selon la situation réelle
+  let bilanLabel, bilanValue, bilanColor, roiLabel, roiValue;
+
+  if(isSurebet){
+    // Vrai surebet : tous les scénarios sont positifs
+    bilanLabel = '✅ Profit garanti';
+    bilanValue = fmtSign(minNet);
+    bilanColor = 'var(--success)';
+    roiLabel   = 'ROI garanti';
+    roiValue   = data.cap > 0 ? (minNet/data.cap*100).toFixed(2)+'%' : '—';
+  } else if(isFreebet){
+    // Freebet : profit si le freebet gagne, perte si perd
+    bilanLabel = '💡 Si freebet gagne';
+    bilanValue = fmtSign(maxNet);
+    bilanColor = 'var(--acc)';
+    roiLabel   = 'Taux conversion';
+    const fb = parseFloat(document.getElementById('fb_val')?.value) || 100;
+    roiValue   = fb > 0 ? (maxNet/fb*100).toFixed(0)+'%' : '—';
+  } else {
+    // Pari qualificatif : afficher la PERTE, pas un "profit"
+    bilanLabel = '💸 Perte qualificative';
+    bilanValue = fmtSign(minNet); // sera négatif
+    bilanColor = minNet >= -10 ? 'var(--warning)' : 'var(--danger)';
+    roiLabel   = 'Coût du bonus';
+    roiValue   = data.cap > 0 ? (Math.abs(minNet)/data.cap*100).toFixed(2)+'%' : '—';
+  }
+
+  const roi = data.cap > 0 ? (minNet / data.cap * 100) : 0;
   document.getElementById('bilan-net').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:${profitColor};">${fmtSign(data.profit_garanti)}</div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Profit garanti</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:${bilanColor};">${bilanValue}</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${bilanLabel}</div>
       </div>
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--warning);">${roi.toFixed(2)}%</div>
-        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">ROI exact</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--warning);">${roiValue}</div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${roiLabel}</div>
       </div>
       <div>
         <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;">${fmt(data.cap)}</div>
@@ -1196,24 +1242,26 @@ function setResults(data){
     warnEl.style.display = 'none';
   }
 
-  // ── Analyse ──
-  const minNet = Math.min(...data.scenarios.map(s => s.net));
+  // ── Analyse honnête ──
   let title, text;
-  if(minNet >= -1){
-    title = '✅ Excellent — profit garanti dans tous les cas';
-    text = `Quoi qu'il arrive, tu gagnes minimum ${fmtSign(minNet)}. C'est du matched betting parfait.`;
-  } else if(minNet >= -10){
-    title = '✅ Bon — perte maximum maîtrisée';
-    text = `Dans le pire cas tu perds ${fmtSign(minNet)}. C'est le coût normal d'un pari qualificatif.`;
-  } else if(minNet >= -30){
-    title = '⚠️ Risque modéré — vérifie les cotes';
-    text = `Perte maximale possible : ${fmtSign(minNet)}. Cherche de meilleures cotes de couverture.`;
+  if(isSurebet){
+    title = '✅ Surebet — profit garanti dans tous les cas';
+    text  = `Quoi qu'il arrive tu gagnes minimum ${fmtSign(minNet)}. C'est du matched betting parfait.`;
+  } else if(isFreebet){
+    const taux = data.cap > 0 ? (maxNet / (parseFloat(document.getElementById('fb_val')?.value)||100) * 100) : 0;
+    if(taux >= 65)      { title = '✅ Excellent taux de conversion'; text = `Tu convertis ${taux.toFixed(0)}% du freebet en cash réel si tu gagnes. Bonne configuration.`; }
+    else if(taux >= 50) { title = '⚠️ Taux de conversion moyen'; text = `${taux.toFixed(0)}% de conversion. Essaie de trouver une cote plus haute sur le freebet (vise 2.50–3.50).`; }
+    else                { title = '❌ Mauvais taux de conversion'; text = `Seulement ${taux.toFixed(0)}% de conversion. Cherche de meilleures cotes.`; }
+  } else if(isQualif){
+    if(minNet >= -10)      { title = '✅ Perte maîtrisée — bonnes cotes'; text = `Tu paies ${fmtSign(Math.abs(minNet))} pour déclencher ton bonus. C'est normal et attendu.`; }
+    else if(minNet >= -20) { title = '⚠️ Perte acceptable mais cherche mieux'; text = `${fmtSign(Math.abs(minNet))} de perte qualificative. Essaie de trouver des cotes plus proches de 2.00 pour réduire ce coût.`; }
+    else                   { title = '❌ Perte trop élevée — ne pas jouer'; text = `${fmtSign(Math.abs(minNet))} de perte c'est trop. Ces cotes ne conviennent pas. Vise 2.00–2.30 sur ton bookmaker bonus.`; }
   } else {
-    title = '❌ Cotes défavorables — ne pas jouer';
-    text = `Risque de perdre ${fmtSign(minNet)}. Ces cotes ne conviennent pas au matched betting.`;
+    title = minNet >= 0 ? '✅ Configuration correcte' : '⚠️ Risque de perte';
+    text  = minNet >= 0 ? `Profit minimum : ${fmtSign(minNet)}.` : `Perte maximum : ${fmtSign(minNet)}.`;
   }
   document.getElementById('summary-title').textContent = title;
-  document.getElementById('summary-text').textContent = text;
+  document.getElementById('summary-text').textContent  = text;
 
   // Stocker pour le tracker
   currentCalcResult = {
@@ -1222,6 +1270,27 @@ function setResults(data){
     bk: data.bk1,
     type: data.type || 'Surebet'
   };
+}
+
+function checkCote1(){
+  const c1 = parseFloat(document.getElementById('cote1').value) || 0;
+  const hint = document.getElementById('cote1-hint');
+  if(!hint) return;
+  if(c1 >= 2.0 && c1 <= 2.3){
+    hint.textContent = '✅ Optimal';
+    hint.style.color = 'var(--success)';
+  } else if(c1 > 2.3 && c1 <= 2.8){
+    hint.textContent = '⚠️ Correct mais perte plus élevée';
+    hint.style.color = 'var(--warning)';
+  } else if(c1 > 2.8){
+    hint.textContent = '❌ Trop haut — perte qualificative excessive';
+    hint.style.color = 'var(--danger)';
+  } else if(c1 < 2.0 && c1 > 1.5){
+    hint.textContent = '⚠️ Trop bas — couverture difficile';
+    hint.style.color = 'var(--warning)';
+  } else {
+    hint.textContent = '';
+  }
 }
 
 function calculate(){
@@ -1236,50 +1305,58 @@ function calculate(){
 
   if(mkt === '3way'){
     // Marché 1X2 — 3 issues
+    // Formule : m2 et m3 calculées pour que le gain soit identique dans tous les cas
     const d = c2*c3 - c2 - c3;
-    if(d <= 0){ document.getElementById('summary-text').textContent='⚠️ Cotes invalides — le dénominateur est nul.'; return; }
-    const m2 = (mise * c3) / d;   // mise sur issue 2
-    const m3 = (mise * c2) / d;   // mise sur nul
-    const cap = mise + m2 + m3;
+    if(d <= 0){ document.getElementById('summary-text').textContent='⚠️ Cotes invalides.'; return; }
+    const m2 = (mise * c3) / d;  // mise couverture sur l'issue adverse
+    const m3 = (mise * c2) / d;  // mise couverture sur le nul
+    const cap = mise + m2 + m3;  // total réellement engagé
 
-    // Résultat net dans chaque cas (gains - toutes les mises)
-    const net_si_bk2_gagne   = (m2 * c2) - mise - m3;   // couverture 1 gagne
-    const net_si_nul          = (m3 * c3) - mise - m2;   // couverture 2 gagne
-    const net_si_bk1_gagne   = (mise * c1) - m2 - m3;    // ton pari gagne → PAS de bonus si "perdant remboursé"
+    // Net = gains encaissés - TOUTES les mises perdues dans ce scénario
+    // Si bk2 gagne sur l'issue adverse : on encaisse m2*c2, on perd mise + m3
+    const net_adverse = (m2 * c2) - mise - m3;
+    // Si nul : on encaisse m3*c3, on perd mise + m2
+    const net_nul     = (m3 * c3) - mise - m2;
+    // Si bk1 gagne : on encaisse mise*c1, on perd m2 + m3
+    const net_bk1     = (mise * c1) - m2 - m3;
 
-    const profitGaranti = Math.min(net_si_bk2_gagne, net_si_nul, net_si_bk1_gagne);
     const marge = (1/c1) + (1/c2) + (1/c3);
+    const isSB  = marge < 1.0;
+    // Type honnête : surebet seulement si marge < 1, sinon pari qualificatif
+    const type  = isSB ? 'Surebet' : 'Pari qualificatif';
 
     setResults({
       mises: [
-        { bk: bk1, label: 'Ton pari principal', mise },
+        { bk: bk1, label: 'Ton pari (issue 1)', mise },
         { bk: bk2, label: 'Couverture issue adverse', mise: m2 },
         { bk: bk2, label: 'Couverture nul', mise: m3 },
       ],
       scenarios: [
         {
-          label: `✅ ${bk2} gagne (couverture 1)`,
-          detail: `Tu encaisses ${fmt(m2*c2)} − tu avais misé ${fmt(mise+m3)}`,
-          net: net_si_bk2_gagne,
+          label: `Issue adverse — ${bk2} gagne`,
+          detail: `Encaissé : ${fmt(m2*c2)} | Perdus : ${fmt(mise)} (bk1) + ${fmt(m3)} (nul) = ${fmt(mise+m3)}`,
+          net: net_adverse,
           warning: null
         },
         {
-          label: `✅ Match nul (couverture 2)`,
-          detail: `Tu encaisses ${fmt(m3*c3)} − tu avais misé ${fmt(mise+m2)}`,
-          net: net_si_nul,
+          label: `Match nul`,
+          detail: `Encaissé : ${fmt(m3*c3)} | Perdus : ${fmt(mise)} (bk1) + ${fmt(m2)} (adverse) = ${fmt(mise+m2)}`,
+          net: net_nul,
           warning: null
         },
         {
-          label: `${net_si_bk1_gagne >= 0 ? '✅' : '⚠️'} Ton pari ${bk1} GAGNE`,
-          detail: `Tu encaisses ${fmt(mise*c1)} − tu avais misé ${fmt(m2+m3)}`,
-          net: net_si_bk1_gagne,
-          warning: net_si_bk1_gagne >= 0 ? null : `Si ce bonus est "pari perdant remboursé", ton pari ${bk1} DOIT perdre pour déclencher le bonus. Si il gagne → pas de bonus → perte de ${fmt(-net_si_bk1_gagne)}.`
+          label: `${bk1} gagne (ton pari)`,
+          detail: `Encaissé : ${fmt(mise*c1)} | Perdus : ${fmt(m2)} (adverse) + ${fmt(m3)} (nul) = ${fmt(m2+m3)}`,
+          net: net_bk1,
+          warning: !isSB
+            ? `⚠️ BONUS "PERDANT REMBOURSÉ" : si ${bk1} gagne → ton pari gagne → PAS de freebet reçu. Tu perds ${fmt(Math.abs(net_bk1 < 0 ? net_bk1 : -(m2+m3-mise*c1)))} de couverture sans compensation.`
+            : null
         },
       ],
-      profit_garanti: profitGaranti,
-      cap, bk1, bk2, type: 'Surebet',
-      warning: marge < 1.0
-        ? `🟢 Surebet détecté ! Marge totale = ${(marge*100).toFixed(2)}% < 100% → profit garanti dans TOUS les cas.`
+      profit_garanti: Math.min(net_adverse, net_nul, net_bk1),
+      cap, bk1, bk2, type,
+      warning: isSB
+        ? `🟢 Surebet détecté — marge ${(marge*100).toFixed(2)}% < 100% → profit garanti dans les 3 cas.`
         : null
     });
 
@@ -1334,8 +1411,8 @@ function calcFreebet(){
 
   setResults({
     mises: [
-      { bk: bk1, label: 'Freebet (mise non récupérée)', mise: fb },
-      { bk: bk2, label: 'Couverture cash', mise: couverture },
+      { bk: bk1, label: 'Freebet — mise offerte, non récupérée (pas ton argent)', mise: fb },
+      { bk: bk2, label: 'Couverture cash — seul vrai argent engagé', mise: couverture },
     ],
     scenarios: [
       {
@@ -1351,8 +1428,8 @@ function calcFreebet(){
         warning: null
       },
     ],
-    profit_garanti: net_gagne, // le freebet est toujours joué dans le meilleur scénario
-    cap: couverture, // seule la couverture est du vrai argent
+    profit_garanti: net_gagne,
+    cap: couverture, // seule la couverture est du VRAI argent engagé (pas le freebet)
     bk1, bk2, type: 'Freebet',
     warning: taux < 50
       ? `⚠️ Taux de conversion faible (${taux.toFixed(0)}%). Vise des cotes ≥ 4.50 pour atteindre 65%+.`
@@ -3008,6 +3085,7 @@ function switchSuiviTab(id, btn) {
 // INIT
 calculate();
 calcFreebet();
+checkCote1();
 renderBonusGrid();
 renderTracker();
 renderDashboard();
