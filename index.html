@@ -1537,16 +1537,16 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
     <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.7rem;">Détail du calcul</div>
     <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:1rem;font-size:0.8rem;">
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
-        <span style="color:var(--muted);">Gain brut freebet = \${fb} × (\${c1} − 1)</span>
-        <span style="font-weight:700;color:var(--text);">\${formatC(gainBrut)}</span>
+        <span style="color:var(--muted);">Gain brut freebet = ${fb} × (${c1} − 1)</span>
+        <span style="font-weight:700;color:var(--text);">${formatC(gainBrut)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
-        <span style="color:var(--muted);">Mise couverture = \${formatC(gainBrut)} ÷ \${c2}</span>
-        <span style="font-weight:700;color:var(--acc);">\${formatC(miseCouv)}</span>
+        <span style="color:var(--muted);">Mise couverture = ${formatC(gainBrut)} ÷ ${c2}</span>
+        <span style="font-weight:700;color:var(--acc);">${formatC(miseCouv)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:4px 0;">
-        <span style="color:var(--muted);">Profit = \${formatC(gainBrut)} − \${formatC(miseCouv)}</span>
-        <span style="font-weight:700;color:var(--success);">\${formatS(profitGaranti)}</span>
+        <span style="color:var(--muted);">Profit = ${formatC(gainBrut)} − ${formatC(miseCouv)}</span>
+        <span style="font-weight:700;color:var(--success);">${formatS(profitGaranti)}</span>
       </div>
     </div>
 
@@ -1555,17 +1555,17 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
         <div>
-          <span style="font-weight:700;">\${bk1}</span>
+          <span style="font-weight:700;">${bk1}</span>
           <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Freebet — 0€ de ta poche</span>
         </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--muted);">\${formatC(fb)}</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--muted);">${formatC(fb)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
         <div>
-          <span style="font-weight:700;">\${bk2}</span>
+          <span style="font-weight:700;">${bk2}</span>
           <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
         </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">\${formatC(miseCouv)}</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(miseCouv)}</span>
       </div>
     </div>
 
@@ -1576,18 +1576,18 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-weight:600;font-size:0.85rem;">Freebet gagne</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net \${formatC(gainBrut)} − couverture \${formatC(miseCouv)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net ${formatC(gainBrut)} − couverture ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">\${formatS(profitGagne)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitGagne)}</span>
         </div>
       </div>
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-weight:600;font-size:0.85rem;">Freebet perd</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Couverture récupérée \${formatC(miseCouv * c2)} − mise \${formatC(miseCouv)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Couverture récupérée ${formatC(miseCouv * c2)} − mise ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">\${formatS(profitPerd)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitPerd)}</span>
         </div>
       </div>
     </div>
@@ -1595,24 +1595,24 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
     <!-- Bilan -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.8rem;">
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--success);">\${formatS(profitGaranti)}\${garantiLabel}</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--success);">${formatS(profitGaranti)}${garantiLabel}</div>
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Profit garanti</div>
       </div>
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:\${tauxColor};">\${tauxConv.toFixed(1)}%</div>
-        <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Taux conversion \${tauxLabel}</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:${tauxColor};">${tauxConv.toFixed(1)}%</div>
+        <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Taux conversion ${tauxLabel}</div>
       </div>
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">\${formatC(miseCouv)}</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">${formatC(miseCouv)}</div>
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Cash engagé</div>
       </div>
     </div>
 
     <!-- Résumé automatique -->
     <div id="fb-summary-box" style="font-size:0.78rem;color:var(--muted);line-height:1.7;padding:0.8rem 1rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);margin-bottom:0.8rem;">
-      Pour une freebet de <strong style="color:var(--text);">\${formatC(fb)}</strong> sur <strong style="color:var(--text);">\${bk1}</strong> à la cote <strong style="color:var(--text);">\${c1}</strong>,
-      mise <strong style="color:var(--acc);">\${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">\${bk2}</strong> à la cote <strong style="color:var(--text);">\${c2}</strong>.
-      Profit garanti : <strong style="color:var(--success);">\${formatS(profitGaranti)}</strong> (taux \${tauxConv.toFixed(1)}%) — quel que soit le résultat.\${note ? '<br>📝 ' + note : ''}
+      Pour une freebet de <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1}</strong> à la cote <strong style="color:var(--text);">${c1}</strong>,
+      mise <strong style="color:var(--acc);">${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> à la cote <strong style="color:var(--text);">${c2}</strong>.
+      Profit garanti : <strong style="color:var(--success);">${formatS(profitGaranti)}</strong> (taux ${tauxConv.toFixed(1)}%) — quel que soit le résultat.${note ? '<br>📝 ' + note : ''}
     </div>
 
     <!-- Actions -->
