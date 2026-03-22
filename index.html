@@ -1247,6 +1247,130 @@ function formatPct(n) {
   return n.toFixed(1) + '%';
 }
 
+
+function showCalcError(message) {
+  const misesEl = document.getElementById('r-mises');
+  const scenariosEl = document.getElementById('r-scenarios');
+  const bilanEl = document.getElementById('r-bilan');
+  const warningEl = document.getElementById('r-warning');
+  const summaryTitleEl = document.getElementById('r-summary-title');
+  const summaryTextEl = document.getElementById('r-summary-text');
+
+  if (misesEl) {
+    misesEl.innerHTML = `<div style="color:var(--muted);font-size:0.82rem;">—</div>`;
+  }
+  if (scenariosEl) {
+    scenariosEl.innerHTML = `<div style="color:var(--danger);font-size:0.82rem;">⚠️ ${message}</div>`;
+  }
+  if (bilanEl) {
+    bilanEl.innerHTML = `
+      <div style="font-size:0.68rem;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.45rem;">Statut</div>
+      <div style="font-size:0.92rem;font-weight:700;color:var(--danger);">Calcul impossible</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-top:0.35rem;">${message}</div>
+    `;
+  }
+  if (warningEl) {
+    warningEl.style.display = 'none';
+    warningEl.innerHTML = '';
+  }
+  if (summaryTitleEl) summaryTitleEl.textContent = '⚠️ Vérifie les champs';
+  if (summaryTextEl) summaryTextEl.textContent = message;
+
+  currentCalcResult = null;
+  lastCalcSummary = '';
+}
+
+function renderResults({ mises = [], scenarios = [], bilanItems = [], summary = '', analysisTitle = '—', analysisText = '' }) {
+  const misesEl = document.getElementById('r-mises');
+  const scenariosEl = document.getElementById('r-scenarios');
+  const bilanEl = document.getElementById('r-bilan');
+  const warningEl = document.getElementById('r-warning');
+  const summaryTitleEl = document.getElementById('r-summary-title');
+  const summaryTextEl = document.getElementById('r-summary-text');
+
+  if (misesEl) {
+    misesEl.innerHTML = mises.map(item => `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:0.7rem 0.8rem;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);">
+        <div>
+          <div style="font-size:0.84rem;font-weight:700;color:var(--text);">${item.label || ''}</div>
+          <div style="font-size:0.76rem;color:var(--muted);margin-top:0.15rem;">${item.bk || ''}</div>
+        </div>
+        <div style="text-align:right;white-space:nowrap;">
+          <div style="font-size:0.95rem;font-weight:800;color:var(--acc);">${formatC(item.mise || 0)}</div>
+          ${item.tag ? `<div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-top:0.15rem;">${item.tag}</div>` : ''}
+        </div>
+      </div>
+    `).join('') || `<div style="color:var(--muted);font-size:0.82rem;">Aucune mise à afficher.</div>`;
+  }
+
+  if (scenariosEl) {
+    scenariosEl.innerHTML = scenarios.map(sc => {
+      const levelStyle = sc.warningLevel === 'miss'
+        ? 'border:1px solid rgba(255,82,82,0.35);background:rgba(255,82,82,0.08);'
+        : sc.warningLevel === 'est'
+          ? 'border:1px solid rgba(255,107,26,0.28);background:rgba(255,107,26,0.07);'
+          : 'border:1px solid var(--border2);background:var(--dark3);';
+
+      const total = typeof sc.netForDisplay === 'number' ? sc.netForDisplay : (typeof sc.total === 'number' ? sc.total : 0);
+      const totalColor = total >= 0 ? 'var(--success)' : 'var(--danger)';
+
+      return `
+        <div style="${levelStyle}border-radius:var(--radius-sm);padding:0.9rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+            <div>
+              <div style="font-size:0.84rem;font-weight:700;color:var(--text);">${sc.label || ''}</div>
+              <div style="font-size:0.76rem;color:var(--muted);margin-top:0.2rem;line-height:1.45;">${sc.detail || ''}</div>
+            </div>
+            <div style="text-align:right;white-space:nowrap;">
+              <div style="font-size:0.96rem;font-weight:800;color:${totalColor};">${formatS(total)}</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:0.15rem;">résultat affiché</div>
+            </div>
+          </div>
+          ${(typeof sc.cash === 'number' || typeof sc.bonus === 'number') ? `
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:0.65rem;font-size:0.75rem;color:var(--muted);">
+              ${typeof sc.cash === 'number' ? `<span>Cash : <strong style="color:var(--text);">${formatS(sc.cash)}</strong></span>` : ''}
+              ${typeof sc.bonus === 'number' && sc.bonus > 0 ? `<span>Bonus : <strong style="color:var(--acc);">${formatS(sc.bonus)}</strong></span>` : ''}
+            </div>
+          ` : ''}
+          ${sc.bonusNote ? `<div style="margin-top:0.65rem;font-size:0.75rem;color:${sc.warningLevel === 'miss' ? 'var(--danger)' : 'var(--warning)'};line-height:1.5;">${sc.bonusNote}</div>` : ''}
+        </div>
+      `;
+    }).join('') || `<div style="color:var(--muted);font-size:0.82rem;">Aucun scénario à afficher.</div>`;
+  }
+
+  if (bilanEl) {
+    bilanEl.innerHTML = `
+      <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.7rem;">Bilan rapide</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;">
+        ${bilanItems.map(item => `
+          <div style="padding:0.8rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--border2);">
+            <div style="font-size:0.98rem;font-weight:800;color:${item.color || 'var(--text)'};">${item.val || '—'}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem;">${item.label || ''}</div>
+            ${item.badge ? `<div style="font-size:0.66rem;color:var(--acc);text-transform:uppercase;letter-spacing:0.6px;margin-top:0.3rem;">${item.badge}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (warningEl) {
+    const warningScenario = scenarios.find(sc => sc.bonusNote && (sc.warningLevel === 'miss' || sc.warningLevel === 'est'));
+    if (warningScenario) {
+      warningEl.style.display = 'block';
+      warningEl.style.background = warningScenario.warningLevel === 'miss' ? 'rgba(255,82,82,0.08)' : 'rgba(255,184,77,0.08)';
+      warningEl.style.border = warningScenario.warningLevel === 'miss' ? '1px solid rgba(255,82,82,0.35)' : '1px solid rgba(255,184,77,0.32)';
+      warningEl.style.color = warningScenario.warningLevel === 'miss' ? 'var(--danger)' : 'var(--warning)';
+      warningEl.innerHTML = warningScenario.bonusNote;
+    } else {
+      warningEl.style.display = 'none';
+      warningEl.innerHTML = '';
+    }
+  }
+
+  if (summaryTitleEl) summaryTitleEl.textContent = analysisTitle || '—';
+  if (summaryTextEl) summaryTextEl.textContent = analysisText || summary || 'Remplis les champs pour voir l\'analyse.';
+}
+
 // ── Navigation entre modes ────────────────────────────────
 
 function setCalcMode(mode, btn) {
