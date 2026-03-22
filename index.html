@@ -2237,6 +2237,10 @@ const ANJ_WHITELIST = {
 };
 const ANJ_BOOKS = Object.keys(ANJ_WHITELIST);
 const ANJ_NAMES = Object.values(ANJ_WHITELIST);
+const SCAN_CACHE_TTL_MS = 90 * 1000;
+const SCAN_MIN_INTERVAL_MS = 4000;
+const scanRequestCache = new Map();
+let scanLastStartedAt = 0;
 
 const ALL_COMPS = {
   soccer: [
@@ -2358,17 +2362,105 @@ function initScanBkSelect() {
 
 // ── Fetch The Odds API ──────────────────────────────────
 
-async function fetchOdds(sportKey, apiKey) {
+function buildScanSelectionKey(source, targetBk = '') {
+  return JSON.stringify({
+    source,
+    sport: scanSport || 'all',
+    comp: scanComp || 'all',
+    bk: targetBk || '',
+    version: 'scan-v2'
+  });
+}
+
+function getCachedScanEntry(key) {
+  const entry = scanRequestCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.savedAt) > SCAN_CACHE_TTL_MS) {
+    scanRequestCache.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+function setCachedScanEntry(key, value) {
+  scanRequestCache.set(key, { ...value, savedAt: Date.now() });
+}
+
+function applyScanPayload(payload, meta = {}) {
+  const { matches = [], allOpps = [], quotaText = '', fromCache = false, updatedAt = null } = payload || {};
+  const dot = document.getElementById('scan-dot');
+
+  scanData = allOpps;
+
+  const nIdeal   = allOpps.filter(o => o.zone === 'ideal').length;
+  const nCorrect = allOpps.filter(o => o.zone === 'correct').length;
+  const nSB      = matches.filter(m => analyzeSurebet(m).isSB).length;
+  const bestP    = allOpps.length ? Math.max(...allOpps.map(o => o.perteQualif)) : null;
+
+  document.getElementById('ss-matchs').textContent   = matches.length;
+  document.getElementById('ss-ideaux').textContent   = nIdeal;
+  document.getElementById('ss-corrects').textContent = nCorrect;
+  document.getElementById('ss-surebets').textContent = nSB;
+  document.getElementById('ss-best-perte').textContent = bestP !== null
+    ? (bestP >= 0 ? '+' : '') + bestP.toFixed(2).replace('.',',') + '€' : '—';
+
+  if (quotaText) document.getElementById('scan-quota').textContent = quotaText;
+
+  document.getElementById('scan-summary').style.display = 'grid';
+  dot.className = 'scanner-dot live';
+  document.getElementById('scan-status-text').textContent =
+    `${allOpps.length} opportunités · ${nIdeal} idéales${fromCache ? ' · cache' : ''}`;
+
+  const stamp = updatedAt || Date.now();
+  document.getElementById('scan-last-update').textContent = fromCache
+    ? 'Résultats en cache · ' + new Date(stamp).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})
+    : 'Mis à jour ' + new Date(stamp).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+
+  saveTopOpportunities();
+  renderScanResults();
+}
+
+async function fetchOdds(sportKey, apiKey, { forceRefresh = false } = {}) {
+  const cacheKey = `odds:${sportKey}:${apiKey}`;
+  if (!forceRefresh) {
+    const cached = getCachedScanEntry(cacheKey);
+    if (cached) return { data: cached.data, quotaText: cached.quotaText || '', fromCache: true, updatedAt: cached.updatedAt || cached.savedAt };
+  }
+
   const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/`
     + `?apiKey=${apiKey}&regions=fr,eu&markets=h2h&oddsFormat=decimal`
     + `&bookmakers=${ANJ_BOOKS.join(',')}`;
   const resp = await fetch(url);
   if (resp.status === 401) throw new Error('Clé API invalide');
-  if (resp.status === 429) throw new Error('Quota dépassé — réessaie demain');
-  if (resp.status === 404 || !resp.ok) return [];
+  if (resp.status === 429) {
+    const stale = scanRequestCache.get(cacheKey);
+    if (stale?.data) return { data: stale.data, quotaText: stale.quotaText || '', fromCache: true, updatedAt: stale.updatedAt || stale.savedAt };
+    throw new Error('Quota dépassé — réessaie demain');
+  }
+  if (resp.status === 404 || !resp.ok) return { data: [], quotaText: '', fromCache: false, updatedAt: Date.now() };
   const rem = resp.headers.get('x-requests-remaining');
-  if (rem) document.getElementById('scan-quota').textContent = `Quota : ${rem}/500`;
-  return await resp.json();
+  const quotaText = rem ? `Quota : ${rem}/500` : '';
+  const data = await resp.json();
+  setCachedScanEntry(cacheKey, { data, quotaText, updatedAt: Date.now() });
+  return { data, quotaText, fromCache: false, updatedAt: Date.now() };
+}
+
+async function fetchCustomScan(apiUrl, sport, { forceRefresh = false } = {}) {
+  const cacheKey = `custom:${apiUrl}:${sport}`;
+  if (!forceRefresh) {
+    const cached = getCachedScanEntry(cacheKey);
+    if (cached) return { ...cached, fromCache: true };
+  }
+
+  const qs = forceRefresh ? '/cotes/force-refresh' : '/cotes';
+  const resp = await fetch(`${apiUrl.replace(/\/$/, '')}${qs}?sport=${sport}`);
+  if (!resp.ok) throw new Error('Serveur injoignable (HTTP ' + resp.status + ')');
+  const data = await resp.json();
+  const bksOk = data.bookmakers_disponibles || [];
+  const quotaText = `✅ ${bksOk.length} BK · ${data.updated_at || ''}`;
+  const payload = { data, quotaText, updatedAt: Date.now() };
+  setCachedScanEntry(cacheKey, payload);
+  return { ...payload, fromCache: false };
 }
 
 // ── Parse : construit les objets matchs avec cotes ANJ ─
@@ -2537,7 +2629,6 @@ function analyzeSurebet(m) {
 
 async function launchScan(forceRefresh = false) {
   if (scanLoading) return;
-  scanLoading = true;
 
   const source  = localStorage.getItem('pm_source') || 'odds';
   const apiKey  = document.getElementById('api-key-input')?.value  || localStorage.getItem('pm_oddskey') || '';
@@ -2546,6 +2637,21 @@ async function launchScan(forceRefresh = false) {
 
   if (source === 'custom' && !apiUrl) { showToast("Entre l'URL de ton serveur Render", 'err'); scanLoading=false; return; }
   if (source === 'odds'   && !apiKey) { showToast('Entre ta clé The Odds API', 'err');          scanLoading=false; return; }
+
+  const selectionKey = buildScanSelectionKey(source, targetBk);
+  const cachedSelection = !forceRefresh ? getCachedScanEntry(selectionKey) : null;
+  if (cachedSelection) {
+    applyScanPayload(cachedSelection.payload, { fromCache: true });
+    return;
+  }
+
+  const now = Date.now();
+  if (!forceRefresh && (now - scanLastStartedAt) < SCAN_MIN_INTERVAL_MS) {
+    showToast('Scan trop rapide : j’utilise le cache pendant quelques secondes', 'err');
+    return;
+  }
+  scanLastStartedAt = now;
+  scanLoading = true;
 
   const dot = document.getElementById('scan-dot');
   dot.className = 'scanner-dot loading';
@@ -2559,16 +2665,16 @@ async function launchScan(forceRefresh = false) {
 
   try {
     let rawMatches = [];
+    let quotaText = '';
+    let usedCache = false;
 
     if (source === 'custom') {
-      const qs   = forceRefresh ? '/cotes/force-refresh' : '/cotes';
       const sport = scanComp !== 'all' ? scanComp : (scanSport !== 'all' ? scanSport : 'football');
-      const resp  = await fetch(`${apiUrl.replace(/\/$/, '')}${qs}?sport=${sport}`);
-      if (!resp.ok) throw new Error('Serveur injoignable (HTTP ' + resp.status + ')');
-      const data  = await resp.json();
-      const bksOk = data.bookmakers_disponibles || [];
-      document.getElementById('scan-quota').textContent = `✅ ${bksOk.length} BK · ${data.updated_at || ''}`;
-      // Convertir le format Mon API → format standard
+      const customResult = await fetchCustomScan(apiUrl, sport, { forceRefresh });
+      const data = customResult.data || {};
+      quotaText = customResult.quotaText || '';
+      usedCache = !!customResult.fromCache;
+
       rawMatches = (data.matchs || []).map(m => ({
         id: m.id || Math.random().toString(36).slice(2),
         home_team: m.equipe1, away_team: m.equipe2,
@@ -2583,24 +2689,26 @@ async function launchScan(forceRefresh = false) {
         }))
       }));
     } else {
-      const sportKeys = getSportKeys();
-      for (let i = 0; i < sportKeys.length; i++) {
-        const raw = await fetchOdds(sportKeys[i], apiKey);
-        rawMatches = rawMatches.concat(raw);
+      const sportKeys = [...new Set(getSportKeys())];
+      const responses = [];
+      for (const sportKey of sportKeys) {
+        const result = await fetchOdds(sportKey, apiKey, { forceRefresh });
+        responses.push(result);
+        rawMatches = rawMatches.concat(result.data || []);
       }
+      const freshestQuota = [...responses].reverse().find(r => r.quotaText);
+      quotaText = freshestQuota?.quotaText || '';
+      usedCache = responses.length > 0 && responses.every(r => r.fromCache);
     }
 
-    // Parser les matchs
     const matches = parseMatches(rawMatches);
 
-    // Analyser chaque match pour le bonus qualificatif
     let allOpps = [];
     matches.forEach(m => {
       const opps = analyzeForBonus(m, targetBk);
       allOpps = allOpps.concat(opps);
     });
 
-    // Dédupliquer par match+bookmaker+issue
     const seen = new Set();
     allOpps = allOpps.filter(o => {
       const k = `${o.match.id}_${o.bk}_${o.issue}`;
@@ -2608,37 +2716,22 @@ async function launchScan(forceRefresh = false) {
       seen.add(k); return true;
     });
 
-    // Trier : idéal d'abord, puis par perte qualif (moins pire = premier)
     allOpps.sort((a, b) => {
       const zOrder = {ideal:0, correct:1, bad:2};
       if (zOrder[a.zone] !== zOrder[b.zone]) return zOrder[a.zone] - zOrder[b.zone];
-      return b.perteQualif - a.perteQualif; // moins négatif = mieux
+      return b.perteQualif - a.perteQualif;
     });
 
-    scanData = allOpps;
+    const payload = {
+      matches,
+      allOpps,
+      quotaText,
+      fromCache: usedCache,
+      updatedAt: Date.now()
+    };
 
-    // Stats
-    const nIdeal   = allOpps.filter(o => o.zone === 'ideal').length;
-    const nCorrect = allOpps.filter(o => o.zone === 'correct').length;
-    const nSB      = matches.filter(m => analyzeSurebet(m).isSB).length;
-    const bestP    = allOpps.length ? Math.max(...allOpps.map(o => o.perteQualif)) : null;
-
-    document.getElementById('ss-matchs').textContent   = matches.length;
-    document.getElementById('ss-ideaux').textContent   = nIdeal;
-    document.getElementById('ss-corrects').textContent = nCorrect;
-    document.getElementById('ss-surebets').textContent = nSB;
-    document.getElementById('ss-best-perte').textContent = bestP !== null
-      ? (bestP >= 0 ? '+' : '') + bestP.toFixed(2).replace('.',',') + '€' : '—';
-
-    document.getElementById('scan-summary').style.display = 'grid';
-    dot.className = 'scanner-dot live';
-    document.getElementById('scan-status-text').textContent =
-      `${allOpps.length} opportunités · ${nIdeal} idéales`;
-    document.getElementById('scan-last-update').textContent =
-      'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
-
-    saveTopOpportunities();
-    renderScanResults();
+    setCachedScanEntry(selectionKey, { payload });
+    applyScanPayload(payload);
 
   } catch(e) {
     dot.className = 'scanner-dot';
