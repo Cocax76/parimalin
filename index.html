@@ -1253,12 +1253,12 @@ function setCalcMode(mode, btn) {
   calcMode = mode;
   document.querySelectorAll('.calc-mode-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.calc-mode-section').forEach(s => s.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('cm-' + mode).classList.add('active');
-  // Afficher/masquer champs conditionnels
+  if (btn) btn.classList.add('active');
+  const section = document.getElementById('cm-' + mode);
+  if (section) section.classList.add('active');
   if (mode === 'advanced') {
-    document.getElementById('adv_conv_wrap').style.display =
-      document.getElementById('adv_remb_type')?.value === 'freebet' ? 'block' : 'none';
+    const advConvWrap = document.getElementById('adv_conv_wrap');
+    if (advConvWrap) advConvWrap.style.display = document.getElementById('adv_remb_type')?.value === 'freebet' ? 'block' : 'none';
   }
   runCalc();
 }
@@ -1294,6 +1294,131 @@ function updateCoteHint(inputId, hintId) {
   else if (c >= 2.5 && c <= 3.5 && hintId === 'fb_c1_hint')
                                    { el.textContent = '✅ Optimal'; el.style.color = 'var(--success)'; }
   else                             { el.textContent = ''; }
+}
+
+
+function showCalcError(msg) {
+  const mises = document.getElementById('r-mises');
+  const scenarios = document.getElementById('r-scenarios');
+  const bilan = document.getElementById('r-bilan');
+  const warning = document.getElementById('r-warning');
+  const st = document.getElementById('r-summary-title');
+  const sx = document.getElementById('r-summary-text');
+  if (mises) mises.innerHTML = '';
+  if (scenarios) scenarios.innerHTML = '';
+  if (bilan) bilan.innerHTML = '';
+  if (warning) {
+    warning.style.display = 'block';
+    warning.style.background = 'rgba(255,77,77,0.08)';
+    warning.style.border = '1px solid rgba(255,77,77,0.25)';
+    warning.style.color = 'var(--danger)';
+    warning.innerHTML = '⚠️ ' + msg;
+  }
+  if (st) st.textContent = 'Erreur de calcul';
+  if (sx) sx.textContent = msg;
+}
+
+function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText }) {
+  const rMises = document.getElementById('r-mises');
+  const rScenarios = document.getElementById('r-scenarios');
+  const rBilan = document.getElementById('r-bilan');
+  const rWarning = document.getElementById('r-warning');
+  const rSummaryTitle = document.getElementById('r-summary-title');
+  const rSummaryText = document.getElementById('r-summary-text');
+  if (!rMises || !rScenarios || !rBilan || !rWarning || !rSummaryTitle || !rSummaryText) return;
+
+  rMises.innerHTML = (mises || []).map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+      <div>
+        <div style="font-weight:700;font-size:0.82rem;">${m.bk}</div>
+        <div style="font-size:0.72rem;color:var(--muted);">${m.label}</div>
+      </div>
+      <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;${m.tag==='ppal'?'color:var(--muted);':'color:var(--acc);'}">${formatC(m.mise)}</div>
+    </div>
+  `).join('');
+
+  rScenarios.innerHTML = (scenarios || []).map(s => {
+    const total = s.netForDisplay != null ? s.netForDisplay : s.total;
+    const totalColor = total >= 0 ? 'var(--success)' : 'var(--danger)';
+    const bg = s.warningLevel === 'miss'
+      ? 'rgba(255,77,77,0.06)'
+      : s.warningLevel ? 'rgba(255,184,0,0.06)' : 'rgba(255,255,255,0.03)';
+    const bd = s.warningLevel === 'miss'
+      ? 'rgba(255,77,77,0.22)'
+      : s.warningLevel ? 'rgba(255,184,0,0.18)' : 'var(--border2)';
+    return `
+      <div style="padding:10px 12px;background:${bg};border:1px solid ${bd};border-radius:var(--radius-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:0.84rem;">${s.label}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;line-height:1.55;">${s.detail}</div>
+            ${s.bonusNote ? `<div style="font-size:0.70rem;color:${s.warningLevel==='miss'?'var(--danger)':'var(--warning)'};margin-top:6px;line-height:1.5;">${s.bonusNote}</div>` : ''}
+          </div>
+          <div style="text-align:right;min-width:82px;">
+            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:${totalColor};">${formatS(total)}</div>
+            <div style="font-size:0.67rem;color:var(--muted);margin-top:2px;">résultat opé.</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  rBilan.innerHTML = `<div style="display:grid;grid-template-columns:repeat(${Math.max(1, (bilanItems || []).length)},1fr);gap:8px;text-align:center;">` +
+    (bilanItems || []).map(item => `
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800;color:${item.color || 'var(--text)'};">${item.val}${item.badge ? `<span style="display:inline-block;margin-left:5px;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,0.08);color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;vertical-align:middle;">${item.badge}</span>` : ''}</div>
+        <div style="font-size:0.66rem;color:var(--muted);margin-top:3px;">${item.label}</div>
+      </div>
+    `).join('') + `</div>`;
+
+  rWarning.style.display = 'block';
+  const warningState = /❌/.test(analysisTitle) ? 'bad' : /⚠️/.test(analysisTitle) ? 'warn' : 'ok';
+  if (warningState === 'bad') {
+    rWarning.style.background = 'rgba(255,77,77,0.08)';
+    rWarning.style.border = '1px solid rgba(255,77,77,0.25)';
+    rWarning.style.color = 'var(--danger)';
+  } else if (warningState === 'warn') {
+    rWarning.style.background = 'rgba(255,184,0,0.08)';
+    rWarning.style.border = '1px solid rgba(255,184,0,0.25)';
+    rWarning.style.color = 'var(--warning)';
+  } else {
+    rWarning.style.background = 'rgba(0,201,107,0.08)';
+    rWarning.style.border = '1px solid rgba(0,201,107,0.22)';
+    rWarning.style.color = 'var(--success)';
+  }
+  rWarning.innerHTML = `<strong>${analysisTitle}</strong><br><span style="line-height:1.6;">${analysisText}</span>`;
+  rSummaryTitle.textContent = analysisTitle;
+  rSummaryText.textContent = summary;
+}
+
+function setFields(obj) {
+  Object.entries(obj || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+}
+
+function resetMode(mode) {
+  if (mode === 'qualif') {
+    setFields({ q_mise: 100, q_mkt: '2way', q_c1: 2.10, q_c2: 1.85, q_c3: 3.40, q_bonus_type: 'freebet', q_conv: 75 });
+  }
+  runCalc();
+}
+
+function exampleMode(mode) {
+  if (mode === 'qualif') {
+    setFields({ q_mise: 100, q_mkt: '2way', q_c1: 2.10, q_c2: 1.85, q_bonus_type: 'freebet', q_conv: 75 });
+    const b1 = document.getElementById('q_bk1');
+    const b2 = document.getElementById('q_bk2');
+    if (b1) b1.value = 'Betsson';
+    if (b2) b2.value = 'Winamax';
+  }
+  runCalc();
+}
+
+function copyCalcSummary() {
+  if (!lastCalcSummary) { showToast('Lance d'abord un calcul', 'err'); return; }
+  navigator.clipboard.writeText(lastCalcSummary).then(() => showToast('📋 Résumé copié !', 'ok')).catch(() => showToast('Erreur copie', 'err'));
 }
 
 // ── Point d'entrée unique ─────────────────────────────────
@@ -3058,6 +3183,7 @@ if (savedKey) { const el = document.getElementById('api-key-input'); if(el) el.v
 // Pre-fill Odds API key if stored
 const oddsKey = localStorage.getItem('pm_oddskey') || '';
 if (oddsKey) { localStorage.setItem('pm_oddskey', oddsKey); const el = document.getElementById('api-key-input'); if(el) el.value = oddsKey; }
+setTimeout(() => { try { runCalc(); calcFreebet(); } catch(e) { console.error('Calc init', e); } }, 120);
 </script>
 </body>
 </html>
