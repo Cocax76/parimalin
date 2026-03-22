@@ -2306,7 +2306,7 @@ function selectComp(comp, btn) {
 function getSportKeys() {
   if (scanComp !== 'all') return [scanComp];
   if (scanSport !== 'all' && ALL_COMPS[scanSport]) return ALL_COMPS[scanSport].map(c => c.key);
-  return ['soccer_france_ligue1','soccer_epl','soccer_uefa_champs_league','soccer_germany_bundesliga','soccer_spain_la_liga'];
+  return [...new Set(Object.values(ALL_COMPS).flat().map(c => c.key))];
 }
 
 // ── Filtre et tri du scanner ──────────────────────────
@@ -2371,16 +2371,38 @@ async function fetchOdds(sportKey, apiKey) {
 
 // ── Parse : construit les objets matchs avec cotes ANJ ─
 
+function getMatchTimestamp(match) {
+  const rawTs = match?.timestamp ?? match?.start_time ?? match?.commence_time;
+  if (typeof rawTs === 'number' && Number.isFinite(rawTs)) {
+    return rawTs > 1e12 ? rawTs : rawTs * 1000;
+  }
+  if (typeof rawTs === 'string' && rawTs.trim()) {
+    const parsed = Date.parse(rawTs);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return null;
+}
+
+function isUpcomingMatch(match, bufferMs = 5 * 60 * 1000) {
+  const ts = getMatchTimestamp(match);
+  if (!ts) return true;
+  return ts > (Date.now() + bufferMs);
+}
+
 function parseMatches(rawMatches) {
   return rawMatches.map(match => {
+    if (!isUpcomingMatch(match)) return null;
+
     const bookmakers = {};
-    match.bookmakers.forEach(bk => {
+    (match.bookmakers || []).forEach(bk => {
       if (!ANJ_WHITELIST[bk.key]) return;
       const h2h = bk.markets?.find(m => m.key === 'h2h');
       if (!h2h) return;
       const odds = {};
       h2h.outcomes.forEach(o => {
-        const p = parseFloat(o.price.toFixed(2));
+        const price = Number(o.price);
+        if (!Number.isFinite(price) || price <= 1) return;
+        const p = parseFloat(price.toFixed(2));
         if (o.name === match.home_team)      odds['1'] = p;
         else if (o.name === match.away_team) odds['2'] = p;
         else                                 odds['X'] = p;
@@ -2388,12 +2410,19 @@ function parseMatches(rawMatches) {
       if (Object.keys(odds).length >= 2) bookmakers[ANJ_WHITELIST[bk.key]] = odds;
     });
     if (Object.keys(bookmakers).length < 2) return null;
-    const t = new Date(match.commence_time);
+
+    const ts = getMatchTimestamp(match);
+    const t = ts ? new Date(ts) : null;
     return {
-      id: match.id, equipe1: match.home_team, equipe2: match.away_team,
+      id: match.id || Math.random().toString(36).slice(2),
+      equipe1: match.home_team,
+      equipe2: match.away_team,
       competition: match.sport_title,
-      heure: t.toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),
-      timestamp: t.getTime(), bookmakers
+      heure: t
+        ? t.toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+        : 'À venir',
+      timestamp: ts || Date.now(),
+      bookmakers
     };
   }).filter(Boolean);
 }
@@ -2539,10 +2568,11 @@ async function launchScan(forceRefresh = false) {
       document.getElementById('scan-quota').textContent = `✅ ${bksOk.length} BK · ${data.updated_at || ''}`;
       // Convertir le format Mon API → format standard
       rawMatches = (data.matchs || []).map(m => ({
-        id: Math.random().toString(36).slice(2),
+        id: m.id || Math.random().toString(36).slice(2),
         home_team: m.equipe1, away_team: m.equipe2,
         sport_title: m.competition,
-        commence_time: m.heure || new Date().toISOString(),
+        commence_time: m.commence_time || m.heure || null,
+        timestamp: m.timestamp || null,
         bookmakers: Object.entries(m.bookmakers || {}).map(([name, odds]) => ({
           key: Object.entries(ANJ_WHITELIST).find(([,n])=>n===name)?.[0] || name,
           markets: [{key:'h2h', outcomes: Object.entries(odds).map(([k,v]) => ({
@@ -2552,7 +2582,7 @@ async function launchScan(forceRefresh = false) {
       }));
     } else {
       const sportKeys = getSportKeys();
-      for (let i = 0; i < Math.min(sportKeys.length, 4); i++) {
+      for (let i = 0; i < sportKeys.length; i++) {
         const raw = await fetchOdds(sportKeys[i], apiKey);
         rawMatches = rawMatches.concat(raw);
       }
