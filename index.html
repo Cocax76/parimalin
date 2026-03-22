@@ -756,39 +756,76 @@ body.light .hero-grid{opacity:0.15;}
       </div>
     </div>
 
-    <!-- Freebet (onglet secondaire) -->
-    <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border2);">
-      <div style="font-size:0.88rem;font-weight:700;margin-bottom:1rem;">💡 Convertir ta freebet</div>
+    <!-- MODULE CONVERSION FREEBET -->
+    <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border2);" id="section-freebet">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.2rem;">
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;">💸 Conversion de freebet</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">La mise freebet n'est jamais rendue — formule SNR exacte</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="resetFreebet()" style="padding:6px 13px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:0.78rem;color:var(--muted);font-family:'DM Sans',sans-serif;">↺ Reset</button>
+          <button onclick="exampleFreebet()" style="padding:6px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(255,107,26,0.07);cursor:pointer;font-size:0.78rem;color:var(--acc);font-family:'DM Sans',sans-serif;font-weight:600;">▶ Exemple 100€ @ 3.50</button>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-bottom:1.2rem;font-size:0.8rem;line-height:1.6;color:var(--muted);">
+        <strong style="color:var(--text);">Formule SNR :</strong>
+        gain_freebet = montant × (cote_freebet − 1) &nbsp;|&nbsp;
+        mise_couverture = gain_freebet ÷ cote_couverture &nbsp;|&nbsp;
+        <strong style="color:var(--success);">profit garanti ≈ gain_freebet − mise_couverture</strong>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;" id="fb-grid">
-        <div class="card">
+
+        <!-- Saisie -->
+        <div class="card" style="display:flex;flex-direction:column;gap:0.9rem;">
+
           <div class="field-row">
             <div class="field">
               <label>Bookmaker freebet</label>
               <select id="fb_bk1" onchange="calcFreebet()"></select>
             </div>
             <div class="field">
-              <label>Montant freebet (€)</label>
-              <input type="number" id="fb_val" value="100" min="1" oninput="calcFreebet()">
+              <label>Bookmaker couverture</label>
+              <select id="fb_bk2" onchange="calcFreebet()"></select>
             </div>
           </div>
+
+          <div class="field">
+            <label>Montant freebet (€) <span style="font-size:0.7rem;color:var(--muted);">= 0€ de ta poche</span></label>
+            <input type="number" id="fb_val" value="100" min="1" step="1" oninput="calcFreebet()">
+          </div>
+
           <div class="field-row">
             <div class="field">
-              <label>Cote freebet <span style="font-size:0.7rem;color:var(--muted);">sweet spot : 2.50–3.50</span></label>
-              <input type="number" id="fb_c1" value="3.00" min="1.01" step="0.05" oninput="calcFreebet()">
+              <label>Cote freebet <span id="fb_c1_badge" style="font-size:0.7rem;font-weight:700;margin-left:5px;"></span></label>
+              <input type="number" id="fb_c1" value="3.50" min="1.01" step="0.05" oninput="calcFreebet()">
+              <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sweet spot : 2.50–4.00</span>
             </div>
             <div class="field">
               <label>Cote couverture</label>
               <input type="number" id="fb_c2" value="1.40" min="1.01" step="0.05" oninput="calcFreebet()">
+              <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sur l'issue adverse</span>
             </div>
           </div>
+
           <div class="field">
-            <label>Bookmaker couverture</label>
-            <select id="fb_bk2" onchange="calcFreebet()"></select>
+            <label>Note / événement <span style="font-size:0.7rem;color:var(--muted);">(optionnel)</span></label>
+            <input type="text" id="fb_note" placeholder="Ex: PSG vs Lyon — Winamax" oninput="calcFreebet()"
+              style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:10px 12px;outline:none;width:100%;transition:border-color 0.2s;"
+              onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor=''">
           </div>
+
         </div>
+
+        <!-- Résultats -->
         <div class="card" id="fb-results">
-          <div style="color:var(--muted);font-size:0.83rem;">Remplis les champs pour voir le résultat.</div>
+          <div style="color:var(--muted);font-size:0.83rem;text-align:center;padding:1rem 0;">Remplis les champs pour voir le calcul.</div>
         </div>
+
       </div>
       <style>#fb-grid{grid-template-columns:1fr 1fr;}@media(max-width:768px){#fb-grid{grid-template-columns:1fr;}}</style>
     </div>
@@ -1461,480 +1498,208 @@ function calcQualif() {
 // MODE 2 — FREEBET SNR
 // ════════════════════════════════════════════════════════
 
-function calcFreebet() {
-  const fb  = sanitize('fb_val', 100);
-  const c1  = sanitize('fb_c1', 3.00);
-  const c2  = sanitize('fb_c2', 1.40);
-  const bk1 = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
-  const bk2 = document.getElementById('fb_bk2')?.value || 'Couverture';
-  const el  = document.getElementById('fb-results');
+function calculateFreebetConversion(fb, c1, c2) {
+  // ── Logique métier SNR exacte ──
+  // La mise freebet n'est JAMAIS rendue
+  // Gain brut freebet si gagne = fb × (c1 - 1)
+  const gainBrut    = fb * (c1 - 1);
+  // Mise couverture optimale pour équilibrer les 2 scénarios
+  const miseCouv    = gainBrut / c2;
+  // Scénario 1 : freebet gagne
+  const profitGagne = gainBrut - miseCouv;
+  // Scénario 2 : freebet perd → couverture gagne
+  const retourCouv  = miseCouv * c2;
+  const profitPerd  = retourCouv - miseCouv; // = 0 si parfaitement équilibré
+  // Profit garanti = min des 2 (en pratique = profitGagne grâce à l'arrondi)
+  const profitGaranti = Math.min(profitGagne, profitPerd);
+  // Taux de conversion réel = profitGaranti / montant_freebet
+  const tauxConv    = (profitGaranti / fb) * 100;
+  return { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv, retourCouv };
+}
+
+function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
+  const el = document.getElementById('fb-results');
   if (!el) return;
 
-  if (c1 <= 1 || c2 <= 1 || fb <= 0) {
-    el.innerHTML = '<div style="color:var(--danger);font-size:0.83rem;">⚠️ Valeurs invalides.</div>';
-    return;
-  }
+  const { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv } = res;
 
-  // ── Formule SNR exacte ──
-  // Gain utile si freebet gagne = fb × (cote − 1)  [mise non rendue]
-  // Couverture optimale = gainUtile / cote_couverture
-  const gainUtile  = fb * (c1 - 1);
-  const couverture = gainUtile / c2;
-  const net_gagne  = gainUtile - couverture;   // quasi-garanti si cotes bien choisies
-  const net_perd   = 0;                         // couverture compense exactement si cotes équilibrées
-  const tauxConv   = (net_gagne / fb) * 100;
-
-  // Couleur taux
   const tauxColor = tauxConv >= 65 ? 'var(--success)' : tauxConv >= 50 ? 'var(--warning)' : 'var(--danger)';
-  const tauxLabel = tauxConv >= 65 ? '✅ Excellent' : tauxConv >= 50 ? '⚠️ Moyen' : '❌ Mauvais';
+  const tauxLabel = tauxConv >= 65 ? '✅ Excellent' : tauxConv >= 50 ? '⚠️ Moyen' : '❌ Faible';
+
+  // Vérification arrondi : différence entre les 2 scénarios
+  const diff = Math.abs(profitGagne - profitPerd);
+  const garantiLabel = diff < 0.02 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);font-weight:700;margin-left:5px;">GARANTI</span>'
+                     : diff < 0.10 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);font-weight:700;margin-left:5px;">QUASI-GARANTI</span>'
+                     : '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);font-weight:700;margin-left:5px;">ÉCART ±' + formatC(diff) + '</span>';
 
   el.innerHTML = `
-    <!-- Mises à placer -->
-    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;">📌 Mises à placer</div>
-    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
-        <div>
-          <span style="font-weight:700;">${bk1}</span>
-          <span style="font-size:0.75rem;color:var(--muted);margin-left:6px;">Freebet — 0€ de ta poche</span>
-        </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--muted);">${formatC(fb)}</span>
+    <!-- Détail du calcul -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.7rem;">Détail du calcul</div>
+    <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:1rem;font-size:0.8rem;">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
+        <span style="color:var(--muted);">Gain brut freebet = \${fb} × (\${c1} − 1)</span>
+        <span style="font-weight:700;color:var(--text);">\${formatC(gainBrut)}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
-        <div>
-          <span style="font-weight:700;">${bk2}</span>
-          <span style="font-size:0.75rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
-        </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--acc);">${formatC(couverture)}</span>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
+        <span style="color:var(--muted);">Mise couverture = \${formatC(gainBrut)} ÷ \${c2}</span>
+        <span style="font-weight:700;color:var(--acc);">\${formatC(miseCouv)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;">
+        <span style="color:var(--muted);">Profit = \${formatC(gainBrut)} − \${formatC(miseCouv)}</span>
+        <span style="font-weight:700;color:var(--success);">\${formatS(profitGaranti)}</span>
       </div>
     </div>
 
-    <!-- Les 2 scénarios -->
-    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Résultat selon ce qui se passe</div>
+    <!-- Mises à placer -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">📌 Ce que tu mises</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+        <div>
+          <span style="font-weight:700;">\${bk1}</span>
+          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Freebet — 0€ de ta poche</span>
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--muted);">\${formatC(fb)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
+        <div>
+          <span style="font-weight:700;">\${bk2}</span>
+          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">\${formatC(miseCouv)}</span>
+      </div>
+    </div>
+
+    <!-- 2 scénarios -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Les 2 scénarios</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">✅ Freebet gagne</div>
-            <div style="font-size:0.73rem;color:var(--muted);margin-top:2px;">Gain net ${formatC(gainUtile)} − couverture perdue ${formatC(couverture)}</div>
+            <div style="font-weight:600;font-size:0.85rem;">Freebet gagne</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net \${formatC(gainBrut)} − couverture \${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--success);">${formatS(net_gagne)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">\${formatS(profitGagne)}</span>
         </div>
       </div>
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">✅ Freebet perd</div>
-            <div style="font-size:0.73rem;color:var(--muted);margin-top:2px;">Freebet = 0€ de ta poche · couverture récupérée</div>
+            <div style="font-weight:600;font-size:0.85rem;">Freebet perd</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Couverture récupérée \${formatC(miseCouv * c2)} − mise \${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--success);">${formatS(net_perd)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">\${formatS(profitPerd)}</span>
         </div>
       </div>
     </div>
 
     <!-- Bilan -->
-    <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.8rem;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;">
-        <div>
-          <div style="font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--success);">${formatS(net_gagne)}</div>
-          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Profit quasi-garanti</div>
-        </div>
-        <div>
-          <div style="font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;color:${tauxColor};">${tauxConv.toFixed(0)}%</div>
-          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Taux conversion ${tauxLabel}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Résumé -->
-    <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;padding:0.8rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);">
-      Tu joues la freebet <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1} @ ${c1}</strong> et tu mises <strong style="color:var(--acc);">${formatC(couverture)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong>.<br>
-      Quoi qu'il arrive, tu récupères environ <strong style="color:var(--success);">${formatS(net_gagne)}</strong> — seuls <strong style="color:var(--acc);">${formatC(couverture)}</strong> de ton argent réel sont en jeu.
-    </div>
-
-    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:0.8rem;font-size:0.82rem;padding:9px;" onclick="addFreebetToTracker(${net_gagne.toFixed(2)},'${bk1}')">+ Tracker</button>
-  `;
-
-  currentCalcResult = { match: 'Freebet ' + bk1, profit: parseFloat(net_gagne.toFixed(2)), bk: bk1, type: 'Freebet' };
-  lastCalcSummary = `Freebet ${formatC(fb)} sur ${bk1} @ ${c1}. Couverture ${formatC(couverture)} sur ${bk2}. Profit quasi-garanti : ${formatS(net_gagne)} (${tauxConv.toFixed(0)}% de conversion).`;
-}
-
-// ════════════════════════════════════════════════════════
-// MODE 3 — REMBOURSÉ CASH
-// ════════════════════════════════════════════════════════
-
-function calcCashback() {
-  const mise  = sanitize('cb_mise', 100);
-  const remb  = sanitize('cb_remb', 100);
-  const c1    = sanitize('cb_c1', 2.10);
-  const c2    = sanitize('cb_c2', 1.85);
-  const bk1   = document.getElementById('cb_bk1')?.value || 'Bookmaker bonus';
-  const bk2   = document.getElementById('cb_bk2')?.value || 'Couverture';
-
-  if (c1 <= 1 || c2 <= 1) { showCalcError('Cotes invalides'); return; }
-
-  const mCouv        = (mise * c1) / c2;
-  const cap          = mise + mCouv;
-  const net_gagne    = (mise * c1) - mise - mCouv;    // bk1 gagne : retour - mise - couverture
-  const cash_si_perd = (mCouv * c2) - mCouv - mise;  // couverture gagne : retour - mise couv - mise principale
-  const net_perd     = cash_si_perd + remb;        // + remboursement cash
-
-  const mises = [
-    { bk: bk1, label: 'Pari principal', mise, tag: 'ppal' },
-    { bk: bk2, label: 'Couverture', mise: mCouv, tag: 'couv' }
-  ];
-
-  const scenarios = [
-    {
-      label: `${bk1} gagne`,
-      detail: `Encaissé : ${formatC(mise*c1)} | Couverture perdue : −${formatC(mCouv)} | Pas de remboursement`,
-      cash: net_gagne, bonus: 0, bonusNote: '⚠️ Remboursement non déclenché (le pari a gagné)',
-      total: net_gagne, isGarantied: false, warningLevel: 'warn'
-    },
-    {
-      label: `${bk2} gagne (couverture) — remboursement déclenché`,
-      detail: `Cash couverture : ${formatS(cash_si_perd)} | Remboursement cash : +${formatC(remb)}`,
-      cash: cash_si_perd, bonus: remb,
-      bonusNote: `Remboursement cash ${formatC(remb)} — montant certain si conditions remplies`,
-      total: net_perd, isGarantied: false, warningLevel: 'ok'
-    }
-  ];
-
-  const bilanItems = [
-    { val: formatS(net_gagne),    label: 'Si bk1 gagne (sans remb.)', color: net_gagne >= 0 ? 'var(--success)' : 'var(--danger)', badge: null },
-    { val: formatS(net_perd),     label: 'Si couverture gagne (avec remb.)', color: net_perd >= 0 ? 'var(--success)' : 'var(--danger)', badge: net_perd >= 0 ? 'garanti' : null },
-    { val: formatS(cash_si_perd), label: 'Cash immédiat si perd', color: 'var(--muted)', badge: null },
-    { val: formatC(cap),          label: 'Capital engagé', color: 'var(--text)', badge: null }
-  ];
-
-  const summary = `Tu engages ${formatC(cap)}. `
-    + `Si ${bk1} gagne → cash ${formatS(net_gagne)}, pas de remboursement. `
-    + `Si la couverture gagne → cash immédiat ${formatS(cash_si_perd)} + remboursement ${formatC(remb)} en cash = ${formatS(net_perd)}.`;
-
-  const analysisTitle = net_perd >= 0 ? '✅ Profit positif avec remboursement' : '⚠️ Perte même avec remboursement';
-  const analysisText  = net_perd >= 0
-    ? `Avec le remboursement cash, tu gagnes ${formatS(net_perd)} si la couverture gagne.`
-    : `Même avec le remboursement, tu perds ${formatC(Math.abs(net_perd))}. Cherche de meilleures cotes.`;
-
-  currentCalcResult = { match: bk1 + ' vs ' + bk2, profit: parseFloat(net_perd.toFixed(2)), bk: bk1, type: 'Remboursé cash' };
-  lastCalcSummary = summary;
-
-  renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText });
-}
-
-// ════════════════════════════════════════════════════════
-// MODE 4 — SUREBET
-// ════════════════════════════════════════════════════════
-
-function calcSurebet() {
-  const c1   = sanitize('sb_c1', 2.10);
-  const c2   = sanitize('sb_c2', 2.05);
-  const mise = sanitize('sb_mise', 100);
-  const bk1  = document.getElementById('sb_bk1')?.value || 'Bookmaker 1';
-  const bk2  = document.getElementById('sb_bk2')?.value || 'Bookmaker 2';
-
-  if (c1 <= 1 || c2 <= 1) { showCalcError('Cotes invalides'); return; }
-
-  const marge = (1/c1) + (1/c2);
-  const isSB  = marge < 1.0;
-
-  // Mises optimales pour profit équilibré dans les 2 scénarios
-  const total  = mise * c2 / (c2 - 1 + c2/c1);  // mise totale calculée
-  const m1     = (total * c2) / (c1 + c2);        // mise sur issue 1
-  const m2     = (total * c1) / (c1 + c2);        // mise sur issue 2
-  const cap    = m1 + m2;
-
-  const net1   = (m1 * c1) - m1 - m2;   // issue 1 gagne : retour - mise1 - mise2
-  const net2   = (m2 * c2) - m2 - m1;   // issue 2 gagne : retour - mise2 - mise1
-  const profit = Math.min(net1, net2);
-  const roi    = cap > 0 ? (profit / cap * 100) : 0;
-
-  // Alternative : calculer avec mise fixe sur issue 1
-  const m1_fix  = mise;
-  const m2_fix  = (mise * c1) / c2;
-  const cap_fix = m1_fix + m2_fix;
-  const net1_fix = (m1_fix * c1) - m1_fix - m2_fix;
-  const net2_fix = (m2_fix * c2) - m2_fix - m1_fix;
-
-  const mises = [
-    { bk: bk1, label: `Issue 1 (mise ${isSB?'équilibrée':'de référence'})`, mise: isSB ? m1 : m1_fix, tag: 'ppal' },
-    { bk: bk2, label: `Issue 2 (couverture)`, mise: isSB ? m2 : m2_fix, tag: 'couv' }
-  ];
-
-  const scenarios = [
-    {
-      label: `Issue 1 gagne — ${bk1}`,
-      detail: `Encaissé : ${formatC((isSB?m1:m1_fix)*c1)} | Mise 2 perdue : −${formatC(isSB?m2:m2_fix)}`,
-      cash: isSB ? net1 : net1_fix, bonus: 0, bonusNote: null,
-      total: isSB ? net1 : net1_fix, isGarantied: isSB, warningLevel: isSB ? 'ok' : null
-    },
-    {
-      label: `Issue 2 gagne — ${bk2}`,
-      detail: `Encaissé : ${formatC((isSB?m2:m2_fix)*c2)} | Mise 1 perdue : −${formatC(isSB?m1:m1_fix)}`,
-      cash: isSB ? net2 : net2_fix, bonus: 0, bonusNote: null,
-      total: isSB ? net2 : net2_fix, isGarantied: isSB, warningLevel: isSB ? 'ok' : null
-    }
-  ];
-
-  const bilanItems = [
-    {
-      val: isSB ? formatS(profit) : formatS(Math.min(net1_fix, net2_fix)),
-      label: isSB ? 'Profit garanti' : 'Profit minimum',
-      color: isSB ? 'var(--success)' : profit >= 0 ? 'var(--warning)' : 'var(--danger)',
-      badge: isSB ? 'garanti' : null
-    },
-    { val: formatPct(isSB ? roi : 0), label: isSB ? 'ROI garanti' : 'ROI', color: 'var(--warning)', badge: null },
-    { val: formatPct(marge * 100), label: '1/c1 + 1/c2', color: isSB ? 'var(--success)' : 'var(--danger)', badge: null },
-    { val: formatC(isSB ? cap : cap_fix), label: 'Capital engagé', color: 'var(--text)', badge: null }
-  ];
-
-  const summary = isSB
-    ? `✅ Surebet confirmé. Marge ${formatPct(marge*100)} < 100%. `
-      + `Mise ${formatC(isSB?m1:m1_fix)} sur ${bk1} @ ${c1} + ${formatC(isSB?m2:m2_fix)} sur ${bk2} @ ${c2}. `
-      + `Profit garanti : ${formatS(profit)} (ROI ${formatPct(roi)}).`
-    : `❌ Pas de surebet. Marge ${formatPct(marge*100)} > 100% (il faudrait < 100%). `
-      + `Perte garantie quelle que soit l'issue.`;
-
-  const analysisTitle = isSB ? '✅ Surebet rentable — profit garanti' : '❌ Pas de surebet — marge défavorable';
-  const analysisText  = isSB
-    ? `Profit garanti ${formatS(profit)} dans les 2 cas.`
-    : `Pour avoir un surebet, il faut que 1/${c1} + 1/${c2} < 1. Actuellement : ${marge.toFixed(4)} > 1.`;
-
-  currentCalcResult = { match: bk1 + ' vs ' + bk2, profit: parseFloat((isSB?profit:Math.min(net1_fix,net2_fix)).toFixed(2)), bk: bk1, type: 'Surebet' };
-  lastCalcSummary = summary;
-
-  renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText,
-    extraWarning: !isSB ? { type: 'danger', text: `Marge actuelle : ${formatPct(marge*100)}. Il faut descendre sous 100% pour avoir un surebet. Cherche de meilleures cotes.` } : null
-  });
-}
-
-// ════════════════════════════════════════════════════════
-// MODE 5 — AVANCÉ MANUEL
-// ════════════════════════════════════════════════════════
-
-function calcAdvanced() {
-  const m1        = sanitize('adv_m1', 100);
-  const c1        = sanitize('adv_c1', 2.10);
-  const m2        = sanitize('adv_m2', 113);
-  const c2        = sanitize('adv_c2', 1.85);
-  const remb      = sanitize('adv_remb', 0);
-  const rembType  = document.getElementById('adv_remb_type')?.value || 'none';
-  const conv      = sanitize('adv_conv', 75) / 100;
-  const bk1       = document.getElementById('adv_bk1')?.value || 'Bookmaker 1';
-  const bk2       = document.getElementById('adv_bk2')?.value || 'Bookmaker 2';
-
-  const cap       = m1 + m2;
-  const retour1   = m1 * c1;   // brut si mise 1 gagne
-  const retour2   = m2 * c2;   // brut si mise 2 gagne
-
-  // Cash immédiat dans chaque scénario
-  const cash1 = retour1 - m1 - m2;   // mise 1 gagne : retour - toutes les mises
-  const cash2 = retour2 - m2 - m1;   // mise 2 gagne : retour - toutes les mises
-
-  // Bonus dans chaque scénario (seulement si mise 1 perd)
-  let bonus1 = 0, bonus2 = 0;
-  if (remb > 0 && rembType !== 'none') {
-    // Convention : remboursement déclenché si mise 1 perd (scénario 2)
-    bonus2 = rembType === 'cash' ? remb : remb * conv;
-  }
-
-  const total1 = cash1 + bonus1;
-  const total2 = cash2 + bonus2;
-
-  const mises = [
-    { bk: bk1, label: 'Mise 1', mise: m1, tag: 'ppal' },
-    { bk: bk2, label: 'Mise 2', mise: m2, tag: 'couv' }
-  ];
-
-  const scenarios = [
-    {
-      label: `Mise 1 gagne — ${bk1}`,
-      detail: `Retour brut : ${formatC(retour1)} | Capital total engagé : ${formatC(cap)}`,
-      cash: cash1,
-      bonus: bonus1,
-      bonusNote: remb > 0 && rembType !== 'none' ? '(remboursement non déclenché dans ce cas)' : null,
-      total: total1, isGarantied: false, warningLevel: null
-    },
-    {
-      label: `Mise 2 gagne — ${bk2}`,
-      detail: `Retour brut : ${formatC(retour2)} | Capital total engagé : ${formatC(cap)}`,
-      cash: cash2,
-      bonus: bonus2,
-      bonusNote: bonus2 > 0
-        ? (rembType === 'freebet'
-            ? `Valeur freebet estimée ${formatC(remb)} @ ${formatPct(conv*100)} = ${formatC(bonus2)} — HYPOTHÈSE`
-            : `Remboursement cash ${formatC(bonus2)}`)
-        : null,
-      total: total2, isGarantied: false, warningLevel: bonus2 > 0 ? (rembType==='freebet'?'est':'ok') : null
-    }
-  ];
-
-  const bilanItems = [
-    { val: formatS(cash1),  label: 'Cash scénario 1',     color: cash1  >= 0 ? 'var(--success)' : 'var(--danger)', badge: null },
-    { val: formatS(cash2),  label: 'Cash scénario 2',     color: cash2  >= 0 ? 'var(--success)' : 'var(--danger)', badge: null },
-    { val: formatS(total1), label: 'Total scénario 1',    color: total1 >= 0 ? 'var(--success)' : 'var(--danger)', badge: bonus1>0&&rembType==='freebet'?'hypothese':null },
-    { val: formatS(total2), label: 'Total scénario 2',    color: total2 >= 0 ? 'var(--success)' : 'var(--danger)', badge: bonus2>0&&rembType==='freebet'?'hypothese':null },
-  ];
-
-  const summary = `Capital engagé : ${formatC(cap)}. `
-    + `Scénario 1 (${bk1} gagne) → cash ${formatS(cash1)}. `
-    + `Scénario 2 (${bk2} gagne) → cash ${formatS(cash2)}`
-    + (bonus2 > 0 ? ` + ${rembType==='freebet'?'freebet estimée':'remboursement'} ${formatC(bonus2)} = total ${formatS(total2)}.` : '.');
-
-  currentCalcResult = { match: bk1 + ' vs ' + bk2, profit: parseFloat(Math.max(total1, total2).toFixed(2)), bk: bk1, type: 'Avancé' };
-  lastCalcSummary = summary;
-
-  renderResults({ mises, scenarios, bilanItems, summary, analysisTitle: 'Mode avancé — aucune hypothèse cachée', analysisText: summary });
-}
-
-// ════════════════════════════════════════════════════════
-// RENDU
-// ════════════════════════════════════════════════════════
-
-function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText, extraWarning }) {
-
-  // Mises
-  document.getElementById('r-mises').innerHTML = mises.map(m => `
-    <div class="r-mise-row">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.8rem;">
       <div>
-        <span class="r-mise-bk">${m.bk}</span>
-        <span class="r-mise-label">${m.label}</span>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--success);">\${formatS(profitGaranti)}\${garantiLabel}</div>
+        <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Profit garanti</div>
       </div>
-      <span class="r-mise-val">${formatC(m.mise)}</span>
-    </div>`).join('');
-
-  // Scénarios
-  document.getElementById('r-scenarios').innerHTML = scenarios.map(s => {
-    // netForDisplay permet de forcer la couleur selon le sens de l'opération
-    // (ex: pari qui gagne cash mais rate le bonus → afficher en orange)
-    const displayNet = s.netForDisplay !== undefined ? s.netForDisplay : s.total;
-    const isMiss = s.warningLevel === 'miss'; // bon cash mais opération ratée
-    const isPos  = isMiss ? false : displayNet >= 0;
-    const bg     = isMiss ? 'rgba(255,184,0,0.06)'   : isPos ? 'rgba(0,201,107,0.06)' : 'rgba(255,77,77,0.06)';
-    const border = isMiss ? 'rgba(255,184,0,0.25)'   : isPos ? 'rgba(0,201,107,0.2)'  : 'rgba(255,77,77,0.2)';
-    const color  = isMiss ? 'var(--warning)' : isPos ? 'var(--success)' : 'var(--danger)';
-
-    let bonusHtml = '';
-    if (s.bonus > 0) {
-      const bonusColor = s.warningLevel === 'est' ? 'var(--warning)' : 'var(--success)';
-      const bonusBadge = s.warningLevel === 'est'
-        ? '<span class="badge-estime">ESTIMÉ</span>'
-        : '<span class="badge-garanti">CASH</span>';
-      bonusHtml = `<div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:5px;border-top:1px solid var(--border2);">
-        <span style="font-size:0.75rem;color:${bonusColor};">+ Bonus ${bonusBadge}</span>
-        <span style="font-weight:700;color:${bonusColor};">${formatS(s.bonus)}</span>
-      </div>`;
-    }
-    const warningHtml = s.bonusNote
-      ? `<div class="r-scen-warning">⚠️ ${s.bonusNote}</div>` : '';
-    const totalHtml = s.bonus > 0
-      ? `<div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:5px;border-top:1px solid ${border};"><span style="font-size:0.75rem;font-weight:700;">Total</span><span style="font-weight:800;font-size:1rem;color:${color};">${formatS(s.total)}</span></div>` : '';
-
-    const missTag = isMiss
-      ? ' <span style="font-size:0.68rem;background:rgba(255,184,0,0.15);color:var(--warning);padding:2px 7px;border-radius:999px;font-weight:700;margin-left:6px;">❌ Bonus raté</span>'
-      : '';
-
-    return `<div class="r-scen" style="background:${bg};border:1px solid ${border};border-radius:var(--radius-sm);">
-      <div class="r-scen-row">
-        <div>
-          <div class="r-scen-label">${s.label}${missTag}</div>
-          <div class="r-scen-detail">${s.detail}</div>
-        </div>
-        <div class="r-scen-net" style="color:${color};">${formatS(s.cash)}</div>
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:\${tauxColor};">\${tauxConv.toFixed(1)}%</div>
+        <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Taux conversion \${tauxLabel}</div>
       </div>
-      ${bonusHtml}${totalHtml}${warningHtml}
-    </div>`;
-  }).join('');
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">\${formatC(miseCouv)}</div>
+        <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Cash engagé</div>
+      </div>
+    </div>
 
-  // Bilan
-  document.getElementById('r-bilan').innerHTML = `<div class="r-bilan-grid">` +
-    bilanItems.map(b => {
-      const badge = b.badge === 'garanti' ? '<span class="badge-garanti">GARANTI</span>'
-        : b.badge === 'estime'   ? '<span class="badge-estime">ESTIMÉ</span>'
-        : b.badge === 'hypothese'? '<span class="badge-hypothese">HYPOTHÈSE</span>'
-        : '';
-      return `<div>
-        <div class="r-bilan-val" style="color:${b.color};">${b.val}</div>
-        <div class="r-bilan-label">${b.label}${badge}</div>
-      </div>`;
-    }).join('') + `</div>`;
+    <!-- Résumé automatique -->
+    <div id="fb-summary-box" style="font-size:0.78rem;color:var(--muted);line-height:1.7;padding:0.8rem 1rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);margin-bottom:0.8rem;">
+      Pour une freebet de <strong style="color:var(--text);">\${formatC(fb)}</strong> sur <strong style="color:var(--text);">\${bk1}</strong> à la cote <strong style="color:var(--text);">\${c1}</strong>,
+      mise <strong style="color:var(--acc);">\${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">\${bk2}</strong> à la cote <strong style="color:var(--text);">\${c2}</strong>.
+      Profit garanti : <strong style="color:var(--success);">\${formatS(profitGaranti)}</strong> (taux \${tauxConv.toFixed(1)}%) — quel que soit le résultat.\${note ? '<br>📝 ' + note : ''}
+    </div>
 
-  // Avertissement extra
-  const warnEl = document.getElementById('r-warning');
-  if (extraWarning) {
-    const warnBg     = extraWarning.type === 'danger' ? 'rgba(255,77,77,0.08)'   : 'rgba(255,184,0,0.08)';
-    const warnBorder = extraWarning.type === 'danger' ? 'rgba(255,77,77,0.3)'    : 'rgba(255,184,0,0.3)';
-    warnEl.style.display  = 'block';
-    warnEl.style.background  = warnBg;
-    warnEl.style.border      = `1px solid ${warnBorder}`;
-    warnEl.innerHTML         = extraWarning.text;
-  } else {
-    warnEl.style.display = 'none';
+    <!-- Actions -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary" style="flex:1;justify-content:center;font-size:0.82rem;padding:9px;"
+        onclick="sendFreebetToTracker()">+ Tracker</button>
+      <button onclick="copyFreebetSummary()" style="flex:1;padding:9px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;">📋 Copier résumé</button>
+    </div>
+  `;
+}
+
+function calcFreebet() {
+  const fb  = sanitize('fb_val', 100);
+  const c1  = sanitize('fb_c1', 3.50);
+  const c2  = sanitize('fb_c2', 1.40);
+  const bk1 = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
+  const bk2 = document.getElementById('fb_bk2')?.value || 'Couverture';
+  const note= document.getElementById('fb_note')?.value || '';
+  const el  = document.getElementById('fb-results');
+  if (!el) return;
+
+  // Validation
+  if (isNaN(fb) || fb <= 0)  { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Montant freebet invalide.</div>'; return; }
+  if (isNaN(c1) || c1 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote freebet invalide (minimum 1.01).</div>'; return; }
+  if (isNaN(c2) || c2 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture invalide (minimum 1.01).</div>'; return; }
+
+  // Badge cote freebet
+  const badge = document.getElementById('fb_c1_badge');
+  if (badge) {
+    if (c1 >= 2.5 && c1 <= 4.0)      { badge.textContent = '✅ Optimal'; badge.style.color = 'var(--success)'; }
+    else if (c1 > 4.0 && c1 <= 6.0)  { badge.textContent = '⚠️ Couverture chère'; badge.style.color = 'var(--warning)'; }
+    else if (c1 < 2.5 && c1 > 1.5)   { badge.textContent = '❌ Trop bas'; badge.style.color = 'var(--danger)'; }
+    else                               { badge.textContent = ''; }
   }
 
-  // Résumé
-  document.getElementById('r-summary-title').textContent = analysisTitle;
-  document.getElementById('r-summary-text').textContent  = analysisText;
+  // Calcul
+  const res = calculateFreebetConversion(fb, c1, c2);
+
+  // Stocker pour copier/tracker
+  window._lastFreebet = { fb, c1, c2, bk1, bk2, note, ...res };
+
+  // Afficher
+  renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note);
 }
 
-function showCalcError(msg) {
-  document.getElementById('r-mises').innerHTML    = '';
-  document.getElementById('r-scenarios').innerHTML = `<div style="color:var(--danger);font-size:0.83rem;padding:0.5rem;">⚠️ ${msg}</div>`;
-  document.getElementById('r-bilan').innerHTML     = '';
-  document.getElementById('r-summary-title').textContent = '⚠️ Erreur de saisie';
-  document.getElementById('r-summary-text').textContent  = msg;
+function copyFreebetSummary() {
+  const el = document.getElementById('fb-summary-box');
+  if (!el) { showToast('Calcule d\'abord', 'err'); return; }
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Résumé copié !', 'ok')).catch(() => showToast('Erreur copie', 'err'));
 }
 
-// ── Reset / Exemples ──────────────────────────────────
-
-const DEFAULTS = {
-  qualif:   { q_mise:100, q_c1:2.10, q_c2:1.85, q_c3:3.40, q_conv:75 },
-  freebet:  { fb_val:100, fb_c1:3.00, fb_c2:1.40 },
-  cashback: { cb_mise:100, cb_remb:100, cb_c1:2.10, cb_c2:1.85 },
-  surebet:  { sb_c1:2.10, sb_c2:2.05, sb_mise:100 },
-  advanced: { adv_m1:100, adv_c1:2.10, adv_m2:113, adv_c2:1.85, adv_remb:0, adv_conv:75 }
-};
-
-const EXAMPLES = {
-  qualif:   { q_mise:100, q_c1:2.10, q_c2:1.85, q_c3:3.40, q_conv:75, q_mkt:'2way', q_bonus_type:'freebet' },
-  freebet:  { fb_val:100, fb_c1:3.20, fb_c2:1.38 },
-  cashback: { cb_mise:100, cb_remb:100, cb_c1:2.10, cb_c2:1.85 },
-  surebet:  { sb_c1:2.10, sb_c2:2.05, sb_mise:100 },
-};
-
-function setFields(obj) {
-  Object.entries(obj).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.tagName === 'SELECT') {
-      for (let i = 0; i < el.options.length; i++) {
-        if (el.options[i].value === String(val)) { el.selectedIndex = i; break; }
-      }
-    } else {
-      el.value = val;
-    }
+function sendFreebetToTracker() {
+  const d = window._lastFreebet;
+  if (!d) { showToast('Lance d\'abord un calcul', 'err'); return; }
+  trades.unshift({
+    match: (d.note || `Freebet ${d.bk1}`) + ` @ ${d.c1}`,
+    profit: parseFloat(d.profitGaranti.toFixed(2)),
+    bk: d.bk1,
+    type: 'Freebet',
+    date: new Date().toLocaleDateString('fr-FR')
   });
+  save(); renderTracker(); renderDashboard();
+  showToast('✅ Freebet enregistrée dans le tracker !', 'ok');
 }
 
-function resetMode(mode) {
-  if (DEFAULTS[mode]) setFields(DEFAULTS[mode]);
-  runCalc();
+function resetFreebet() {
+  ['fb_val','fb_c1','fb_c2'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.value = [100, 3.50, 1.40][i];
+  });
+  const note = document.getElementById('fb_note');
+  if (note) note.value = '';
+  calcFreebet();
 }
 
-function exampleMode(mode) {
-  if (EXAMPLES[mode]) setFields(EXAMPLES[mode]);
-  runCalc();
+function exampleFreebet() {
+  const fields = { fb_val: 100, fb_c1: 3.50, fb_c2: 1.40 };
+  Object.entries(fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  const note = document.getElementById('fb_note');
+  if (note) note.value = 'Exemple Betsson — match quelconque';
+  calcFreebet();
 }
 
-// ── Copier résumé ──────────────────────────────────────
-
-function copyCalcSummary() {
-  if (!lastCalcSummary) { showToast('Lance un calcul d\'abord', 'err'); return; }
-  navigator.clipboard.writeText(lastCalcSummary).then(() => {
-    showToast('📋 Résumé copié !', 'ok');
-  }).catch(() => showToast('Erreur copie', 'err'));
-}
-
-// ── Tracker ───────────────────────────────────────────
 
 function addFreebetToTracker(profit, bk) {
   trades.unshift({ match: 'Freebet ' + bk, profit: parseFloat(profit), bk, type: 'Freebet', date: new Date().toLocaleDateString('fr-FR') });
