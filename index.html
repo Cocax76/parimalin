@@ -2366,13 +2366,14 @@ function selectComp(comp, btn) {
 function getSportKeys() {
   if (scanComp !== 'all') return [scanComp];
   if (scanSport !== 'all' && ALL_COMPS[scanSport]) return ALL_COMPS[scanSport].map(c => c.key);
-  return ['soccer_france_ligue1','soccer_epl','soccer_uefa_champs_league','soccer_germany_bundesliga','soccer_spain_la_liga'];
+  return [...new Set(Object.values(ALL_COMPS).flat().map(c => c.key))];
 }
 
 // ── Filtre et tri du scanner ──────────────────────────
 
 let scanFilter = 'all';
 let scanSort   = 'perte';
+let scanStage  = 'qualif';
 let scanResultBkFilter = '';
 
 function setScanFilter(f, btn) {
@@ -2708,6 +2709,175 @@ async function launchScan(forceRefresh = false) {
 
 // ── RENDU DES RÉSULTATS ─────────────────────────────────
 
+function setScanStage(stage) {
+  scanStage = stage === 'freebet' ? 'freebet' : 'qualif';
+  renderScanResults();
+}
+
+function sortScanOpps(list, mode) {
+  const items = [...(list || [])];
+  return items.sort((a, b) => {
+    const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
+    const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
+
+    if (mode === 'qualif') {
+      if (scanSort === 'cote') return az !== bz ? az-bz : b.cote - a.cote;
+      if (scanSort === 'bk') {
+        const cmp = String(a.bk || '').localeCompare(String(b.bk || ''), 'fr');
+        return cmp || (az !== bz ? az-bz : b.perteQualif - a.perteQualif);
+      }
+      if (scanSort === 'heure') return (a.match.timestamp||0) - (b.match.timestamp||0);
+      if (scanSort === 'freebet') return b.freebetRate - a.freebetRate || (az !== bz ? az-bz : b.perteQualif - a.perteQualif);
+      return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
+    }
+
+    if (scanSort === 'perte') return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
+    if (scanSort === 'bk') {
+      const cmp = String(a.bk || '').localeCompare(String(b.bk || ''), 'fr');
+      return cmp || (b.freebetRate - a.freebetRate);
+    }
+    if (scanSort === 'heure') return (a.match.timestamp||0) - (b.match.timestamp||0);
+    if (scanSort === 'cote') return b.cote - a.cote || (b.freebetRate - a.freebetRate);
+    return b.freebetRate - a.freebetRate || (b.perteQualif - a.perteQualif);
+  });
+}
+
+function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
+  const m = opp.match;
+  const sb = analyzeSurebet(m);
+  const issueLabel = issueLabelForMatch(opp.issue, m);
+  const zoneLabel = opp.zone === 'ideal'   ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);">🟢 Idéale</span>'
+                  : opp.zone === 'correct' ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);">🟡 Correcte</span>'
+                  : '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Hors zone</span>';
+  const sbTag  = sb.isSB ? `<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);margin-left:4px;">🟢 SUREBET +${sb.profit.toFixed(1)}%</span>` : '';
+  const fbChipStyle = opp.freebetBand === 'elite'
+    ? 'background:rgba(0,201,107,0.16);color:var(--success);'
+    : opp.freebetBand === 'good'
+    ? 'background:rgba(0,201,107,0.10);color:#7DFFB4;'
+    : opp.freebetBand === 'ok'
+    ? 'background:rgba(255,184,0,0.15);color:var(--warning);'
+    : 'background:rgba(255,77,77,0.12);color:var(--danger);';
+  const fbChipLabel = opp.freebetRate >= 80 ? '🔥 Excellente conversion'
+    : opp.freebetRate >= 75 ? '✅ Bonne conversion'
+    : opp.freebetRate >= 70 ? '🟡 Correcte'
+    : '🔴 Faible';
+  const perteCls = opp.perteQualif >= -5  ? 'color:var(--success);'
+                 : opp.perteQualif >= -10 ? 'color:var(--warning);'
+                 : 'color:var(--danger);';
+  const stageBadge = mode === 'qualif'
+    ? '<span style="font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,184,0,0.12);color:var(--warning);">Étape 1 · Qualif</span>'
+    : '<span style="font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(0,201,107,0.12);color:var(--success);">Étape 2 · Freebet</span>';
+
+  let groupHeader = '';
+  if (groupByBk && opp.bk !== lastBkRef.value) {
+    lastBkRef.value = opp.bk;
+    groupHeader = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0.5rem 0;margin-top:${idx>0?'0.8rem':'0'};">
+      <div style="height:1px;flex:1;background:var(--border2);"></div>
+      <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;color:var(--acc);">🎁 ${opp.bk}</span>
+      <div style="height:1px;flex:1;background:var(--border2);"></div>
+    </div>`;
+  }
+
+  const topInfo = mode === 'qualif'
+    ? `<div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">⚡ Étape 1 : perte minimale</div>
+            <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Ici tu cherches la qualif la moins chère possible avant de récupérer le bonus.</div>
+          </div>
+          <div style="text-align:right;min-width:118px;">
+            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;${perteCls}">${opp.perteQualif.toFixed(2).replace('.',',')}€</div>
+            <div style="font-size:0.68rem;color:var(--muted);">perte qualif estimée</div>
+          </div>
+        </div>
+      </div>`
+    : `<div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">${fbChipLabel}</div>
+            <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Ici tu transformes ta freebet de 100€ à environ <strong style="color:var(--success);">${opp.freebetRate.toFixed(1)}%</strong>.</div>
+          </div>
+          <div style="text-align:right;min-width:118px;">
+            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:var(--success);">~+${opp.freebetProfit.toFixed(2).replace('.',',')}€</div>
+            <div style="font-size:0.68rem;color:var(--muted);">profit freebet garanti</div>
+          </div>
+        </div>
+      </div>`;
+
+  return groupHeader + `
+  <div class="match-card ${opp.zone === 'ideal' ? 'has-value' : ''}">
+    <div style="padding:1rem 1.1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:0.8rem;">
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;">${m.equipe1} <span style="color:var(--muted);font-weight:400;font-size:0.85rem;">vs</span> ${m.equipe2}</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
+            <span style="font-size:0.7rem;color:var(--muted);">${m.competition}</span>
+            <span style="font-size:0.7rem;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,0.06);">${m.heure}</span>
+            ${stageBadge}
+            <span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;${fbChipStyle}">🎯 Freebet ~${opp.freebetRate.toFixed(1)}%</span>
+            ${sbTag}
+          </div>
+        </div>
+        ${zoneLabel}
+      </div>
+
+      <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:0.8rem;">
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0.8rem;align-items:center;">
+          <div style="text-align:center;">
+            <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">🎁 Ton bonus</div>
+            <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${opp.bk}</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--acc);">${opp.cote.toFixed(2)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${issueLabel}</div>
+          </div>
+          <div style="text-align:center;color:var(--muted);font-size:0.8rem;font-weight:700;">vs</div>
+          <div style="text-align:center;">
+            <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">🛡 Couverture</div>
+            <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${opp.coverBk}</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);">${opp.coverOdd.toFixed(2)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${issueLabelForMatch(opp.coverIssue, m)}</div>
+          </div>
+        </div>
+        ${opp.mkt === '3way' && opp.cover2Bk ? `
+        <div style="border-top:1px solid var(--border2);margin-top:0.7rem;padding-top:0.7rem;font-size:0.78rem;color:var(--muted);text-align:center;">
+          Couverture ${issueLabelForMatch(opp.cover2Issue, m).toLowerCase()} : <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>
+        </div>` : ''}
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.8rem;">
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--acc);">${opp.mCouv.toFixed(2).replace('.',',')}€</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Mise couverture 1</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;${perteCls}">${opp.perteQualif.toFixed(2).replace('.',',')}€</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Perte qualif</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+          <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--success);">${opp.freebetRate.toFixed(1)}%</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Conversion freebet</div>
+        </div>
+      </div>
+      ${opp.mkt === '3way' && opp.cover2Bk ? `<div style="margin:-0.2rem 0 0.8rem 0;font-size:0.75rem;color:var(--muted);">Deuxième couverture : <strong style="color:var(--text);">${(opp.mNul || opp.freebetStake2 || 0).toFixed(2).replace('.',',')}€</strong> chez <strong style="color:var(--text);">${opp.cover2Bk}</strong> sur ${issueLabelForMatch(opp.cover2Issue, m).toLowerCase()}.</div>` : ''}
+      ${topInfo}
+      <div style="margin-top:0.55rem;font-size:0.74rem;color:var(--muted);line-height:1.45;margin-bottom:0.8rem;">
+        ${opp.mkt === '3way'
+          ? `Issue bonus : <strong style="color:var(--text);">${issueLabel}</strong> chez <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>. Couverture sur <strong style="color:var(--text);">${issueLabelForMatch(opp.coverIssue, m)}</strong> chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong> et sur <strong style="color:var(--text);">${issueLabelForMatch(opp.cover2Issue, m)}</strong> chez <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>.`
+          : `Issue bonus : <strong style="color:var(--text);">${issueLabel}</strong> chez <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>. Couverture sur <strong style="color:var(--text);">${issueLabelForMatch(opp.coverIssue, m)}</strong> chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong>.`}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
+          onclick="injectIntoCalc('${encodeURIComponent(JSON.stringify({ bk1: opp.bk, bk2: opp.coverBk, c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0, mkt: opp.mkt, mise: 100 }))}')">
+          ⚡ Calcul qualif →
+        </button>
+        <button class="btn-secondary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
+          onclick="openFreebetFromScan('${encodeURIComponent(JSON.stringify({ bk1: opp.bk, bk2: opp.coverBk, bk3: opp.cover2Bk || '', c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0, mkt: opp.mkt, mise: 100 }))}')">
+          🎯 Convertir la freebet →
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderScanResults() {
   if (!scanData.length) {
     document.getElementById('scanner-output').innerHTML = `
@@ -2718,7 +2888,6 @@ function renderScanResults() {
     return;
   }
 
-  // ── Appliquer le filtre ──
   let filtered = scanData.filter(opp => {
     if (scanResultBkFilter && opp.bk !== scanResultBkFilter) return false;
     if (scanFilter === 'all')     return true;
@@ -2727,30 +2896,6 @@ function renderScanResults() {
     if (scanFilter === 'bad')     return opp.zone === 'bad';
     if (scanFilter === 'surebet') return analyzeSurebet(opp.match).isSB;
     return true;
-  });
-
-  // ── Appliquer le tri ──
-  filtered = [...filtered].sort((a, b) => {
-    if (scanSort === 'perte') {
-      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
-      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
-      return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
-    }
-    if (scanSort === 'cote') {
-      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
-      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
-      return az !== bz ? az-bz : b.cote - a.cote;
-    }
-    if (scanSort === 'freebet') return b.freebetRate - a.freebetRate || (b.perteQualif - a.perteQualif);
-    if (scanSort === 'bk') {
-      if (a.bk < b.bk) return -1;
-      if (a.bk > b.bk) return  1;
-      const az = a.zone==='ideal'?0:a.zone==='correct'?1:2;
-      const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
-      return az !== bz ? az-bz : b.perteQualif - a.perteQualif;
-    }
-    if (scanSort === 'heure') return (a.match.timestamp||0) - (b.match.timestamp||0);
-    return 0;
   });
 
   if (!filtered.length) {
@@ -2763,157 +2908,48 @@ function renderScanResults() {
     return;
   }
 
-  // Groupement visuel par bookmaker si tri actif
+  const qualifItems = sortScanOpps(filtered, 'qualif');
+  const freebetItems = sortScanOpps(filtered, 'freebet');
+  const activeItems = scanStage === 'freebet' ? freebetItems : qualifItems;
+  const topQualif = qualifItems[0] || null;
+  const topFreebet = freebetItems[0] || null;
   const groupByBk = scanSort === 'bk';
-  let lastBk = null;
+  const lastBkRef = { value: null };
 
-  const html = '<div class="scanner-grid">' + filtered.map((opp, idx) => {
-    const m      = opp.match;
-    const sb     = analyzeSurebet(m);
-    const issueLabel = issueLabelForMatch(opp.issue, m);
-    const zoneLabel = opp.zone === 'ideal'   ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);">🟢 Idéale</span>'
-                    : opp.zone === 'correct' ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);">🟡 Correcte</span>'
-                    : '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Hors zone</span>';
-    const sbTag  = sb.isSB ? `<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);margin-left:4px;">🟢 SUREBET +${sb.profit.toFixed(1)}%</span>` : '';
-    const fbChipStyle = opp.freebetBand === 'elite'
-      ? 'background:rgba(0,201,107,0.16);color:var(--success);'
-      : opp.freebetBand === 'good'
-      ? 'background:rgba(0,201,107,0.10);color:#7DFFB4;'
-      : opp.freebetBand === 'ok'
-      ? 'background:rgba(255,184,0,0.15);color:var(--warning);'
-      : 'background:rgba(255,77,77,0.12);color:var(--danger);';
-    const fbChipLabel = opp.freebetRate >= 80 ? '🔥 Excellente conversion'
-      : opp.freebetRate >= 75 ? '✅ Bonne conversion'
-      : opp.freebetRate >= 70 ? '🟡 Correcte'
-      : '🔴 Faible';
+  const cardsHtml = '<div class="scanner-grid">' + activeItems.map((opp, idx) => renderScanCard(opp, idx, groupByBk, lastBkRef, scanStage)).join('') + '</div>';
 
-    const perteCls = opp.perteQualif >= -8  ? 'color:var(--success);'
-                   : opp.perteQualif >= -15 ? 'color:var(--warning);'
-                   : 'color:var(--danger);';
-
-    // Header de groupe bookmaker
-    let groupHeader = '';
-    if (groupByBk && opp.bk !== lastBk) {
-      lastBk = opp.bk;
-      const bkOpps = filtered.filter(o => o.bk === opp.bk);
-      const bkIdeal = bkOpps.filter(o => o.zone === 'ideal').length;
-      groupHeader = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0.5rem 0;margin-top:${idx>0?'0.8rem':'0'};">
-        <div style="height:1px;flex:1;background:var(--border2);"></div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;color:var(--acc);">🎁 ${opp.bk}</span>
-        <span style="font-size:0.72rem;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.1);color:var(--success);">${bkIdeal} idéale${bkIdeal>1?'s':''}</span>
-        <div style="height:1px;flex:1;background:var(--border2);"></div>
-      </div>`;
-    }
-
-    return groupHeader + `
-    <div class="match-card ${opp.zone === 'ideal' ? 'has-value' : ''}">
-      <div style="padding:1rem 1.1rem;">
-
-        <!-- En-tête match -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:0.8rem;">
-          <div>
-            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;">${m.equipe1} <span style="color:var(--muted);font-weight:400;font-size:0.85rem;">vs</span> ${m.equipe2}</div>
-            <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
-              <span style="font-size:0.7rem;color:var(--muted);">${m.competition}</span>
-              <span style="font-size:0.7rem;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,0.06);">${m.heure}</span>
-              <span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;${fbChipStyle}">🎯 Freebet ~${opp.freebetRate.toFixed(1)}%</span>
-              ${sbTag}
-            </div>
-          </div>
-          ${zoneLabel}
-        </div>
-
-        <!-- Tableau cotes : bonus vs couverture -->
-        <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:0.8rem;">
-          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0.8rem;align-items:center;">
-
-            <!-- Bookmaker bonus -->
-            <div style="text-align:center;">
-              <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">🎁 Ton bonus</div>
-              <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${opp.bk}</div>
-              <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--acc);">${opp.cote.toFixed(2)}</div>
-              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${issueLabel}</div>
-            </div>
-
-            <!-- VS -->
-            <div style="text-align:center;color:var(--muted);font-size:0.8rem;font-weight:700;">vs</div>
-
-            <!-- Meilleure couverture -->
-            <div style="text-align:center;">
-              <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">🛡 Couverture</div>
-              <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${opp.coverBk}</div>
-              <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);">${opp.coverOdd.toFixed(2)}</div>
-              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${issueLabelForMatch(opp.coverIssue, m)}</div>
-            </div>
-
-          </div>
-          ${opp.mkt === '3way' && opp.cover2Bk ? `
-          <div style="border-top:1px solid var(--border2);margin-top:0.7rem;padding-top:0.7rem;font-size:0.78rem;color:var(--muted);text-align:center;">
-            Couverture ${issueLabelForMatch(opp.cover2Issue, m).toLowerCase()} : <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>
-          </div>` : ''}
-        </div>
-
-        <!-- Résumé mises + perte -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.8rem;">
-          <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--acc);">${opp.mCouv.toFixed(2).replace('.',',')}€</div>
-            <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Mise couverture</div>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;${perteCls}">${opp.perteQualif.toFixed(2).replace('.',',')}€</div>
-            <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Perte qualif</div>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--success);">${opp.freebetRate.toFixed(1)}%</div>
-            <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Conversion freebet</div>
-          </div>
-        </div>
-
-        <div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
-            <div>
-              <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">${fbChipLabel}</div>
-              <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Ici tu transformes ta freebet de 100€ à environ <strong style="color:var(--success);">${opp.freebetRate.toFixed(1)}%</strong>.</div>
-            </div>
-            <div style="text-align:right;min-width:118px;">
-              <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:var(--success);">~+${opp.freebetProfit.toFixed(2).replace('.',',')}€</div>
-              <div style="font-size:0.68rem;color:var(--muted);">profit freebet garanti</div>
-            </div>
-          </div>
-          <div style="margin-top:0.55rem;font-size:0.74rem;color:var(--muted);line-height:1.45;">
-            ${opp.mkt === '3way'
-              ? `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre avec <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong> et <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>.`
-              : `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre ${issueLabelForMatch(opp.coverIssue, m).toLowerCase()} chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong>.`}
-          </div>
-        </div>
-
-        <!-- Bouton Calculer -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
-            onclick="injectIntoCalc('${encodeURIComponent(JSON.stringify({
-              bk1: opp.bk, bk2: opp.coverBk,
-              c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0,
-              mkt: opp.mkt, mise: 100
-            }))}')">
-            ⚡ Calcul qualif →
-          </button>
-          <button class="btn-secondary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
-            onclick="openFreebetFromScan('${encodeURIComponent(JSON.stringify({
-              bk1: opp.bk, bk2: opp.coverBk, bk3: opp.cover2Bk || '',
-              c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0,
-              mkt: opp.mkt, mise: 100
-            }))}')">
-            🎯 Convertir la freebet →
-          </button>
-        </div>
-
+  document.getElementById('scanner-output').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="scan-sort-btn ${scanStage === 'qualif' ? 'active' : ''}" onclick="setScanStage('qualif')">1️⃣ Étape 1 · Qualif</button>
+        <button class="scan-sort-btn ${scanStage === 'freebet' ? 'active' : ''}" onclick="setScanStage('freebet')">2️⃣ Étape 2 · Conversion freebet</button>
       </div>
-    </div>`;
-  }).join('') + '</div>';
+      <div style="font-size:0.75rem;color:var(--muted);">${activeItems.length} opportunité${activeItems.length > 1 ? 's' : ''} affichée${activeItems.length > 1 ? 's' : ''}</div>
+    </div>
 
-  document.getElementById('scanner-output').innerHTML = html;
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:1rem;">
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:4px;">Étape 1 · Qualif la moins chère</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800;${topQualif ? (topQualif.perteQualif >= -5 ? 'color:var(--success);' : topQualif.perteQualif >= -10 ? 'color:var(--warning);' : 'color:var(--danger);') : ''}">${topQualif ? topQualif.perteQualif.toFixed(2).replace('.',',') + '€' : '—'}</div>
+        <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">${topQualif ? `${topQualif.match.equipe1} vs ${topQualif.match.equipe2} · ${topQualif.bk}` : 'Aucune donnée'}</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem;">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:4px;">Étape 2 · Meilleure conversion</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800;color:var(--success);">${topFreebet ? topFreebet.freebetRate.toFixed(1) + '%' : '—'}</div>
+        <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">${topFreebet ? `${topFreebet.match.equipe1} vs ${topFreebet.match.equipe2} · ${topFreebet.bk}` : 'Aucune donnée'}</div>
+      </div>
+    </div>
+
+    <div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.78rem;color:var(--muted);line-height:1.5;">
+      ${scanStage === 'qualif'
+        ? 'Étape 1 : cible d’abord la perte qualif la plus faible. Une fois le bonus obtenu, passe sur l’étape 2 pour trouver la meilleure conversion de freebet.'
+        : 'Étape 2 : ici le classement met en avant le meilleur pourcentage de conversion de freebet. Pour les matchs de foot, seuls les books avec les 3 issues complètes sont conservés pour éviter les faux calculs.'}
+    </div>
+
+    ${cardsHtml}`;
 }
 
+// ── Injection dans le calculateur ──────────────────────
 // ── Injection dans le calculateur ──────────────────────
 
 function injectIntoCalc(dataEnc) {
