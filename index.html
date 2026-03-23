@@ -600,6 +600,7 @@ body.light .hero-grid{opacity:0.15;}
         <span style="font-size:0.72rem;color:var(--muted);">Trier :</span>
         <button class="scan-sort-btn active" id="sort-perte" onclick="setScanSort('perte',this)">💸 Perte</button>
         <button class="scan-sort-btn" id="sort-cote"  onclick="setScanSort('cote',this)">📈 Cote</button>
+        <button class="scan-sort-btn" id="sort-freebet" onclick="setScanSort('freebet',this)">🎯 Freebet %</button>
         <button class="scan-sort-btn" id="sort-bk"    onclick="setScanSort('bk',this)">🎁 Bookmaker</button>
         <button class="scan-sort-btn" id="sort-heure" onclick="setScanSort('heure',this)">⏰ Heure</button>
       </div>
@@ -2372,6 +2373,7 @@ function getSportKeys() {
 
 let scanFilter = 'all';
 let scanSort   = 'perte';
+let scanResultBkFilter = '';
 
 function setScanFilter(f, btn) {
   scanFilter = f;
@@ -2387,20 +2389,26 @@ function setScanSort(s, btn) {
   renderScanResults();
 }
 
-function setSource(src) {
-  localStorage.setItem('pm_source', src);
-  const isCustom = src === 'custom';
-  ['src-custom','src-odds'].forEach(id => {
-    const el = document.getElementById(id); if (!el) return;
-    const a = (id==='src-custom') === isCustom;
-    el.style.background = a ? 'rgba(255,107,26,0.12)' : 'transparent';
-    el.style.color       = a ? 'var(--acc)' : 'var(--muted)';
-    el.style.fontWeight  = a ? '700' : '400';
-  });
-  const k = document.getElementById('api-key-input');
-  const u = document.getElementById('api-url-input');
-  if (k) k.style.display = isCustom ? 'none' : 'block';
-  if (u) u.style.display = isCustom ? 'block' : 'none';
+function setScanResultBookmaker(bk) {
+  scanResultBkFilter = bk || '';
+  renderScanResults();
+}
+
+function populateScanResultBkFilter(opps) {
+  const sel = document.getElementById('scan-result-bk-filter');
+  if (!sel) return;
+  const current = scanResultBkFilter || sel.value || '';
+  const names = [...new Set((opps || []).map(o => o.bk).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'fr'));
+  sel.innerHTML = '<option value="">🎁 Tous les bookmakers</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
+  sel.value = names.includes(current) ? current : '';
+  scanResultBkFilter = sel.value || '';
+}
+
+function issueLabelForMatch(issue, match) {
+  if (issue === '1') return match?.equipe1 || '1';
+  if (issue === '2') return match?.equipe2 || '2';
+  if (issue === 'X') return 'Nul';
+  return issue || 'Issue';
 }
 
 // Populer le select bookmaker bonus avec les ANJ
@@ -2431,28 +2439,45 @@ async function fetchOdds(sportKey, apiKey) {
 // ── Parse : construit les objets matchs avec cotes ANJ ─
 
 function parseMatches(rawMatches) {
+  const now = Date.now();
   return rawMatches.map(match => {
+    const t = new Date(match.commence_time);
+    if (!isFinite(t.getTime()) || t.getTime() <= now + 120000) return null;
+
+    const sportKey = String(match.sport_key || '').toLowerCase();
+    const title = String(match.sport_title || '').toLowerCase();
+    const shouldBe3Way = sportKey.includes('soccer')
+      || /football|soccer|ligue|bundesliga|serie a|serie b|premier league|laliga|liga|cup|coupe/i.test(title);
+
     const bookmakers = {};
-    match.bookmakers.forEach(bk => {
+    (match.bookmakers || []).forEach(bk => {
       if (!ANJ_WHITELIST[bk.key]) return;
       const h2h = bk.markets?.find(m => m.key === 'h2h');
       if (!h2h) return;
       const odds = {};
-      h2h.outcomes.forEach(o => {
-        const p = parseFloat(o.price.toFixed(2));
+      (h2h.outcomes || []).forEach(o => {
+        const rawPrice = Number(o.price);
+        if (!isFinite(rawPrice) || rawPrice <= 1) return;
+        const p = parseFloat(rawPrice.toFixed(2));
         if (o.name === match.home_team)      odds['1'] = p;
         else if (o.name === match.away_team) odds['2'] = p;
         else                                 odds['X'] = p;
       });
-      if (Object.keys(odds).length >= 2) bookmakers[ANJ_WHITELIST[bk.key]] = odds;
+      const requiredOutcomes = shouldBe3Way ? 3 : 2;
+      if (Object.keys(odds).length >= requiredOutcomes) {
+        bookmakers[ANJ_WHITELIST[bk.key]] = odds;
+      }
     });
     if (Object.keys(bookmakers).length < 2) return null;
-    const t = new Date(match.commence_time);
     return {
-      id: match.id, equipe1: match.home_team, equipe2: match.away_team,
+      id: match.id,
+      sportKey,
+      equipe1: match.home_team,
+      equipe2: match.away_team,
       competition: match.sport_title,
       heure: t.toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),
-      timestamp: t.getTime(), bookmakers
+      timestamp: t.getTime(),
+      bookmakers
     };
   }).filter(Boolean);
 }
@@ -2460,105 +2485,86 @@ function parseMatches(rawMatches) {
 // ── Analyse bonus qualificatif pour un match ────────────
 
 function analyzeForBonus(match, targetBk) {
-  /*
-   * Retourne un tableau d'opportunités qualificatives :
-   * Pour chaque bookmaker (ou le bookmaker cible), pour chaque issue :
-   *   - Cote dans quelle zone (ideal/correct/bad)
-   *   - Meilleure couverture disponible
-   *   - Perte qualificative exacte (mise 100€)
-   */
   const opps = [];
-  const bks = match.bookmakers;
-
-  const booksToCheck = targetBk
-    ? (bks[targetBk] ? [targetBk] : [])
-    : Object.keys(bks);
+  const bks = match.bookmakers || {};
+  const marketIssues = Object.values(bks).some(o => o && o['X'] > 1) ? ['1', 'X', '2'] : ['1', '2'];
+  const booksToCheck = targetBk ? (bks[targetBk] ? [targetBk] : []) : Object.keys(bks);
 
   booksToCheck.forEach(bk => {
-    const odds = bks[bk];
-    Object.entries(odds).forEach(([issue, cote]) => {
-      // Classer la zone
-      const zone = 'pending'; // recalculé après perteQualif
+    const odds = bks[bk] || {};
+    marketIssues.forEach(issue => {
+      const cote = Number(odds[issue] || 0);
+      if (!(cote > 1)) return;
 
-      // Trouver la meilleure couverture sur les autres bookmakers
-      // Pour couvrir l'issue principale, on a besoin de couvrir les issues adverses
-      const hasX = Object.keys(odds).includes('X');
-      let bestCoverBk = '', bestCoverOdd = 0, bestCover2Bk = '', bestCover2Odd = 0;
-
-      Object.entries(bks).forEach(([otherBk, otherOdds]) => {
-        if (otherBk === bk) return;
-        // Couverture principale : issue adverse la plus haute
-        const adverseIssues = Object.entries(otherOdds)
-          .filter(([iss]) => iss !== issue && otherOdds[iss] > 1);
-        adverseIssues.forEach(([iss, v]) => {
-          if (iss !== 'X' && v > bestCoverOdd) { bestCoverOdd = v; bestCoverBk = otherBk; }
-          if (iss === 'X' && v > bestCover2Odd) { bestCover2Odd = v; bestCover2Bk = otherBk; }
+      const adverseIssues = marketIssues.filter(iss => iss !== issue);
+      const covers = adverseIssues.map(coverIssue => {
+        let bestBk = '';
+        let bestOdd = 0;
+        Object.entries(bks).forEach(([otherBk, otherOdds]) => {
+          if (otherBk === bk) return;
+          const odd = Number(otherOdds?.[coverIssue] || 0);
+          if (odd > bestOdd) {
+            bestOdd = odd;
+            bestBk = otherBk;
+          }
         });
+        return { coverIssue, bestBk, bestOdd };
       });
 
-      if (!bestCoverBk) return;
+      if (covers.some(c => !(c.bestOdd > 1) || !c.bestBk)) return;
 
-      // Calcul perte qualificative exacte (mise 100€)
-      const mise   = 100;
-      const mkt    = hasX ? '3way' : '2way';
+      const mise = 100;
+      const mkt = marketIssues.length === 3 ? '3way' : '2way';
+      const cover1 = covers[0];
+      const cover2 = covers[1] || null;
 
-      let perteQualif, mCouv, mNul = 0, cap;
-      let freebetProfit = null, freebetRate = null, freebetStake2 = 0;
+      const mCouv = (mise * cote) / cover1.bestOdd;
+      const mNul = cover2 ? (mise * cote) / cover2.bestOdd : 0;
+      const cap = mise + mCouv + mNul;
+      const perteQualif = (mise * (cote - 1)) - mCouv - mNul;
 
-      if (mkt === '3way' && bestCover2Bk && bestCover2Odd > 1) {
-        const d = bestCoverOdd * bestCover2Odd - bestCoverOdd - bestCover2Odd;
-        if (d > 0) {
-          mCouv = (mise * bestCover2Odd) / d;
-          mNul  = (mise * bestCoverOdd) / d;
-          cap   = mise + mCouv + mNul;
-          // Net si couverture adverse gagne = retour - mise couv - mise principale - mise nul
-          const netAdv = (mCouv * bestCoverOdd) - mCouv - mise - mNul;
-          const netNul = (mNul * bestCover2Odd) - mNul - mise - mCouv;
-          perteQualif = Math.min(netAdv, netNul); // le pire des 2 scénarios perdants
-        }
+      const gainFb = mise * (cote - 1);
+      const freebetProfit = gainFb - (gainFb / cover1.bestOdd) - (cover2 ? (gainFb / cover2.bestOdd) : 0);
+      const freebetRate = (freebetProfit / mise) * 100;
+      if (!isFinite(perteQualif) || !isFinite(freebetRate)) return;
 
-        const gainFb = mise * (cote - 1);
-        const fbMise2 = gainFb / bestCoverOdd;
-        const fbMise3 = gainFb / bestCover2Odd;
-        freebetStake2 = fbMise3;
-        freebetProfit = gainFb - fbMise2 - fbMise3;
-        freebetRate = (freebetProfit / mise) * 100;
-      } else {
-        // 2 issues
-        mCouv = (mise * cote) / bestCoverOdd;
-        cap   = mise + mCouv;
-        perteQualif = (mCouv * bestCoverOdd) - mCouv - mise;
-
-        const gainFb = mise * (cote - 1);
-        freebetProfit = gainFb - (gainFb / bestCoverOdd);
-        freebetRate = (freebetProfit / mise) * 100;
-      }
-
-      if (perteQualif === undefined || freebetRate === null || !isFinite(freebetRate)) return;
-
-      // Zone basée sur la PERTE RÉELLE (pas sur la cote)
-      const perte = perteQualif || 0;
-      const zoneByPerte = perte >= -5  ? 'ideal'    // perte 0→5€
-                        : perte >= -10 ? 'correct'  // perte 5→10€
-                        : 'bad';                    // perte > 10€
+      const zoneByPerte = perteQualif >= -5  ? 'ideal'
+                        : perteQualif >= -10 ? 'correct'
+                        : 'bad';
       const freebetBand = freebetRate >= 80 ? 'elite'
                          : freebetRate >= 75 ? 'good'
                          : freebetRate >= 70 ? 'ok'
                          : 'low';
 
       opps.push({
-        bk, issue, cote, zone: zoneByPerte,
-        coverBk: bestCoverBk, coverOdd: bestCoverOdd,
-        cover2Bk: bestCover2Bk, cover2Odd: bestCover2Odd,
-        mkt, mCouv, mNul, cap, perteQualif,
-        freebetProfit, freebetRate, freebetBand, freebetStake2,
+        bk,
+        issue,
+        cote,
+        zone: zoneByPerte,
+        coverBk: cover1.bestBk,
+        coverOdd: cover1.bestOdd,
+        coverIssue: cover1.coverIssue,
+        cover2Bk: cover2 ? cover2.bestBk : '',
+        cover2Odd: cover2 ? cover2.bestOdd : 0,
+        cover2Issue: cover2 ? cover2.coverIssue : '',
+        mkt,
+        mCouv,
+        mNul,
+        cap,
+        perteQualif,
+        freebetProfit,
+        freebetRate,
+        freebetBand,
+        freebetStake2: cover2 ? (gainFb / cover2.bestOdd) : 0,
         match
       });
     });
   });
 
-  // Trier par perte qualificative (la moins pire en premier)
-  return opps.sort((a, b) => b.perteQualif - a.perteQualif);
+  return opps.sort((a, b) => {
+    if (b.freebetRate !== a.freebetRate) return b.freebetRate - a.freebetRate;
+    return b.perteQualif - a.perteQualif;
+  });
 }
 
 // ── Analyse surebet ─────────────────────────────────────
@@ -2617,8 +2623,9 @@ async function launchScan(forceRefresh = false) {
       rawMatches = (data.matchs || []).map(m => ({
         id: Math.random().toString(36).slice(2),
         home_team: m.equipe1, away_team: m.equipe2,
+        sport_key: m.sport_key || m.sport || '',
         sport_title: m.competition,
-        commence_time: m.heure || new Date().toISOString(),
+        commence_time: m.timestamp || m.commence_time || m.heure || new Date().toISOString(),
         bookmakers: Object.entries(m.bookmakers || {}).map(([name, odds]) => ({
           key: Object.entries(ANJ_WHITELIST).find(([,n])=>n===name)?.[0] || name,
           markets: [{key:'h2h', outcomes: Object.entries(odds).map(([k,v]) => ({
@@ -2628,7 +2635,7 @@ async function launchScan(forceRefresh = false) {
       }));
     } else {
       const sportKeys = getSportKeys();
-      for (let i = 0; i < Math.min(sportKeys.length, 4); i++) {
+      for (let i = 0; i < sportKeys.length; i++) {
         const raw = await fetchOdds(sportKeys[i], apiKey);
         rawMatches = rawMatches.concat(raw);
       }
@@ -2660,6 +2667,7 @@ async function launchScan(forceRefresh = false) {
     });
 
     scanData = allOpps;
+    populateScanResultBkFilter(allOpps);
 
     // Stats
     const nIdeal   = allOpps.filter(o => o.zone === 'ideal').length;
@@ -2712,6 +2720,7 @@ function renderScanResults() {
 
   // ── Appliquer le filtre ──
   let filtered = scanData.filter(opp => {
+    if (scanResultBkFilter && opp.bk !== scanResultBkFilter) return false;
     if (scanFilter === 'all')     return true;
     if (scanFilter === 'ideal')   return opp.zone === 'ideal';
     if (scanFilter === 'correct') return opp.zone === 'ideal' || opp.zone === 'correct';
@@ -2732,6 +2741,7 @@ function renderScanResults() {
       const bz = b.zone==='ideal'?0:b.zone==='correct'?1:2;
       return az !== bz ? az-bz : b.cote - a.cote;
     }
+    if (scanSort === 'freebet') return b.freebetRate - a.freebetRate || (b.perteQualif - a.perteQualif);
     if (scanSort === 'bk') {
       if (a.bk < b.bk) return -1;
       if (a.bk > b.bk) return  1;
@@ -2760,9 +2770,7 @@ function renderScanResults() {
   const html = '<div class="scanner-grid">' + filtered.map((opp, idx) => {
     const m      = opp.match;
     const sb     = analyzeSurebet(m);
-    const issueLabel = opp.issue === '1' ? m.equipe1
-                     : opp.issue === '2' ? m.equipe2
-                     : 'Nul';
+    const issueLabel = issueLabelForMatch(opp.issue, m);
     const zoneLabel = opp.zone === 'ideal'   ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);">🟢 Idéale</span>'
                     : opp.zone === 'correct' ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);">🟡 Correcte</span>'
                     : '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Hors zone</span>';
@@ -2835,13 +2843,13 @@ function renderScanResults() {
               <div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">🛡 Couverture</div>
               <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${opp.coverBk}</div>
               <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);">${opp.coverOdd.toFixed(2)}</div>
-              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">Issues adverses</div>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${issueLabelForMatch(opp.coverIssue, m)}</div>
             </div>
 
           </div>
           ${opp.mkt === '3way' && opp.cover2Bk ? `
           <div style="border-top:1px solid var(--border2);margin-top:0.7rem;padding-top:0.7rem;font-size:0.78rem;color:var(--muted);text-align:center;">
-            Couverture nul : <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>
+            Couverture ${issueLabelForMatch(opp.cover2Issue, m).toLowerCase()} : <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>
           </div>` : ''}
         </div>
 
@@ -2875,7 +2883,7 @@ function renderScanResults() {
           <div style="margin-top:0.55rem;font-size:0.74rem;color:var(--muted);line-height:1.45;">
             ${opp.mkt === '3way'
               ? `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre avec <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong> et <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>.`
-              : `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong>.`}
+              : `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre ${issueLabelForMatch(opp.coverIssue, m).toLowerCase()} chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong>.`}
           </div>
         </div>
 
