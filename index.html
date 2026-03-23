@@ -799,14 +799,6 @@ body.light .hero-grid{opacity:0.15;}
             <input type="number" id="fb_val" value="100" min="1" step="1" oninput="calcFreebet()">
           </div>
 
-          <div class="field">
-            <label>Type de marché</label>
-            <select id="fb_mode" onchange="toggleFreebetMode(); calcFreebet();">
-              <option value="2">2 issues (classique)</option>
-              <option value="3">3 issues (1N2 / tennis set betting, etc.)</option>
-            </select>
-          </div>
-
           <div class="field-row">
             <div class="field">
               <label>Cote freebet <span id="fb_c1_badge" style="font-size:0.7rem;font-weight:700;margin-left:5px;"></span></label>
@@ -814,16 +806,10 @@ body.light .hero-grid{opacity:0.15;}
               <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sweet spot : 2.50–4.00</span>
             </div>
             <div class="field">
-              <label>Cote couverture 1</label>
+              <label>Cote couverture</label>
               <input type="number" id="fb_c2" value="1.40" min="1.01" step="0.05" oninput="calcFreebet()">
-              <span id="fb_c2_hint" style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sur l'issue adverse</span>
+              <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sur l'issue adverse</span>
             </div>
-          </div>
-
-          <div class="field" id="fb_c3_wrap" style="display:none;">
-            <label>Cote couverture 2</label>
-            <input type="number" id="fb_c3" value="3.20" min="1.01" step="0.05" oninput="calcFreebet()">
-            <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Deuxième issue à couvrir si marché 3 issues</span>
           </div>
 
           <div class="field">
@@ -1278,8 +1264,22 @@ let lastCalcSummary = '';
 // ── Utilitaires ──────────────────────────────────────────
 
 function sanitize(id, fallback) {
-  const v = parseFloat(document.getElementById(id)?.value);
-  return isNaN(v) || !isFinite(v) ? fallback : v;
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+
+  // Certains navigateurs/restaurations de session renvoient des décimales en format FR
+  // (ex: "1,84"). Sans normalisation, parseFloat lit "1" au lieu de 1.84.
+  if (typeof el.valueAsNumber === 'number' && !Number.isNaN(el.valueAsNumber)) {
+    return el.valueAsNumber;
+  }
+
+  const raw = String(el.value ?? '')
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(',', '.');
+
+  const v = Number(raw);
+  return Number.isFinite(v) ? v : fallback;
 }
 
 function formatC(n) {
@@ -1353,6 +1353,91 @@ function runCalc() {
   else if (calcMode === 'cashback')  calcCashback();
   else if (calcMode === 'surebet')   calcSurebet();
   else if (calcMode === 'advanced')  calcAdvanced();
+}
+
+
+function showCalcError(message) {
+  const misesEl = document.getElementById('r-mises');
+  const scenariosEl = document.getElementById('r-scenarios');
+  const bilanEl = document.getElementById('r-bilan');
+  const warningEl = document.getElementById('r-warning');
+  const summaryTitleEl = document.getElementById('r-summary-title');
+  const summaryTextEl = document.getElementById('r-summary-text');
+
+  if (misesEl) misesEl.innerHTML = '<div style="color:var(--muted);">—</div>';
+  if (scenariosEl) scenariosEl.innerHTML = '<div style="padding:0.95rem;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);background:var(--dark3);">Remplis les champs pour voir l’analyse.</div>';
+  if (bilanEl) bilanEl.innerHTML = '<div style="color:var(--danger);font-weight:700;">' + message + '</div>';
+  if (warningEl) {
+    warningEl.style.display = 'block';
+    warningEl.style.background = 'rgba(255,77,77,0.08)';
+    warningEl.style.border = '1px solid rgba(255,77,77,0.25)';
+    warningEl.style.color = 'var(--danger)';
+    warningEl.innerHTML = '⚠️ ' + message;
+  }
+  if (summaryTitleEl) summaryTitleEl.textContent = 'Calcul impossible';
+  if (summaryTextEl) summaryTextEl.textContent = message;
+}
+
+function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, analysisText }) {
+  const misesEl = document.getElementById('r-mises');
+  const scenariosEl = document.getElementById('r-scenarios');
+  const bilanEl = document.getElementById('r-bilan');
+  const warningEl = document.getElementById('r-warning');
+  const summaryTitleEl = document.getElementById('r-summary-title');
+  const summaryTextEl = document.getElementById('r-summary-text');
+
+  if (!misesEl || !scenariosEl || !bilanEl || !summaryTitleEl || !summaryTextEl) return;
+
+  const miseRows = (mises || []).map(item => `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);">
+      <div style="min-width:0;">
+        <div style="font-weight:700;color:var(--text);">${item.bk || 'Bookmaker'}</div>
+        <div style="font-size:0.8rem;color:var(--muted);">${item.label || ''}</div>
+      </div>
+      <div style="font-weight:800;color:${item.tag === 'ppal' ? 'var(--text)' : 'var(--acc)'};white-space:nowrap;">${formatC(item.mise || 0)}</div>
+    </div>
+  `).join('');
+
+  const scenarioRows = (scenarios || []).map(sc => {
+    const total = Number(sc.netForDisplay ?? sc.total ?? 0);
+    const tone = total >= 0 ? 'var(--success)' : (sc.warningLevel === 'miss' ? 'var(--danger)' : 'var(--warning)');
+    const bg = total >= 0 ? 'rgba(0,201,107,0.08)' : (sc.warningLevel === 'miss' ? 'rgba(255,77,77,0.07)' : 'rgba(255,184,0,0.08)');
+    const bd = total >= 0 ? 'rgba(0,201,107,0.25)' : (sc.warningLevel === 'miss' ? 'rgba(255,77,77,0.25)' : 'rgba(255,184,0,0.25)');
+    return `
+      <div style="padding:11px 12px;border-radius:var(--radius-sm);background:${bg};border:1px solid ${bd};">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div style="min-width:0;">
+            <div style="font-weight:800;color:var(--text);margin-bottom:3px;">${sc.label || 'Scénario'}</div>
+            <div style="font-size:0.8rem;color:var(--muted);line-height:1.45;">${sc.detail || ''}</div>
+            ${sc.bonusNote ? `<div style="margin-top:6px;font-size:0.78rem;color:${sc.warningLevel === 'miss' ? 'var(--danger)' : 'var(--warning)'};line-height:1.45;">${sc.bonusNote}</div>` : ''}
+          </div>
+          <div style="font-weight:900;color:${tone};white-space:nowrap;">${formatS(total)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const bilanRows = (bilanItems || []).map(item => `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--border2);">
+      <div style="color:var(--muted);font-size:0.82rem;">
+        ${item.label || ''}
+        ${item.badge ? `<span style="margin-left:7px;font-size:0.62rem;padding:2px 6px;border-radius:999px;background:rgba(255,107,26,0.10);color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">${item.badge}</span>` : ''}
+      </div>
+      <div style="font-weight:900;color:${item.color || 'var(--text)'};white-space:nowrap;">${item.val || '—'}</div>
+    </div>
+  `).join('');
+
+  misesEl.innerHTML = miseRows || '<div style="color:var(--muted);">—</div>';
+  scenariosEl.innerHTML = scenarioRows || '<div style="color:var(--muted);">—</div>';
+  bilanEl.innerHTML = bilanRows || '<div style="color:var(--muted);">—</div>';
+
+  if (warningEl) {
+    warningEl.style.display = 'none';
+    warningEl.innerHTML = '';
+  }
+
+  summaryTitleEl.textContent = analysisTitle || 'Analyse';
+  summaryTextEl.textContent = analysisText || summary || '—';
 }
 
 // ════════════════════════════════════════════════════════
@@ -1546,61 +1631,36 @@ function calcQualif() {
 // MODE 2 — FREEBET SNR
 // ════════════════════════════════════════════════════════
 
-function toggleFreebetMode() {
-  const mode = document.getElementById('fb_mode')?.value || '2';
-  const c3Wrap = document.getElementById('fb_c3_wrap');
-  const c2Hint = document.getElementById('fb_c2_hint');
-  if (c3Wrap) c3Wrap.style.display = mode === '3' ? 'block' : 'none';
-  if (c2Hint) c2Hint.textContent = mode === '3' ? 'Première issue adverse' : "Sur l'issue adverse";
-}
-
-function calculateFreebetConversion(fb, c1, c2, c3 = null) {
-  const gainBrut = fb * (c1 - 1);
-
-  if (c3 && c3 > 1) {
-    const miseCouv2 = gainBrut / c2;
-    const miseCouv3 = gainBrut / c3;
-    const profitIssue1 = gainBrut - miseCouv2 - miseCouv3;
-    const retourCouv2 = miseCouv2 * c2;
-    const retourCouv3 = miseCouv3 * c3;
-    const profitIssue2 = retourCouv2 - miseCouv2 - miseCouv3;
-    const profitIssue3 = retourCouv3 - miseCouv2 - miseCouv3;
-    const profitGaranti = Math.min(profitIssue1, profitIssue2, profitIssue3);
-    const tauxConv = (profitGaranti / fb) * 100;
-    return {
-      mode: '3', gainBrut,
-      miseCouv: miseCouv2, miseCouv2, miseCouv3,
-      profitGagne: profitIssue1, profitIssue1, profitIssue2, profitIssue3,
-      profitPerd: profitIssue2,
-      profitGaranti, tauxConv,
-      retourCouv: retourCouv2, retourCouv2, retourCouv3
-    };
-  }
-
-  const miseCouv = gainBrut / c2;
+function calculateFreebetConversion(fb, c1, c2) {
+  // ── Logique métier SNR exacte ──
+  // La mise freebet n'est JAMAIS rendue
+  // Gain brut freebet si gagne = fb × (c1 - 1)
+  const gainBrut    = fb * (c1 - 1);
+  // Mise couverture optimale pour équilibrer les 2 scénarios
+  const miseCouv    = gainBrut / c2;
+  // Scénario 1 : freebet gagne
   const profitGagne = gainBrut - miseCouv;
-  const retourCouv = miseCouv * c2;
-  const profitPerd = retourCouv - miseCouv;
+  // Scénario 2 : freebet perd → couverture gagne
+  const retourCouv  = miseCouv * c2;
+  const profitPerd  = retourCouv - miseCouv; // = 0 si parfaitement équilibré
+  // Profit garanti = min des 2 (en pratique = profitGagne grâce à l'arrondi)
   const profitGaranti = Math.min(profitGagne, profitPerd);
-  const tauxConv = (profitGaranti / fb) * 100;
-  return { mode: '2', gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv, retourCouv };
+  // Taux de conversion réel = profitGaranti / montant_freebet
+  const tauxConv    = (profitGaranti / fb) * 100;
+  return { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv, retourCouv };
 }
 
-function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
+function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
   const el = document.getElementById('fb-results');
   if (!el) return;
 
-  const { gainBrut, miseCouv, miseCouv2, miseCouv3, profitGagne, profitPerd, profitIssue1, profitIssue2, profitIssue3, profitGaranti, tauxConv } = res;
-  const isThreeWay = res.mode === '3';
-  const totalCash = isThreeWay ? (miseCouv2 + miseCouv3) : miseCouv;
+  const { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv } = res;
 
   const tauxColor = tauxConv >= 65 ? 'var(--success)' : tauxConv >= 50 ? 'var(--warning)' : 'var(--danger)';
   const tauxLabel = tauxConv >= 65 ? '✅ Excellent' : tauxConv >= 50 ? '⚠️ Moyen' : '❌ Faible';
 
   // Vérification arrondi : différence entre les 2 scénarios
-  const diff = isThreeWay
-    ? Math.max(profitIssue1, profitIssue2, profitIssue3) - Math.min(profitIssue1, profitIssue2, profitIssue3)
-    : Math.abs(profitGagne - profitPerd);
+  const diff = Math.abs(profitGagne - profitPerd);
   const garantiLabel = diff < 0.02 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);font-weight:700;margin-left:5px;">GARANTI</span>'
                      : diff < 0.10 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);font-weight:700;margin-left:5px;">QUASI-GARANTI</span>'
                      : '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);font-weight:700;margin-left:5px;">ÉCART ±' + formatC(diff) + '</span>';
@@ -1613,19 +1673,6 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
         <span style="color:var(--muted);">Gain brut freebet = ${fb} × (${c1} − 1)</span>
         <span style="font-weight:700;color:var(--text);">${formatC(gainBrut)}</span>
       </div>
-      ${isThreeWay ? `
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
-        <span style="color:var(--muted);">Couverture issue 2 = ${formatC(gainBrut)} ÷ ${c2}</span>
-        <span style="font-weight:700;color:var(--acc);">${formatC(miseCouv2)}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
-        <span style="color:var(--muted);">Couverture issue 3 = ${formatC(gainBrut)} ÷ ${c3}</span>
-        <span style="font-weight:700;color:var(--acc);">${formatC(miseCouv3)}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;">
-        <span style="color:var(--muted);">Profit = ${formatC(gainBrut)} − ${formatC(miseCouv2)} − ${formatC(miseCouv3)}</span>
-        <span style="font-weight:700;color:var(--success);">${formatS(profitGaranti)}</span>
-      </div>` : `
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
         <span style="color:var(--muted);">Mise couverture = ${formatC(gainBrut)} ÷ ${c2}</span>
         <span style="font-weight:700;color:var(--acc);">${formatC(miseCouv)}</span>
@@ -1633,7 +1680,7 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
       <div style="display:flex;justify-content:space-between;padding:4px 0;">
         <span style="color:var(--muted);">Profit = ${formatC(gainBrut)} − ${formatC(miseCouv)}</span>
         <span style="font-weight:700;color:var(--success);">${formatS(profitGaranti)}</span>
-      </div>`}
+      </div>
     </div>
 
     <!-- Mises à placer -->
@@ -1649,50 +1696,33 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
         <div>
           <span style="font-weight:700;">${bk2}</span>
-          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">${isThreeWay ? 'Couverture issue 2 — argent réel' : 'Couverture — argent réel'}</span>
+          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
         </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(isThreeWay ? miseCouv2 : miseCouv)}</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(miseCouv)}</span>
       </div>
-      ${isThreeWay ? `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
-        <div>
-          <span style="font-weight:700;">${bk2}</span>
-          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture issue 3 — argent réel</span>
-        </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(miseCouv3)}</span>
-      </div>` : ''}
     </div>
 
-    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">${isThreeWay ? 'Les 3 scénarios' : 'Les 2 scénarios'}</div>
+    <!-- 2 scénarios -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Les 2 scénarios</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">Issue freebet</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net ${formatC(gainBrut)}${isThreeWay ? ` − ${formatC(miseCouv2)} − ${formatC(miseCouv3)}` : ` − couverture ${formatC(miseCouv)}`}</div>
+            <div style="font-weight:600;font-size:0.85rem;">Freebet gagne</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net ${formatC(gainBrut)} − couverture ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(isThreeWay ? profitIssue1 : profitGagne)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitGagne)}</span>
         </div>
       </div>
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">${isThreeWay ? 'Issue couverture 1' : 'Freebet perd'}</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">${isThreeWay ? `Retour ${formatC(miseCouv2 * c2)} − mises ${formatC(miseCouv2)} et ${formatC(miseCouv3)}` : `Couverture récupérée ${formatC(miseCouv * c2)} − mise ${formatC(miseCouv)}`}</div>
+            <div style="font-weight:600;font-size:0.85rem;">Freebet perd</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Couverture récupérée ${formatC(miseCouv * c2)} − mise ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(isThreeWay ? profitIssue2 : profitPerd)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitPerd)}</span>
         </div>
       </div>
-      ${isThreeWay ? `
-      <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-weight:600;font-size:0.85rem;">Issue couverture 2</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Retour ${formatC(miseCouv3 * c3)} − mises ${formatC(miseCouv2)} et ${formatC(miseCouv3)}</div>
-          </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitIssue3)}</span>
-        </div>
-      </div>` : ''}
     </div>
 
     <!-- Bilan -->
@@ -1706,7 +1736,7 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Taux conversion ${tauxLabel}</div>
       </div>
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">${formatC(totalCash)}</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">${formatC(miseCouv)}</div>
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Cash engagé</div>
       </div>
     </div>
@@ -1714,9 +1744,7 @@ function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, c3 = null) {
     <!-- Résumé automatique -->
     <div id="fb-summary-box" style="font-size:0.78rem;color:var(--muted);line-height:1.7;padding:0.8rem 1rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);margin-bottom:0.8rem;">
       Pour une freebet de <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1}</strong> à la cote <strong style="color:var(--text);">${c1}</strong>,
-      ${isThreeWay
-        ? `mise <strong style="color:var(--acc);">${formatC(miseCouv2)}</strong> puis <strong style="color:var(--acc);">${formatC(miseCouv3)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> aux cotes <strong style="color:var(--text);">${c2}</strong> et <strong style="color:var(--text);">${c3}</strong>.`
-        : `mise <strong style="color:var(--acc);">${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> à la cote <strong style="color:var(--text);">${c2}</strong>.`}
+      mise <strong style="color:var(--acc);">${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> à la cote <strong style="color:var(--text);">${c2}</strong>.
       Profit garanti : <strong style="color:var(--success);">${formatS(profitGaranti)}</strong> (taux ${tauxConv.toFixed(1)}%) — quel que soit le résultat.${note ? '<br>📝 ' + note : ''}
     </div>
 
@@ -1733,19 +1761,18 @@ function calcFreebet() {
   const fb  = sanitize('fb_val', 100);
   const c1  = sanitize('fb_c1', 3.50);
   const c2  = sanitize('fb_c2', 1.40);
-  const c3  = sanitize('fb_c3', 3.20);
-  const mode = document.getElementById('fb_mode')?.value || '2';
   const bk1 = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
   const bk2 = document.getElementById('fb_bk2')?.value || 'Couverture';
   const note= document.getElementById('fb_note')?.value || '';
   const el  = document.getElementById('fb-results');
   if (!el) return;
 
+  // Validation
   if (isNaN(fb) || fb <= 0)  { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Montant freebet invalide.</div>'; return; }
   if (isNaN(c1) || c1 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote freebet invalide (minimum 1.01).</div>'; return; }
-  if (isNaN(c2) || c2 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture 1 invalide (minimum 1.01).</div>'; return; }
-  if (mode === '3' && (isNaN(c3) || c3 <= 1)) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture 2 invalide (minimum 1.01).</div>'; return; }
+  if (isNaN(c2) || c2 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture invalide (minimum 1.01).</div>'; return; }
 
+  // Badge cote freebet
   const badge = document.getElementById('fb_c1_badge');
   if (badge) {
     if (c1 >= 2.5 && c1 <= 4.0)      { badge.textContent = '✅ Optimal'; badge.style.color = 'var(--success)'; }
@@ -1754,11 +1781,14 @@ function calcFreebet() {
     else                               { badge.textContent = ''; }
   }
 
-  const res = calculateFreebetConversion(fb, c1, c2, mode === '3' ? c3 : null);
+  // Calcul
+  const res = calculateFreebetConversion(fb, c1, c2);
 
-  window._lastFreebet = { fb, c1, c2, c3: mode === '3' ? c3 : null, mode, bk1, bk2, note, ...res };
+  // Stocker pour copier/tracker
+  window._lastFreebet = { fb, c1, c2, bk1, bk2, note, ...res };
 
-  renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note, mode === '3' ? c3 : null);
+  // Afficher
+  renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note);
 }
 
 function copyFreebetSummary() {
@@ -1819,17 +1849,30 @@ function addFromCalc() {
 
 // ── Injection depuis le scanner ───────────────────────
 
+function fillCalcFields(fields) {
+  Object.entries(fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el || val === undefined || val === null || val === '') return;
+    if (el.tagName === 'SELECT') {
+      for (let i = 0; i < el.options.length; i++) {
+        if (el.options[i].value === String(val) || el.options[i].text === String(val)) {
+          el.selectedIndex = i;
+          break;
+        }
+      }
+    } else {
+      el.value = val;
+    }
+  });
+}
+
 function openSurebetCalc(matchEnc, c1, cX, c2, bk1, bk2, has3) {
-  // Aller sur le bon mode
   const modeBtn = document.querySelector('.calc-mode-btn[onclick*="qualif"]');
   if (modeBtn) setCalcMode('qualif', modeBtn);
-  setFields({ q_c1: c1 || 2.10, q_c2: c2 || 1.85, q_mise: 100, q_mkt: has3 ? '3way' : '2way' });
-  if (has3 && cX) setFields({ q_c3: cX });
-  // Sélectionner les bookmakers
-  ['q_bk1','q_bk2'].forEach((selId, i) => {
-    const name = i === 0 ? bk1 : bk2;
+  fillCalcFields({ q_c1: c1 || 2.10, q_c2: c2 || 1.85, q_mise: 100, q_mkt: has3 ? '3way' : '2way', q_c3: has3 && cX ? cX : undefined });
+  [['q_bk1', bk1], ['q_bk2', bk2]].forEach(([selId, name]) => {
     const sel = document.getElementById(selId);
-    if (!sel) return;
+    if (!sel || !name) return;
     for (let j = 0; j < sel.options.length; j++) {
       if (sel.options[j].text === name || sel.options[j].value === name) { sel.selectedIndex = j; break; }
     }
@@ -1839,7 +1882,26 @@ function openSurebetCalc(matchEnc, c1, cX, c2, bk1, bk2, has3) {
   showToast('✅ Cotes injectées dans le calculateur !', 'ok');
 }
 
-
+function openFreebetFromScan(payloadEnc) {
+  try {
+    const data = JSON.parse(decodeURIComponent(payloadEnc));
+    const modeBtn = document.querySelector('.calc-mode-btn[onclick*="freebet"]');
+    if (modeBtn) setCalcMode('freebet', modeBtn);
+    fillCalcFields({
+      fb_bk1: data.bk1 || '',
+      fb_bk2: data.bk2 || '',
+      fb_val: data.mise || 100,
+      fb_c1: data.c1 || 2.5,
+      fb_c2: data.c2 || 1.8
+    });
+    if (typeof calcFreebet === 'function') calcFreebet();
+    window.location.hash = '#section-freebet';
+    showToast('🎯 Cotes injectées dans le convertisseur freebet', 'ok');
+  } catch (e) {
+    console.error(e);
+    showToast("Impossible d'injecter les cotes freebet", 'err');
+  }
+}
 
 
 // BONUS
@@ -2441,6 +2503,7 @@ function analyzeForBonus(match, targetBk) {
       const mkt    = hasX ? '3way' : '2way';
 
       let perteQualif, mCouv, mNul = 0, cap;
+      let freebetProfit = null, freebetRate = null, freebetStake2 = 0;
 
       if (mkt === '3way' && bestCover2Bk && bestCover2Odd > 1) {
         const d = bestCoverOdd * bestCover2Odd - bestCoverOdd - bestCover2Odd;
@@ -2453,26 +2516,42 @@ function analyzeForBonus(match, targetBk) {
           const netNul = (mNul * bestCover2Odd) - mNul - mise - mCouv;
           perteQualif = Math.min(netAdv, netNul); // le pire des 2 scénarios perdants
         }
+
+        const gainFb = mise * (cote - 1);
+        const fbMise2 = gainFb / bestCoverOdd;
+        const fbMise3 = gainFb / bestCover2Odd;
+        freebetStake2 = fbMise3;
+        freebetProfit = gainFb - fbMise2 - fbMise3;
+        freebetRate = (freebetProfit / mise) * 100;
       } else {
         // 2 issues
         mCouv = (mise * cote) / bestCoverOdd;
         cap   = mise + mCouv;
         perteQualif = (mCouv * bestCoverOdd) - mCouv - mise;
+
+        const gainFb = mise * (cote - 1);
+        freebetProfit = gainFb - (gainFb / bestCoverOdd);
+        freebetRate = (freebetProfit / mise) * 100;
       }
 
-      if (perteQualif === undefined) return;
+      if (perteQualif === undefined || freebetRate === null || !isFinite(freebetRate)) return;
 
       // Zone basée sur la PERTE RÉELLE (pas sur la cote)
       const perte = perteQualif || 0;
       const zoneByPerte = perte >= -5  ? 'ideal'    // perte 0→5€
                         : perte >= -10 ? 'correct'  // perte 5→10€
                         : 'bad';                    // perte > 10€
+      const freebetBand = freebetRate >= 80 ? 'elite'
+                         : freebetRate >= 75 ? 'good'
+                         : freebetRate >= 70 ? 'ok'
+                         : 'low';
 
       opps.push({
         bk, issue, cote, zone: zoneByPerte,
         coverBk: bestCoverBk, coverOdd: bestCoverOdd,
         cover2Bk: bestCover2Bk, cover2Odd: bestCover2Odd,
         mkt, mCouv, mNul, cap, perteQualif,
+        freebetProfit, freebetRate, freebetBand, freebetStake2,
         match
       });
     });
@@ -2688,6 +2767,17 @@ function renderScanResults() {
                     : opp.zone === 'correct' ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);">🟡 Correcte</span>'
                     : '<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);">🔴 Hors zone</span>';
     const sbTag  = sb.isSB ? `<span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);margin-left:4px;">🟢 SUREBET +${sb.profit.toFixed(1)}%</span>` : '';
+    const fbChipStyle = opp.freebetBand === 'elite'
+      ? 'background:rgba(0,201,107,0.16);color:var(--success);'
+      : opp.freebetBand === 'good'
+      ? 'background:rgba(0,201,107,0.10);color:#7DFFB4;'
+      : opp.freebetBand === 'ok'
+      ? 'background:rgba(255,184,0,0.15);color:var(--warning);'
+      : 'background:rgba(255,77,77,0.12);color:var(--danger);';
+    const fbChipLabel = opp.freebetRate >= 80 ? '🔥 Excellente conversion'
+      : opp.freebetRate >= 75 ? '✅ Bonne conversion'
+      : opp.freebetRate >= 70 ? '🟡 Correcte'
+      : '🔴 Faible';
 
     const perteCls = opp.perteQualif >= -8  ? 'color:var(--success);'
                    : opp.perteQualif >= -15 ? 'color:var(--warning);'
@@ -2718,6 +2808,7 @@ function renderScanResults() {
             <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
               <span style="font-size:0.7rem;color:var(--muted);">${m.competition}</span>
               <span style="font-size:0.7rem;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,0.06);">${m.heure}</span>
+              <span style="font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:999px;${fbChipStyle}">🎯 Freebet ~${opp.freebetRate.toFixed(1)}%</span>
               ${sbTag}
             </div>
           </div>
@@ -2765,20 +2856,48 @@ function renderScanResults() {
             <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Perte qualif</div>
           </div>
           <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--success);">~+${(100*0.75 + opp.perteQualif).toFixed(0)}€</div>
-            <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Profit bonus est.</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--success);">${opp.freebetRate.toFixed(1)}%</div>
+            <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Conversion freebet</div>
+          </div>
+        </div>
+
+        <div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+              <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">${fbChipLabel}</div>
+              <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Ici tu transformes ta freebet de 100€ à environ <strong style="color:var(--success);">${opp.freebetRate.toFixed(1)}%</strong>.</div>
+            </div>
+            <div style="text-align:right;min-width:118px;">
+              <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:var(--success);">~+${opp.freebetProfit.toFixed(2).replace('.',',')}€</div>
+              <div style="font-size:0.68rem;color:var(--muted);">profit freebet garanti</div>
+            </div>
+          </div>
+          <div style="margin-top:0.55rem;font-size:0.74rem;color:var(--muted);line-height:1.45;">
+            ${opp.mkt === '3way'
+              ? `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre avec <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong> et <strong style="color:var(--text);">${opp.cover2Bk} @ ${opp.cover2Odd.toFixed(2)}</strong>.`
+              : `Freebet sur <strong style="color:var(--text);">${opp.bk} @ ${opp.cote.toFixed(2)}</strong>, puis couvre chez <strong style="color:var(--text);">${opp.coverBk} @ ${opp.coverOdd.toFixed(2)}</strong>.`}
           </div>
         </div>
 
         <!-- Bouton Calculer -->
-        <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
-          onclick="injectIntoCalc('${encodeURIComponent(JSON.stringify({
-            bk1: opp.bk, bk2: opp.coverBk,
-            c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0,
-            mkt: opp.mkt, mise: 100
-          }))}')">
-          ⚡ Calculer les mises exactes →
-        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn-primary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
+            onclick="injectIntoCalc('${encodeURIComponent(JSON.stringify({
+              bk1: opp.bk, bk2: opp.coverBk,
+              c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0,
+              mkt: opp.mkt, mise: 100
+            }))}')">
+            ⚡ Calcul qualif →
+          </button>
+          <button class="btn-secondary" style="width:100%;justify-content:center;font-size:0.83rem;padding:9px;"
+            onclick="openFreebetFromScan('${encodeURIComponent(JSON.stringify({
+              bk1: opp.bk, bk2: opp.coverBk, bk3: opp.cover2Bk || '',
+              c1: opp.cote, c2: opp.coverOdd, c3: opp.cover2Odd||0,
+              mkt: opp.mkt, mise: 100
+            }))}')">
+            🎯 Convertir la freebet →
+          </button>
+        </div>
 
       </div>
     </div>`;
@@ -3133,6 +3252,14 @@ function switchSuiviTab(id, btn) {
 // INIT
 // Lancer le calculateur V4 (remplace les anciens calculate/calcFreebet/checkCote1)
 runCalc();
+calcFreebet();
+
+// Second passage après chargement pour fiabiliser l'affichage initial
+// si le navigateur a restauré des champs avec virgules décimales.
+setTimeout(() => {
+  runCalc();
+  calcFreebet();
+}, 120);
 renderBonusGrid();
 renderTracker();
 renderDashboard();
