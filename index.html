@@ -529,7 +529,7 @@ body.light .hero-grid{opacity:0.15;}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
       <div>
         <div class="section-title">Scanner de cotes 🎯</div>
-        <p class="section-sub">Trouve le meilleur pari qualificatif bonus — classé par <strong style="color:var(--acc);">perte réelle estimée</strong> · Zone idéale : perte ≤ 5€</p>
+        <p class="section-sub">Deux vues séparées : <strong style="color:var(--warning);">étape 1 = perdre le moins possible</strong> · <strong style="color:var(--success);">étape 2 = convertir la freebet au mieux</strong>.</p>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="scanner-status">
@@ -949,15 +949,33 @@ body.light .hero-grid{opacity:0.15;}
         <div class="scan-stat"><div class="scan-stat-val" id="t-progress">0</div><div class="scan-stat-label">En cours</div></div>
         <div class="scan-stat"><div class="scan-stat-val" id="t-closed">0</div><div class="scan-stat-label">Terminés</div></div>
       </div>
-      <style>#add-row{grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;}#tracker-follow-grid{grid-template-columns:1fr 1fr 1fr;}@media(max-width:1100px){#add-row{grid-template-columns:1fr 1fr 1fr;}}@media(max-width:800px){#add-row{grid-template-columns:1fr 1fr;}}@media(max-width:520px){#tracker-follow-grid{grid-template-columns:1fr;}}</style>
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:0.9rem;margin-top:0.9rem;" id="tracker-insights-grid">
+        <div class="scan-stat" style="text-align:left;align-items:flex-start;">
+          <div class="scan-stat-label" style="margin-bottom:6px;">🏦 Profit par bookmaker</div>
+          <div id="tracker-bookmaker-breakdown" style="width:100%;font-size:0.78rem;color:var(--muted);">Aucune donnée</div>
+        </div>
+        <div class="scan-stat" style="text-align:left;align-items:flex-start;">
+          <div class="scan-stat-label" style="margin-bottom:6px;">🎯 Suivi rapide</div>
+          <div id="tracker-quick-insights" style="width:100%;font-size:0.78rem;color:var(--muted);">Aucune donnée</div>
+        </div>
+      </div>
+      <style>#add-row{grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;}#tracker-follow-grid{grid-template-columns:1fr 1fr 1fr;}#tracker-insights-grid{grid-template-columns:1.1fr 0.9fr;}@media(max-width:1100px){#add-row{grid-template-columns:1fr 1fr 1fr;}}@media(max-width:800px){#add-row{grid-template-columns:1fr 1fr;}}@media(max-width:700px){#tracker-insights-grid{grid-template-columns:1fr;}}@media(max-width:520px){#tracker-follow-grid{grid-template-columns:1fr;}}</style>
     </div>
 
-    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;margin-bottom:0.8rem;flex-wrap:wrap;" id="tracker-type-filters">
       <button class="bfilter active" onclick="filterTrades('all',this)">Toutes</button>
       <button class="bfilter" onclick="filterTrades('Bonus bienvenue',this)">Bonus</button>
       <button class="bfilter" onclick="filterTrades('Freebet',this)">Freebet</button>
       <button class="bfilter" onclick="filterTrades('Surebet',this)">Surebet</button>
       <button class="bfilter" onclick="filterTrades('Value bet',this)">Value bet</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;" id="tracker-status-filters">
+      <button class="bfilter active" onclick="filterTradesStatus('all',this)">Tous statuts</button>
+      <button class="bfilter" onclick="filterTradesStatus('À faire',this)">À faire</button>
+      <button class="bfilter" onclick="filterTradesStatus('En cours',this)">En cours</button>
+      <button class="bfilter" onclick="filterTradesStatus('Terminé',this)">Terminés</button>
+      <button class="bfilter" onclick="filterTradesStatus('success',this)">✅ Réussis</button>
+      <button class="bfilter" onclick="filterTradesStatus('failed',this)">❌ Ratés</button>
     </div>
 
     <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;">
@@ -2035,7 +2053,9 @@ function toggleBonus(i){
 
 // TRACKER
 let tFilter='all';
-function filterTrades(f,btn){tFilter=f;document.querySelectorAll('#suivi .bfilter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTracker();}
+let tStatusFilter='all';
+function filterTrades(f,btn){tFilter=f;document.querySelectorAll('#tracker-type-filters .bfilter').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); renderTracker();}
+function filterTradesStatus(f,btn){tStatusFilter=f;document.querySelectorAll('#tracker-status-filters .bfilter').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); renderTracker();}
 function addTrade(){
   const title=document.getElementById('t-match').value.trim();
   const bk=document.getElementById('t-bk').value;
@@ -2074,7 +2094,30 @@ function renderTracker(){
   const todoEl=document.getElementById('t-todo'); if(todoEl) todoEl.textContent=todo;
   const progressEl=document.getElementById('t-progress'); if(progressEl) progressEl.textContent=progress;
   const closedEl=document.getElementById('t-closed'); if(closedEl) closedEl.textContent=closed;
-  const filtered=tFilter==='all'?trades:trades.filter(t=>t.type===tFilter);
+
+  const byBook={};
+  closedTrades.forEach(t=>{ byBook[t.bk]=(byBook[t.bk]||0)+Number(t.profit||0); });
+  const rankedBooks=Object.entries(byBook).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const bmEl=document.getElementById('tracker-bookmaker-breakdown');
+  if (bmEl) {
+    bmEl.innerHTML = rankedBooks.length
+      ? rankedBooks.map(([bk,val],i)=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:${i?6:0}px 0;border-top:${i?'1px solid var(--border2)':'none'};"><span>${bk}</span><strong style="color:${val>=0?'var(--success)':'var(--danger)'};">${val>=0?'+':''}${val.toFixed(2).replace('.',',')}€</strong></div>`).join('')
+      : 'Aucune donnée fermée pour le moment';
+  }
+  const quickEl=document.getElementById('tracker-quick-insights');
+  if (quickEl) {
+    const failed=closedTrades.filter(t=>t.outcome==='Raté' || (t.outcome==='—' && t.profit<0)).length;
+    const pendingEstimate=trades.filter(t=>t.status!=='Terminé').length;
+    quickEl.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:8px;padding-bottom:6px;"><span>Bonus actifs</span><strong style="color:var(--acc);">${pendingEstimate}</strong></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border2);"><span>Trades réussis</span><strong style="color:var(--success);">${wins}</strong></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--border2);"><span>Trades ratés</span><strong style="color:${failed?'var(--danger)':'var(--muted)'};">${failed}</strong></div>`;
+  }
+
+  let filtered=tFilter==='all'?trades:trades.filter(t=>t.type===tFilter);
+  if (tStatusFilter==='À faire' || tStatusFilter==='En cours' || tStatusFilter==='Terminé') filtered=filtered.filter(t=>t.status===tStatusFilter);
+  if (tStatusFilter==='success') filtered=filtered.filter(t=>t.status==='Terminé' && (t.outcome==='Réussi' || (t.outcome==='—' && t.profit>=0)));
+  if (tStatusFilter==='failed') filtered=filtered.filter(t=>t.status==='Terminé' && (t.outcome==='Raté' || (t.outcome==='—' && t.profit<0)));
   if(!filtered.length){document.getElementById('trades-list').innerHTML='<div class="empty-state">Aucune opération dans ce filtre.</div>';return;}
   let html='';
   filtered.forEach((t)=>{
@@ -2870,6 +2913,12 @@ function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
   const stageBadge = mode === 'qualif'
     ? '<span style="font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,184,0,0.12);color:var(--warning);">Étape 1 · Qualif</span>'
     : '<span style="font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(0,201,107,0.12);color:var(--success);">Étape 2 · Freebet</span>';
+  const qualityChip = mode === 'qualif'
+    ? (opp.perteQualif >= -5 ? '<span class="score-badge score-excellent">Excellent</span>' : opp.perteQualif >= -10 ? '<span class="score-badge score-ok">Correct</span>' : '<span class="score-badge" style="background:rgba(255,77,77,0.14);color:var(--danger);">À éviter</span>')
+    : (opp.freebetRate >= 80 ? '<span class="score-badge score-excellent">Excellent</span>' : opp.freebetRate >= 75 ? '<span class="score-badge score-ok">Correct</span>' : '<span class="score-badge" style="background:rgba(255,77,77,0.14);color:var(--danger);">Faible</span>');
+  const quickSummary = mode === 'qualif'
+    ? `Tu mises 100€ sur <strong style="color:var(--text);">${opp.bk}</strong>, tu couvres <strong style="color:var(--acc);">${opp.mCouv.toFixed(2).replace('.',',')}€</strong>${opp.mNul>0?` + ${opp.mNul.toFixed(2).replace('.',',')}€`:''} et tu perds environ <strong style="${perteCls}">${opp.perteQualif.toFixed(2).replace('.',',')}€</strong>.`
+    : `Tu transformes une freebet de 100€ à environ <strong style="color:var(--success);">${opp.freebetRate.toFixed(1)}%</strong> pour un profit garanti proche de <strong style="color:var(--success);">+${opp.freebetProfit.toFixed(2).replace('.',',')}€</strong>.`;
 
   let groupHeader = '';
   if (groupByBk && opp.bk !== lastBkRef.value) {
@@ -2881,31 +2930,18 @@ function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
     </div>`;
   }
 
-  const topInfo = mode === 'qualif'
-    ? `<div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
-          <div>
-            <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">⚡ Étape 1 : perte minimale</div>
-            <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Tu cherches ici la qualif la moins chère possible.</div>
-          </div>
-          <div style="text-align:right;min-width:118px;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;${perteCls}">${opp.perteQualif.toFixed(2).replace('.',',')}€</div>
-            <div style="font-size:0.68rem;color:var(--muted);">perte qualif estimée</div>
-          </div>
-        </div>
-      </div>`
-    : `<div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
-          <div>
-            <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;">${fbChipLabel}</div>
-            <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">Ici tu transformes ta freebet de 100€ à environ <strong style="color:var(--success);">${opp.freebetRate.toFixed(1)}%</strong>.</div>
-          </div>
-          <div style="text-align:right;min-width:118px;">
-            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:800;color:var(--success);">~+${opp.freebetProfit.toFixed(2).replace('.',',')}€</div>
-            <div style="font-size:0.68rem;color:var(--muted);">profit freebet garanti</div>
-          </div>
-        </div>
-      </div>`;
+  const actionPayload = encodeURIComponent(JSON.stringify({
+    bk1: opp.bk,
+    bk2: opp.coverBk,
+    bk3: opp.cover2Bk || '',
+    c1: Number(opp.cote.toFixed(2)),
+    c2: Number(opp.coverOdd.toFixed(2)),
+    c3: Number((opp.cover2Odd || 0).toFixed(2)),
+    mkt: opp.mkt,
+    mise: 100,
+    coverStake: Number((opp.mCouv || 0).toFixed(2)),
+    coverStake2: Number((opp.mNul || 0).toFixed(2))
+  }));
 
   return groupHeader + `
   <div class="match-card ${opp.zone === 'ideal' ? 'has-value' : ''}">
@@ -2921,7 +2957,12 @@ function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
             ${sbTag}
           </div>
         </div>
-        ${zoneLabel}
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">${qualityChip}${zoneLabel}</div>
+      </div>
+
+      <div style="background:var(--dark3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0.85rem 0.9rem;margin-bottom:0.8rem;">
+        <div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;margin-bottom:4px;">${mode === 'qualif' ? 'Action rapide' : fbChipLabel}</div>
+        <div style="font-size:0.77rem;color:var(--muted);line-height:1.55;">${quickSummary}</div>
       </div>
 
       <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:0.8rem;">
@@ -2946,12 +2987,10 @@ function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
         </div>` : ''}
       </div>
 
-      ${topInfo}
-
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.8rem;">
         <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
           <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--acc);">${opp.mCouv.toFixed(2).replace('.',',')}€</div>
-          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">Mise couverture 1</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">${opp.mkt === '3way' && opp.mNul > 0 ? 'Couv. principale' : 'Mise couverture'}</div>
         </div>
         <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px;text-align:center;">
           <div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:${mode === 'qualif' ? 'var(--text)' : 'var(--success)'};">${mode === 'qualif' ? opp.cap.toFixed(2).replace('.',',') + '€' : opp.freebetProfit.toFixed(2).replace('.',',') + '€'}</div>
@@ -2964,15 +3003,8 @@ function renderScanCard(opp, idx, groupByBk, lastBkRef, mode) {
       </div>
 
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="scan-action-btn" style="background:var(--acc);color:#111;" onclick="injectIntoCalc('${encodeURIComponent(JSON.stringify({
-          bk1: opp.bk,
-          bk2: opp.coverBk,
-          c1: Number(opp.cote.toFixed(2)),
-          c2: Number(opp.coverOdd.toFixed(2)),
-          c3: Number((opp.cover2Odd || 0).toFixed(2)),
-          mkt: opp.mkt,
-          mise: 100
-        }))}')">🧮 Ouvrir dans le calculateur</button>
+        <button class="scan-action-btn" style="background:var(--acc);color:#111;" onclick="injectIntoCalc('${actionPayload}')">🧮 Utiliser ce pari</button>
+        <button class="scan-action-btn" style="background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--border2);" onclick="copyScanStakes('${actionPayload}')">📋 Copier les mises</button>
         <button class="scan-action-btn" style="background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--border2);" onclick="openFreebetFromScan('${encodeURIComponent(JSON.stringify({
           bk1: opp.bk,
           bk2: opp.coverBk,
@@ -3091,6 +3123,23 @@ function injectIntoCalc(dataEnc) {
     window.location.hash = '#analyse';
     showToast('⚡ Cotes injectées dans le calculateur !', 'ok');
   } catch(e) { showToast('Erreur injection', 'err'); }
+}
+
+function copyScanStakes(dataEnc) {
+  try {
+    const d = JSON.parse(decodeURIComponent(dataEnc));
+    const parts = [
+      `Book bonus : ${d.bk1} @ ${Number(d.c1).toFixed(2)}`,
+      `Book couverture : ${d.bk2} @ ${Number(d.c2).toFixed(2)}`,
+      `Mise bonus : ${Number(d.mise || 100).toFixed(2).replace('.',',')}€`,
+      `Mise couverture : ${Number(d.coverStake || 0).toFixed(2).replace('.',',')}€`
+    ];
+    if (d.coverStake2 > 0 && d.bk3 && d.c3 > 1) parts.push(`Mise couverture 2 : ${Number(d.coverStake2).toFixed(2).replace('.',',')}€ sur ${d.bk3} @ ${Number(d.c3).toFixed(2)}`);
+    navigator.clipboard?.writeText(parts.join('\n'));
+    showToast('📋 Mises copiées !', 'ok');
+  } catch (e) {
+    showToast('Impossible de copier les mises', 'err');
+  }
 }
 
 // ── Top opportunités (dashboard) ───────────────────────
