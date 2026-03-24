@@ -2722,6 +2722,44 @@ function analyzeSurebet(m) {
   return {b1, bX, b2, marge, isSB, profit, has3};
 }
 
+// ── SOURCE SCANNER ──────────────────────────────────────
+
+function setSource(src) {
+  const source = src === 'custom' ? 'custom' : 'odds';
+  localStorage.setItem('pm_source', source);
+
+  const isCustom = source === 'custom';
+  const customBtn = document.getElementById('src-custom');
+  const oddsBtn = document.getElementById('src-odds');
+  const urlEl = document.getElementById('api-url-input');
+  const keyEl = document.getElementById('api-key-input');
+
+  const applyState = (el, active) => {
+    if (!el) return;
+    el.style.background = active ? 'rgba(255,107,26,0.12)' : 'transparent';
+    el.style.color = active ? 'var(--acc)' : 'var(--muted)';
+    el.style.fontWeight = active ? '700' : '500';
+    el.style.borderRadius = '10px';
+  };
+
+  applyState(customBtn, isCustom);
+  applyState(oddsBtn, !isCustom);
+
+  if (urlEl) {
+    urlEl.style.display = isCustom ? 'block' : 'none';
+    urlEl.disabled = !isCustom;
+  }
+  if (keyEl) {
+    keyEl.style.display = isCustom ? 'none' : 'block';
+    keyEl.disabled = isCustom;
+  }
+
+  const quotaEl = document.getElementById('scan-quota');
+  if (quotaEl && !isCustom && !localStorage.getItem('pm_oddskey')) {
+    quotaEl.textContent = 'Quota : —';
+  }
+}
+
 // ── LAUNCH SCAN ─────────────────────────────────────────
 
 async function launchScan(modeOrForce = false) {
@@ -3552,6 +3590,10 @@ function switchSuiviTab(id, btn) {
 
 
 // INIT
+const srcCustomBtn = document.getElementById('src-custom');
+const srcOddsBtn = document.getElementById('src-odds');
+if (srcCustomBtn) srcCustomBtn.addEventListener('click', () => setSource('custom'));
+if (srcOddsBtn) srcOddsBtn.addEventListener('click', () => setSource('odds'));
 // Lancer le calculateur V4 (remplace les anciens calculate/calcFreebet/checkCote1)
 runCalc();
 calcFreebet();
