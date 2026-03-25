@@ -701,7 +701,7 @@ body.light .hero-grid{opacity:0.15;}
   <div class="section-inner">
 
     <div class="section-title">Calculateur de bonus 🧮</div>
-    <p class="section-sub">Saisis les cotes de ton pari qualificatif — vois exactement ce qui se passe dans les 2 scénarios.</p>
+    <p class="section-sub">Saisis les cotes de ton pari qualificatif — le site te dit simplement quelle mise de couverture placer et combien tu perdras pour déclencher le bonus.</p>
 
     <div id="calc-grid" style="margin-top:1.5rem;">
 
@@ -795,7 +795,7 @@ body.light .hero-grid{opacity:0.15;}
         </div>
 
         <!-- Scénarios -->
-        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Ce qui se passe selon le résultat</div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Détail rapide</div>
         <div id="r-scenarios" style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;"></div>
 
         <!-- Bilan -->
@@ -837,9 +837,8 @@ body.light .hero-grid{opacity:0.15;}
       <div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-bottom:1.2rem;font-size:0.8rem;line-height:1.6;color:var(--muted);">
         <strong style="color:var(--text);">Formule SNR :</strong>
         gain_freebet = montant × (cote_freebet − 1) &nbsp;|&nbsp;
-        couverture 2 issues = gain_freebet ÷ cote_couverture &nbsp;|&nbsp;
-        couverture 3 issues = gain_freebet ÷ cote_issue_2 + gain_freebet ÷ cote_issue_3 &nbsp;|&nbsp;
-        <strong style="color:var(--success);">profit garanti ≈ gain_freebet − couvertures</strong>
+        mise_couverture = gain_freebet ÷ cote_couverture &nbsp;|&nbsp;
+        <strong style="color:var(--success);">profit garanti ≈ gain_freebet − mise_couverture</strong>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;" id="fb-grid">
@@ -858,18 +857,9 @@ body.light .hero-grid{opacity:0.15;}
             </div>
           </div>
 
-          <div class="field-row">
-            <div class="field">
-              <label>Montant freebet (€) <span style="font-size:0.7rem;color:var(--muted);">= 0€ de ta poche</span></label>
-              <input type="number" id="fb_val" value="100" min="1" step="1" oninput="calcFreebet()">
-            </div>
-            <div class="field">
-              <label>Type de marché</label>
-              <select id="fb_market_type" onchange="toggleFreebetMarket(); calcFreebet()">
-                <option value="2">2 issues</option>
-                <option value="3">3 issues</option>
-              </select>
-            </div>
+          <div class="field">
+            <label>Montant freebet (€) <span style="font-size:0.7rem;color:var(--muted);">= 0€ de ta poche</span></label>
+            <input type="number" id="fb_val" value="100" min="1" step="1" oninput="calcFreebet()">
           </div>
 
           <div class="field-row">
@@ -879,16 +869,10 @@ body.light .hero-grid{opacity:0.15;}
               <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sweet spot : 2.50–4.00</span>
             </div>
             <div class="field">
-              <label>Cote couverture issue 2</label>
+              <label>Cote couverture</label>
               <input type="number" id="fb_c2" value="1.40" min="1.01" step="0.05" oninput="calcFreebet()">
-              <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Issue adverse principale</span>
+              <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">Sur l'issue adverse</span>
             </div>
-          </div>
-
-          <div class="field" id="fb_c3_wrap" style="display:none;">
-            <label>Cote couverture issue 3</label>
-            <input type="number" id="fb_c3" value="4.20" min="1.01" step="0.05" oninput="calcFreebet()">
-            <span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:3px;">À renseigner pour les matchs à 3 issues (1N2 par exemple)</span>
           </div>
 
           <div class="field">
@@ -1544,178 +1528,105 @@ function renderResults({ mises, scenarios, bilanItems, summary, analysisTitle, a
 function calcQualif() {
   updateCoteHint('q_c1', 'q_c1_hint');
 
-  const mise      = sanitize('q_mise', 100);
-  const c1        = sanitize('q_c1', 2.10);
-  const c2        = sanitize('q_c2', 1.85);
-  const c3        = sanitize('q_c3', 3.40);
-  const mkt       = document.getElementById('q_mkt')?.value || '2way';
-  const bk1       = document.getElementById('q_bk1')?.value || 'Bookmaker bonus';
-  const bk2       = document.getElementById('q_bk2')?.value || 'Couverture';
-  const bonusType = document.getElementById('q_bonus_type')?.value || 'freebet';
-  const conv      = sanitize('q_conv', 75) / 100;
+  const mise = sanitize('q_mise', 100);
+  const c1   = sanitize('q_c1', 2.10);
+  const c2   = sanitize('q_c2', 1.85);
+  const c3   = sanitize('q_c3', 3.40);
+  const mkt  = document.getElementById('q_mkt')?.value || '2way';
+  const bk1  = document.getElementById('q_bk1')?.value || 'Bookmaker bonus';
+  const bk2  = document.getElementById('q_bk2')?.value || 'Couverture';
 
-  if (c1 <= 1 || c2 <= 1) { showCalcError('Cotes invalides (minimum 1.01)'); return; }
+  if (!Number.isFinite(mise) || mise <= 0) { showCalcError('Mise invalide'); return; }
+  if (!Number.isFinite(c1) || c1 <= 1 || !Number.isFinite(c2) || c2 <= 1) { showCalcError('Cotes invalides (minimum 1.01)'); return; }
+  if (mkt === '3way' && (!Number.isFinite(c3) || c3 <= 1)) { showCalcError('Cote nul invalide'); return; }
 
-  let mCouv, mNul = 0, cap, net_ppal_gagne, net_ppal_perd, net_nul;
+  let mCouv = 0;
+  let mNul = 0;
+  let perteQualif = 0;
+  let netMainWin = 0;
+  let netCoverWin = 0;
+  let netDrawWin = null;
 
   if (mkt === '3way') {
-    if (c3 <= 1) { showCalcError('Cote nul invalide'); return; }
-    const d = c2 * c3 - c2 - c3;
-    if (d <= 0) { showCalcError('Cotes 3way invalides — dénominateur nul'); return; }
-    mCouv = (mise * c3) / d;
-    mNul  = (mise * c2) / d;
-    cap   = mise + mCouv + mNul;
-    // Net = retour brut - TOUTES les mises engagées (y compris la mise principale)
-    // Formule : retour_brut - mise_gagnante - toutes_les_autres_mises
-    net_ppal_gagne = (mise * c1) - mise - mCouv - mNul;   // Betsson gagne : retour 238 - 100 - couvertures
-    net_ppal_perd  = (mCouv * c2) - mCouv - mise - mNul;  // adverse gagne : retour couv - mise couv - autres
-    net_nul        = (mNul  * c3) - mNul  - mise - mCouv; // nul gagne     : retour nul - mise nul - autres
+    // Équilibrage correct d'un marché 1X2 : on égalise les retours bruts.
+    mCouv = (mise * c1) / c2;
+    mNul  = (mise * c1) / c3;
+    const totalStake = mise + mCouv + mNul;
+
+    netMainWin  = (mise * c1) - totalStake;
+    netCoverWin = (mCouv * c2) - totalStake;
+    netDrawWin  = (mNul * c3) - totalStake;
+
+    perteQualif = Math.min(netCoverWin, netDrawWin);
   } else {
     mCouv = (mise * c1) / c2;
-    cap   = mise + mCouv;
-    net_ppal_gagne = (mise * c1) - mise - mCouv;   // bk1 gagne : retour - mise principale - mise couverture
-    net_ppal_perd  = (mCouv * c2) - mCouv - mise;  // couverture gagne : retour - mise couv - mise principale
+    const totalStake = mise + mCouv;
+
+    netMainWin  = (mise * c1) - totalStake;
+    netCoverWin = (mCouv * c2) - totalStake;
+
+    perteQualif = netCoverWin;
   }
-
-  // Valeur du bonus uniquement dans le scénario perdant
-  let bonusValeur = 0, bonusLabel = '', bonusNote = '';
-  if (bonusType === 'freebet') {
-    bonusValeur = mise * conv;  // valeur ESTIMÉE de la freebet
-    bonusLabel  = `Valeur estimée freebet ${mise}€ @ ${formatPct(conv*100)} conv.`;
-    bonusNote   = 'ESTIMÉ — hypothèse de conversion, pas un montant cash certain';
-  } else if (bonusType === 'cash') {
-    bonusValeur = mise;
-    bonusLabel  = `Remboursement cash ${formatC(mise)}`;
-    bonusNote   = 'CASH — montant certain si les conditions sont remplies';
-  }
-
-  // Profit final estimé scénario perdant = cash immédiat + valeur bonus
-  const cashSiPerd     = mkt === '3way' ? Math.min(net_ppal_perd, net_nul) : net_ppal_perd;
-  const profitFinalEst = cashSiPerd + bonusValeur;
-
-  // Perte qualificative = ce qu'on perd pour déclencher le bonus
-  const perteQualif    = cashSiPerd; // négatif
 
   const mises = [
-    { bk: bk1, label: 'Ton pari principal (bookmaker bonus)', mise, tag: 'ppal' },
-    { bk: bk2, label: 'Couverture issue adverse', mise: mCouv, tag: 'couv' },
+    { bk: bk1, label: 'Pari qualificatif', mise, tag: 'ppal' },
+    { bk: bk2, label: mkt === '3way' ? 'Couverture issue adverse' : 'Mise de couverture', mise: mCouv, tag: 'couv' },
     ...(mkt === '3way' ? [{ bk: bk2, label: 'Couverture nul', mise: mNul, tag: 'couv' }] : [])
   ];
 
-  const scenarios = [];
-
-  // Scénario : pari principal GAGNE
-  // → cash positif MAIS bonus non déclenché
-  // → pour l'opération matched betting, ce scénario est un ÉCHEC si on vise le bonus
-  const netGagneTotal = net_ppal_gagne; // cash seul, pas de bonus
-  scenarios.push({
-    label: `${bk1} gagne — ton pari principal`,
-    detail: `Encaissé : ${formatC(mise*c1)} | Couvertures perdues : ${formatC(mkt==='3way'?mCouv+mNul:mCouv)} | Net cash : ${formatS(net_ppal_gagne)}`,
-    cash: net_ppal_gagne,
-    bonus: 0,
-    // Si bonus attendu : forcer l'affichage en négatif pour l'opération
-    // car le but était de perdre pour déclencher le remboursement
-    netForDisplay: bonusType !== 'none' ? -(bonusValeur - net_ppal_gagne) : net_ppal_gagne,
-    bonusNote: bonusType !== 'none'
-      ? `⚠️ BONUS NON DÉCLENCHÉ — tu gagnes ${formatC(net_ppal_gagne)} cash MAIS tu rates le bonus estimé à ${formatC(bonusValeur)}. Résultat net de l'opération : ${formatS(net_ppal_gagne - bonusValeur)} vs objectif visé`
-      : null,
-    total: net_ppal_gagne,
-    isGarantied: false,
-    warningLevel: bonusType !== 'none' ? 'miss' : null
-  });
-
-  if (mkt === '3way') {
-    // Scénario nul
-    scenarios.push({
-      label: `Match nul`,
-      detail: `Encaissé : ${formatC(mNul*c3)} | Perdu : ${formatC(mise)} + ${formatC(mCouv)}`,
-      cash: net_nul,
-      bonus: bonusValeur,
-      bonusNote: bonusValeur > 0 ? bonusNote : null,
-      total: net_nul + bonusValeur,
-      isGarantied: false,
-      warningLevel: bonusValeur > 0 ? 'est' : null
-    });
-    // Scénario adverse gagne
-    scenarios.push({
-      label: `Issue adverse gagne`,
-      detail: `Encaissé : ${formatC(mCouv*c2)} | Perdu : ${formatC(mise)} + ${formatC(mNul)}`,
-      cash: net_ppal_perd,
-      bonus: bonusValeur,
-      bonusNote: bonusValeur > 0 ? bonusNote : null,
-      total: net_ppal_perd + bonusValeur,
-      isGarantied: false,
-      warningLevel: bonusValeur > 0 ? 'est' : null
-    });
-  } else {
-    // Scénario couverture gagne (= pari principal perd → bonus déclenché)
-    scenarios.push({
-      label: `Couverture gagne — ${bk2}`,
-      detail: `Encaissé : ${formatC(mCouv*c2)} | Perdu : ${formatC(mise)} (pari principal)`,
-      cash: net_ppal_perd,
-      bonus: bonusValeur,
-      bonusNote: bonusValeur > 0 ? bonusNote : null,
-      total: net_ppal_perd + bonusValeur,
-      isGarantied: false,
-      warningLevel: bonusValeur > 0 ? 'est' : null
-    });
-  }
-
-  const bilanItems = [
+  const scenarios = [
     {
-      val: formatS(perteQualif),
-      label: 'Perte qualificative',
-      color: perteQualif >= -10 ? 'var(--warning)' : 'var(--danger)',
-      badge: null
+      label: 'Si ton pari bonus gagne',
+      detail: `Résultat cash : ${formatS(netMainWin)}`,
+      total: netMainWin,
+      netForDisplay: netMainWin,
+      isGarantied: false
     },
     {
-      val: bonusValeur > 0 ? formatC(bonusValeur) : '—',
-      label: bonusType === 'freebet' ? 'Valeur freebet estimée' : bonusType === 'cash' ? 'Remboursement cash' : 'Aucun bonus',
-      color: bonusType === 'freebet' ? 'var(--warning)' : bonusType === 'cash' ? 'var(--success)' : 'var(--muted)',
-      badge: bonusType === 'freebet' ? 'estime' : bonusType === 'cash' ? 'garanti' : null
+      label: mkt === '3way' ? 'Si ton pari bonus perd (hors nul)' : 'Si ton pari bonus perd',
+      detail: `Perte qualificative : ${formatC(Math.abs(netCoverWin))}`,
+      total: netCoverWin,
+      netForDisplay: netCoverWin,
+      isGarantied: false
     },
-    {
-      val: bonusValeur > 0 ? formatS(profitFinalEst) : formatS(Math.min(net_ppal_gagne, net_ppal_perd)),
-      label: bonusValeur > 0 ? 'Profit total estimé' : 'Résultat net',
-      color: profitFinalEst >= 0 ? 'var(--success)' : 'var(--danger)',
-      badge: bonusType === 'freebet' ? 'hypothese' : bonusType === 'cash' ? 'garanti' : null
-    },
-    { val: formatC(cap), label: 'Capital engagé', color: 'var(--text)', badge: null }
+    ...(mkt === '3way' ? [{
+      label: 'Si le match finit nul',
+      detail: `Perte qualificative : ${formatC(Math.abs(netDrawWin))}`,
+      total: netDrawWin,
+      netForDisplay: netDrawWin,
+      isGarantied: false
+    }] : [])
   ];
 
-  // Résumé texte
-  let summary = '';
-  if (bonusType === 'none') {
-    summary = `Tu engages ${formatC(cap)} au total. `
-      + `Résultat dans tous les cas : entre ${formatS(Math.min(net_ppal_gagne, mkt==='3way'?Math.min(net_ppal_perd,net_nul):net_ppal_perd))} `
-      + `et ${formatS(Math.max(net_ppal_gagne, mkt==='3way'?Math.max(net_ppal_perd,net_nul):net_ppal_perd))}.`;
-  } else {
-    summary = `Tu engages ${formatC(cap)} au total. `
-      + `Si ton pari gagne → cash immédiat ${formatS(net_ppal_gagne)}, pas de bonus. `
-      + `Si ton pari perd → cash ${formatS(perteQualif)} `
-      + (bonusType === 'freebet'
-        ? `+ freebet ${formatC(mise)} valorisée ~${formatC(bonusValeur)} (hypothèse ${formatPct(conv*100)} de conversion). Profit total estimé : ${formatS(profitFinalEst)}.`
-        : `+ remboursement cash ${formatC(mise)}. Profit final : ${formatS(profitFinalEst)}.`);
-  }
+  const bilanItems = [
+    { label: 'Mise couverture', val: formatC(mCouv), color: 'var(--acc)' },
+    ...(mkt === '3way' ? [{ label: 'Couv. nul', val: formatC(mNul), color: 'var(--acc)' }] : []),
+    { label: 'Perte qualif', val: formatS(perteQualif), color: perteQualif >= -10 ? 'var(--success)' : 'var(--danger)' }
+  ];
 
-  let analysisTitle, analysisText;
-  if (bonusType === 'none') {
-    analysisTitle = net_ppal_gagne > 0 && net_ppal_perd > 0 ? '✅ Surebet — profit dans les 2 cas' : '⚠️ Pari qualificatif sans bonus';
-    analysisText  = `Résultat cash entre ${formatS(Math.min(net_ppal_gagne,net_ppal_perd))} et ${formatS(Math.max(net_ppal_gagne,net_ppal_perd))}.`;
+  const summary = mkt === '3way'
+    ? `Mise ${formatC(mise)} sur ${bk1}, couvre ${formatC(mCouv)} sur l'issue adverse et ${formatC(mNul)} sur le nul. Si ton pari bonus perd, ta perte est d'environ ${formatC(Math.abs(perteQualif))}.`
+    : `Mise ${formatC(mise)} sur ${bk1}, puis couvre ${formatC(mCouv)} sur ${bk2}. Si ton pari bonus perd, ta perte est d'environ ${formatC(Math.abs(perteQualif))}.`;
+
+  let analysisTitle = '';
+  let analysisText = '';
+  if (perteQualif >= 0) {
+    analysisTitle = '✅ Couverture parfaite';
+    analysisText = `Tu ne perds rien pour qualifier le bonus. Mise de couverture conseillée : ${formatC(mCouv)}${mkt === '3way' ? ` + nul ${formatC(mNul)}` : ''}.`;
   } else if (perteQualif >= -10) {
     analysisTitle = '✅ Perte qualificative maîtrisée';
-    analysisText  = `Tu paies ${formatC(Math.abs(perteQualif))} pour déclencher le bonus. C'est le coût attendu.`;
+    analysisText = `Joue ${formatC(mise)} sur ${bk1}, couvre ${formatC(mCouv)}${mkt === '3way' ? ` et ${formatC(mNul)} sur le nul` : ''}. Perte estimée pour déclencher le bonus : ${formatC(Math.abs(perteQualif))}.`;
   } else if (perteQualif >= -20) {
-    analysisTitle = '⚠️ Perte qualificative élevée — cherche de meilleures cotes';
-    analysisText  = `${formatC(Math.abs(perteQualif))} de perte. Vise une cote entre 2.00 et 2.30 pour réduire ce coût.`;
+    analysisTitle = '⚠️ Perte qualificative élevée';
+    analysisText = `La couverture correcte est ${formatC(mCouv)}${mkt === '3way' ? ` + nul ${formatC(mNul)}` : ''}, mais tu perdras environ ${formatC(Math.abs(perteQualif))}. Cherche des cotes plus proches.`;
   } else {
-    analysisTitle = '❌ Perte trop élevée — ne pas jouer';
-    analysisText  = `${formatC(Math.abs(perteQualif))} de perte. Cherche un meilleur match.`;
+    analysisTitle = '❌ Mauvais qualificatif';
+    analysisText = `Même avec la bonne couverture (${formatC(mCouv)}${mkt === '3way' ? ` + nul ${formatC(mNul)}` : ''}), la perte estimée est de ${formatC(Math.abs(perteQualif))}. Mieux vaut passer ton tour.`;
   }
 
   currentCalcResult = {
     match: bk1 + ' vs ' + bk2,
-    profit: parseFloat(profitFinalEst.toFixed(2)),
+    profit: parseFloat(perteQualif.toFixed(2)),
     bk: bk1,
     type: 'Pari qualificatif'
   };
@@ -1728,89 +1639,59 @@ function calcQualif() {
 // MODE 2 — FREEBET SNR
 // ════════════════════════════════════════════════════════
 
-function calculateFreebetConversion(fb, c1, c2, c3 = null) {
-  const gainBrut = fb * (c1 - 1);
-  const isThreeWay = Number.isFinite(c3) && c3 > 1;
-  const stake2 = gainBrut / c2;
-  const stake3 = isThreeWay ? (gainBrut / c3) : 0;
-  const totalCover = stake2 + stake3;
-  const profitFreebetWin = gainBrut - totalCover;
-  const profitOutcome2 = stake2 * c2 - totalCover;
-  const profitOutcome3 = isThreeWay ? (stake3 * c3 - totalCover) : profitOutcome2;
-  const profitGaranti = Math.min(profitFreebetWin, profitOutcome2, profitOutcome3);
-  const tauxConv = fb > 0 ? (profitGaranti / fb) * 100 : 0;
-  return {
-    gainBrut,
-    isThreeWay,
-    stake2,
-    stake3,
-    totalCover,
-    profitFreebetWin,
-    profitOutcome2,
-    profitOutcome3,
-    profitGaranti,
-    tauxConv
-  };
+function calculateFreebetConversion(fb, c1, c2) {
+  // ── Logique métier SNR exacte ──
+  // La mise freebet n'est JAMAIS rendue
+  // Gain brut freebet si gagne = fb × (c1 - 1)
+  const gainBrut    = fb * (c1 - 1);
+  // Mise couverture optimale pour équilibrer les 2 scénarios
+  const miseCouv    = gainBrut / c2;
+  // Scénario 1 : freebet gagne
+  const profitGagne = gainBrut - miseCouv;
+  // Scénario 2 : freebet perd → couverture gagne
+  const retourCouv  = miseCouv * c2;
+  const profitPerd  = retourCouv - miseCouv; // = 0 si parfaitement équilibré
+  // Profit garanti = min des 2 (en pratique = profitGagne grâce à l'arrondi)
+  const profitGaranti = Math.min(profitGagne, profitPerd);
+  // Taux de conversion réel = profitGaranti / montant_freebet
+  const tauxConv    = (profitGaranti / fb) * 100;
+  return { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv, retourCouv };
 }
 
-function renderFreebetConversion(res, fb, c1, c2, c3, bk1, bk2, note) {
+function renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note) {
   const el = document.getElementById('fb-results');
   if (!el) return;
 
-  const { gainBrut, isThreeWay, stake2, stake3, totalCover, profitFreebetWin, profitOutcome2, profitOutcome3, profitGaranti, tauxConv } = res;
-  const profits = [profitFreebetWin, profitOutcome2].concat(isThreeWay ? [profitOutcome3] : []);
-  const diff = Math.max(...profits) - Math.min(...profits);
+  const { gainBrut, miseCouv, profitGagne, profitPerd, profitGaranti, tauxConv } = res;
+
   const tauxColor = tauxConv >= 65 ? 'var(--success)' : tauxConv >= 50 ? 'var(--warning)' : 'var(--danger)';
   const tauxLabel = tauxConv >= 65 ? '✅ Excellent' : tauxConv >= 50 ? '⚠️ Moyen' : '❌ Faible';
+
+  // Vérification arrondi : différence entre les 2 scénarios
+  const diff = Math.abs(profitGagne - profitPerd);
   const garantiLabel = diff < 0.02 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(0,201,107,0.15);color:var(--success);font-weight:700;margin-left:5px;">GARANTI</span>'
                      : diff < 0.10 ? '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,184,0,0.15);color:var(--warning);font-weight:700;margin-left:5px;">QUASI-GARANTI</span>'
                      : '<span style="font-size:0.65rem;padding:2px 7px;border-radius:999px;background:rgba(255,77,77,0.12);color:var(--danger);font-weight:700;margin-left:5px;">ÉCART ±' + formatC(diff) + '</span>';
 
-  const scenarioThree = isThreeWay ? `
-      <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-weight:600;font-size:0.85rem;">Issue 3 gagne</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Retour ${formatC(stake3 * c3)} − couvertures ${formatC(totalCover)}</div>
-          </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitOutcome3)}</span>
-        </div>
-      </div>` : '';
-
-  const thirdStakeRow = isThreeWay ? `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
-        <div>
-          <span style="font-weight:700;">${bk2}</span>
-          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture issue 3</span>
-        </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(stake3)}</span>
-      </div>` : '';
-
-  const detailCoverLine = isThreeWay
-    ? `<span style="color:var(--muted);">Couvertures = ${formatC(gainBrut)} ÷ ${c2} + ${formatC(gainBrut)} ÷ ${c3}</span>`
-    : `<span style="color:var(--muted);">Mise couverture = ${formatC(gainBrut)} ÷ ${c2}</span>`;
-
-  const summaryCoverText = isThreeWay
-    ? `mise <strong style="color:var(--acc);">${formatC(stake2)}</strong> sur l'issue 2 à la cote <strong style="color:var(--text);">${c2}</strong> et <strong style="color:var(--acc);">${formatC(stake3)}</strong> sur l'issue 3 à la cote <strong style="color:var(--text);">${c3}</strong> chez <strong style="color:var(--text);">${bk2}</strong>`
-    : `mise <strong style="color:var(--acc);">${formatC(stake2)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> à la cote <strong style="color:var(--text);">${c2}</strong>`;
-
   el.innerHTML = `
-    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.7rem;">Détail du calcul ${isThreeWay ? '3 issues' : '2 issues'}</div>
+    <!-- Détail du calcul -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.7rem;">Détail du calcul</div>
     <div style="background:var(--dark3);border-radius:var(--radius-sm);padding:0.9rem;margin-bottom:1rem;font-size:0.8rem;">
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
         <span style="color:var(--muted);">Gain brut freebet = ${fb} × (${c1} − 1)</span>
         <span style="font-weight:700;color:var(--text);">${formatC(gainBrut)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);">
-        ${detailCoverLine}
-        <span style="font-weight:700;color:var(--acc);">${formatC(totalCover)}</span>
+        <span style="color:var(--muted);">Mise couverture = ${formatC(gainBrut)} ÷ ${c2}</span>
+        <span style="font-weight:700;color:var(--acc);">${formatC(miseCouv)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:4px 0;">
-        <span style="color:var(--muted);">Profit garanti = ${formatC(gainBrut)} − ${formatC(totalCover)}</span>
+        <span style="color:var(--muted);">Profit = ${formatC(gainBrut)} − ${formatC(miseCouv)}</span>
         <span style="font-weight:700;color:var(--success);">${formatS(profitGaranti)}</span>
       </div>
     </div>
 
+    <!-- Mises à placer -->
     <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">📌 Ce que tu mises</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
@@ -1823,36 +1704,36 @@ function renderFreebetConversion(res, fb, c1, c2, c3, bk1, bk2, note) {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--dark3);border-radius:var(--radius-sm);">
         <div>
           <span style="font-weight:700;">${bk2}</span>
-          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture issue 2</span>
+          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px;">Couverture — argent réel</span>
         </div>
-        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(stake2)}</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:var(--acc);">${formatC(miseCouv)}</span>
       </div>
-      ${thirdStakeRow}
     </div>
 
-    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Les scénarios</div>
+    <!-- 2 scénarios -->
+    <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">Les 2 scénarios</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-weight:600;font-size:0.85rem;">Freebet gagne</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net ${formatC(gainBrut)} − couvertures ${formatC(totalCover)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Gain net ${formatC(gainBrut)} − couverture ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitFreebetWin)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitGagne)}</span>
         </div>
       </div>
       <div style="padding:10px 12px;background:rgba(0,201,107,0.06);border:1px solid rgba(0,201,107,0.2);border-radius:var(--radius-sm);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">Issue 2 gagne</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Retour ${formatC(stake2 * c2)} − couvertures ${formatC(totalCover)}</div>
+            <div style="font-weight:600;font-size:0.85rem;">Freebet perd</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Couverture récupérée ${formatC(miseCouv * c2)} − mise ${formatC(miseCouv)}</div>
           </div>
-          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitOutcome2)}</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;color:var(--success);">${formatS(profitPerd)}</span>
         </div>
       </div>
-      ${scenarioThree}
     </div>
 
+    <!-- Bilan -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;background:var(--dark3);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0.8rem;">
       <div>
         <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--success);">${formatS(profitGaranti)}${garantiLabel}</div>
@@ -1863,59 +1744,59 @@ function renderFreebetConversion(res, fb, c1, c2, c3, bk1, bk2, note) {
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Taux conversion ${tauxLabel}</div>
       </div>
       <div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">${formatC(totalCover)}</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--acc);">${formatC(miseCouv)}</div>
         <div style="font-size:0.63rem;color:var(--muted);margin-top:3px;">Cash engagé</div>
       </div>
     </div>
 
+    <!-- Résumé automatique -->
     <div id="fb-summary-box" style="font-size:0.78rem;color:var(--muted);line-height:1.7;padding:0.8rem 1rem;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border2);margin-bottom:0.8rem;">
-      Pour une freebet de <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1}</strong> à la cote <strong style="color:var(--text);">${c1}</strong>, ${summaryCoverText}.
+      Pour une freebet de <strong style="color:var(--text);">${formatC(fb)}</strong> sur <strong style="color:var(--text);">${bk1}</strong> à la cote <strong style="color:var(--text);">${c1}</strong>,
+      mise <strong style="color:var(--acc);">${formatC(miseCouv)}</strong> en couverture sur <strong style="color:var(--text);">${bk2}</strong> à la cote <strong style="color:var(--text);">${c2}</strong>.
       Profit garanti : <strong style="color:var(--success);">${formatS(profitGaranti)}</strong> (taux ${tauxConv.toFixed(1)}%) — quel que soit le résultat.${note ? '<br>📝 ' + note : ''}
     </div>
 
+    <!-- Actions -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-primary" style="flex:1;justify-content:center;font-size:0.82rem;padding:9px;" onclick="sendFreebetToTracker()">+ Tracker</button>
+      <button class="btn-primary" style="flex:1;justify-content:center;font-size:0.82rem;padding:9px;"
+        onclick="sendFreebetToTracker()">+ Tracker</button>
       <button onclick="copyFreebetSummary()" style="flex:1;padding:9px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;">📋 Copier résumé</button>
     </div>
   `;
 }
 
-function toggleFreebetMarket() {
-  const market = document.getElementById('fb_market_type')?.value || '2';
-  const wrap = document.getElementById('fb_c3_wrap');
-  if (wrap) wrap.style.display = market === '3' ? 'block' : 'none';
-}
-
 function calcFreebet() {
-  const fb = sanitize('fb_val', 100);
-  const c1 = sanitize('fb_c1', 3.50);
-  const c2 = sanitize('fb_c2', 1.40);
-  const market = document.getElementById('fb_market_type')?.value || '2';
-  const c3 = market === '3' ? sanitize('fb_c3', 4.20) : null;
+  const fb  = sanitize('fb_val', 100);
+  const c1  = sanitize('fb_c1', 3.50);
+  const c2  = sanitize('fb_c2', 1.40);
   const bk1 = document.getElementById('fb_bk1')?.value || 'Bookmaker freebet';
   const bk2 = document.getElementById('fb_bk2')?.value || 'Couverture';
   const note= document.getElementById('fb_note')?.value || '';
   const el  = document.getElementById('fb-results');
   if (!el) return;
 
-  toggleFreebetMarket();
-
+  // Validation
   if (isNaN(fb) || fb <= 0)  { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Montant freebet invalide.</div>'; return; }
   if (isNaN(c1) || c1 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote freebet invalide (minimum 1.01).</div>'; return; }
-  if (isNaN(c2) || c2 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture issue 2 invalide.</div>'; return; }
-  if (market === '3' && (!Number.isFinite(c3) || c3 <= 1)) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture issue 3 invalide.</div>'; return; }
+  if (isNaN(c2) || c2 <= 1) { el.innerHTML = '<div style="color:var(--danger);padding:0.5rem;">⚠️ Cote couverture invalide (minimum 1.01).</div>'; return; }
 
+  // Badge cote freebet
   const badge = document.getElementById('fb_c1_badge');
   if (badge) {
     if (c1 >= 2.5 && c1 <= 4.0)      { badge.textContent = '✅ Optimal'; badge.style.color = 'var(--success)'; }
     else if (c1 > 4.0 && c1 <= 6.0)  { badge.textContent = '⚠️ Couverture chère'; badge.style.color = 'var(--warning)'; }
     else if (c1 < 2.5 && c1 > 1.5)   { badge.textContent = '❌ Trop bas'; badge.style.color = 'var(--danger)'; }
-    else                             { badge.textContent = ''; }
+    else                               { badge.textContent = ''; }
   }
 
-  const res = calculateFreebetConversion(fb, c1, c2, c3);
-  window._lastFreebet = { fb, c1, c2, c3, market, bk1, bk2, note, ...res };
-  renderFreebetConversion(res, fb, c1, c2, c3, bk1, bk2, note);
+  // Calcul
+  const res = calculateFreebetConversion(fb, c1, c2);
+
+  // Stocker pour copier/tracker
+  window._lastFreebet = { fb, c1, c2, bk1, bk2, note, ...res };
+
+  // Afficher
+  renderFreebetConversion(res, fb, c1, c2, bk1, bk2, note);
 }
 
 function copyFreebetSummary() {
@@ -1940,27 +1821,21 @@ function sendFreebetToTracker() {
 }
 
 function resetFreebet() {
-  ['fb_val','fb_c1','fb_c2','fb_c3'].forEach((id, i) => {
+  ['fb_val','fb_c1','fb_c2'].forEach((id, i) => {
     const el = document.getElementById(id);
-    if (el) el.value = [100, 3.50, 1.40, 4.20][i];
+    if (el) el.value = [100, 3.50, 1.40][i];
   });
-  const market = document.getElementById('fb_market_type');
-  if (market) market.value = '2';
-  toggleFreebetMarket();
   const note = document.getElementById('fb_note');
   if (note) note.value = '';
   calcFreebet();
 }
 
 function exampleFreebet() {
-  const fields = { fb_val: 100, fb_c1: 3.50, fb_c2: 1.40, fb_c3: 4.20 };
+  const fields = { fb_val: 100, fb_c1: 3.50, fb_c2: 1.40 };
   Object.entries(fields).forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el) el.value = val;
   });
-  const market = document.getElementById('fb_market_type');
-  if (market) market.value = '2';
-  toggleFreebetMarket();
   const note = document.getElementById('fb_note');
   if (note) note.value = 'Exemple Betsson — match quelconque';
   calcFreebet();
